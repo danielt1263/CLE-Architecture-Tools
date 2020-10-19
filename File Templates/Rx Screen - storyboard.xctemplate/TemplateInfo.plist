@@ -10,9 +10,9 @@
 			<key>Type</key>
 			<string>text</string>
 			<key>Description</key>
-			<string></string>
+			<string>Name of Scene</string>
 			<key>Name</key>
-			<string>Screen name</string>
+			<string>Scene name</string>
 			<key>Required</key>
 			<true/>
 			<key>Identifier</key>
@@ -22,9 +22,9 @@
 	<key>Kind</key>
 	<string>Xcode.IDEFoundation.TextSubstitutionFileTemplateKind</string>
 	<key>Description</key>
-	<string>Rx screen files</string>
+	<string>Rx scene files</string>
 	<key>Summary</key>
-	<string>Rx screen files</string>
+	<string>Rx scene files</string>
 	<key>SortOrder</key>
 	<string>1</string>
 	<key>AllowedTypes</key>
