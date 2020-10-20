@@ -8,13 +8,18 @@
 import UIKit
 import RxSwift
 
+struct Scene<Action> {
+	let controller: UIViewController
+	let action: Observable<Action>
+}
+
 extension UINavigationController {
 
-	func push<T>(animated: Bool, scene: @autoclosure @escaping () -> (UIViewController, Observable<T>)) -> Observable<T> {
+	func push<T>(animated: Bool, scene: @autoclosure @escaping () -> Scene<T>) -> Observable<T> {
 		observable(for: scene(), show: self.pusher(animated: animated), remove: self.popper(animated: animated))
 	}
 
-	func push<T, U>(animated: Bool, scene: @escaping (T) -> (UIViewController, Observable<U>)) -> AnyObserver<T> {
+	func push<T, U>(animated: Bool, scene: @escaping (T) -> Scene<U>) -> AnyObserver<T> {
 		observer(for: scene, show: self.pusher(animated: animated), remove: self.popper(animated: true))
 	}
 
@@ -39,11 +44,11 @@ extension UINavigationController {
 
 extension UIViewController {
 
-	func present<T>(animated: Bool, scene: @autoclosure @escaping () -> (UIViewController, Observable<T>)) -> Observable<T> {
+	func present<T>(animated: Bool, scene: @autoclosure @escaping () -> Scene<T>) -> Observable<T> {
 		observable(for: scene(), show: self.presenter(animated: animated), remove: self.dismisser(animated: animated))
 	}
 
-	func present<T, U>(animated: Bool, scene: @escaping (T) -> (UIViewController, Observable<U>)) -> AnyObserver<T> {
+	func present<T, U>(animated: Bool, scene: @escaping (T) -> Scene<U>) -> AnyObserver<T> {
 		observer(for: scene, show: self.presenter(animated: animated), remove: self.dismisser(animated: true))
 	}
 
@@ -72,23 +77,27 @@ extension UIViewController {
 	}
 }
 
-func observable<T>(for scene: @autoclosure @escaping () -> (UIViewController, Observable<T>), show: @escaping (UIViewController) -> Void, remove: Completable) -> Observable<T> {
+func observable<T>(for scene: @autoclosure @escaping () -> Scene<T>, show: @escaping (UIViewController) -> Void, remove: Completable) -> Observable<T> {
 	return Observable.create { observer in
-		let (controller, action) = scene()
-		show(controller)
-		return action
+		assert(Thread.current == .main)
+		let scene = scene()
+		show(scene.controller)
+		return scene.action
+			.observeOn(MainScheduler.instance)
 			.concat(remove.asObservable().map { $0 as! T })
 			.subscribe(observer)
 	}
 }
 
-func observer<T, U>(for scene: @escaping (T) -> (UIViewController, Observable<U>), show: @escaping (UIViewController) -> Void, remove: Completable) -> AnyObserver<T> {
+func observer<T, U>(for scene: @escaping (T) -> Scene<U>, show: @escaping (UIViewController) -> Void, remove: Completable) -> AnyObserver<T> {
 	return AnyObserver { event in
+		assert(Thread.current == .main)
 		switch event {
 		case .next(let value):
-			let (controller, action) = scene(value)
-			show(controller)
-			_ = action.ignoreElements()
+			let scene = scene(value)
+			show(scene.controller)
+			_ = scene.action.ignoreElements()
+				.observeOn(MainScheduler.instance)
 				.andThen(remove)
 				.subscribe()
 		case .error(let error):
@@ -126,7 +135,7 @@ protocol Presentable {
 }
 
 extension Presentable where Self: UIViewController {
-	static func scene<Action>(_ connect: (Self) -> Observable<Action>) -> (UIViewController, Observable<Action>) {
+	static func scene<Action>(_ connect: (Self) -> Observable<Action>) -> Scene<Action> {
 		let storyboard = UIStoryboard(name: String(describing: self), bundle: nil)
 		let controller = storyboard.instantiateInitialViewController() as! Self
 		return controller.scene(connect)
@@ -138,9 +147,9 @@ extension Presentable where Self: UIViewController {
 		return controller.configure(connect)
 	}
 
-	func scene<Action>(_ connect: (Self) -> Observable<Action>) -> (UIViewController, Observable<Action>) {
+	func scene<Action>(_ connect: (Self) -> Observable<Action>) -> Scene<Action> {
 		loadViewIfNeeded()
-		return (self, connect(self))
+		return Scene(controller: self, action: connect(self))
 	}
 
 	func configure(_ connect: (Self) -> Void) -> UIViewController {
