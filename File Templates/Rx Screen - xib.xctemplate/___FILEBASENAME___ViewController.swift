@@ -3,7 +3,7 @@
 import RxSwift
 import UIKit
 
-class ___VARIABLE_productName___ViewController: UIViewController, Configurable {
+final class ___VARIABLE_productName___ViewController: UIViewController, Configurable {
 
 	// IBOutlets go here
 
