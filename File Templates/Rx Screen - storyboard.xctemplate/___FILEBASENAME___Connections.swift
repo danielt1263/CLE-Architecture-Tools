@@ -4,7 +4,7 @@ import RxCocoa
 import RxSwift
 import UIKit
 
-extension ___VARIABLE_productName___ViewController {
+extension ___VARIABLE_productName___ViewController: Presentable {
 	func connect() -> Observable<___VARIABLE_productName___Action> {
 
 		// connect views here.

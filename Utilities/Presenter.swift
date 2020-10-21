@@ -13,6 +13,34 @@ struct Scene<Action> {
 	let action: Observable<Action>
 }
 
+protocol Presentable {
+}
+
+extension Presentable where Self: UIViewController {
+	static func scene<Action>(_ connect: (Self) -> Observable<Action>) -> Scene<Action> {
+		let storyboard = UIStoryboard(name: String(describing: self), bundle: nil)
+		let controller = storyboard.instantiateInitialViewController() as! Self
+		return controller.scene(connect)
+	}
+
+	static func create(_ connect: (Self) -> Void) -> UIViewController {
+		let storyboard = UIStoryboard(name: String(describing: self), bundle: nil)
+		let controller = storyboard.instantiateInitialViewController() as! Self
+		return controller.configure(connect)
+	}
+
+	func scene<Action>(_ connect: (Self) -> Observable<Action>) -> Scene<Action> {
+		loadViewIfNeeded()
+		return Scene(controller: self, action: connect(self))
+	}
+
+	func configure(_ connect: (Self) -> Void) -> UIViewController {
+		loadViewIfNeeded()
+		connect(self)
+		return self
+	}
+}
+
 extension UINavigationController {
 
 	func push<T>(animated: Bool, scene: @autoclosure @escaping () -> Scene<T>) -> Observable<T> {
@@ -128,34 +156,6 @@ func observer<T>(for create: @escaping (T) -> UIViewController, show: @escaping 
 		case .completed:
 			break
 		}
-	}
-}
-
-protocol Presentable {
-}
-
-extension Presentable where Self: UIViewController {
-	static func scene<Action>(_ connect: (Self) -> Observable<Action>) -> Scene<Action> {
-		let storyboard = UIStoryboard(name: String(describing: self), bundle: nil)
-		let controller = storyboard.instantiateInitialViewController() as! Self
-		return controller.scene(connect)
-	}
-
-	static func create(_ connect: (Self) -> Void) -> UIViewController {
-		let storyboard = UIStoryboard(name: String(describing: self), bundle: nil)
-		let controller = storyboard.instantiateInitialViewController() as! Self
-		return controller.configure(connect)
-	}
-
-	func scene<Action>(_ connect: (Self) -> Observable<Action>) -> Scene<Action> {
-		loadViewIfNeeded()
-		return Scene(controller: self, action: connect(self))
-	}
-
-	func configure(_ connect: (Self) -> Void) -> UIViewController {
-		loadViewIfNeeded()
-		connect(self)
-		return self
 	}
 }
 
