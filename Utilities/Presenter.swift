@@ -94,13 +94,13 @@ extension UIViewController {
 
 	```
 	someObservable
-	.flatMapFirst { [unowned self] someData in
-		self.present(animated: true, scene: ExampleViewController().scene { $0.connect(initialData: someData) })
-	}
+	    .flatMapFirst { [unowned self] someData in
+	        present(animated: true, scene: ExampleViewController().scene { $0.connect(initialData: someData) })
+	    }
 	```
 	*/
 	func present<T>(animated: Bool, scene: @autoclosure @escaping () -> Scene<T>) -> Observable<T> {
-		observable(for: scene(), show: self.presenter(animated: animated), remove: self.dismisser(animated: animated))
+		observable(for: scene(), show: presenter(animated: animated), remove: dismisser(animated: animated))
 	}
 
 	/**
@@ -115,13 +115,13 @@ extension UIViewController {
 
 	```
 	someObservable
-	.flatMapFirst { [unowned self, unowned myButton] someData in
-		self.present(animated: true, overSourceView: myButton, scene: ExampleViewController().scene { $0.connect(initialData: someData) })
-	}
+	    .flatMapFirst { [unowned self, unowned myButton] someData in
+	        present(animated: true, overSourceView: myButton, scene: ExampleViewController().scene { $0.connect(initialData: someData) })
+	    }
 	```
 	*/
 	func present<T>(animated: Bool, overSourceView sourceView: UIView, scene: @autoclosure @escaping () -> Scene<T>) -> Observable<T> {
-		observable(for: scene(), show: self.presenter(animated: animated, overSourceView: sourceView), remove: self.dismisser(animated: animated))
+		observable(for: scene(), show: presenter(animated: animated, overSourceView: sourceView), remove: dismisser(animated: animated))
 	}
 
 	/**
@@ -136,14 +136,13 @@ extension UIViewController {
 
 	```
 	someObservable
-		.bind(to: present(animated: true) { someData in
-			ExampleViewController().scene { $0.connect(initialData: someData) }
-		})
-	}
+	    .bind(to: present(animated: true) { someData in
+	        ExampleViewController().scene { $0.connect(initialData: someData) }
+	    })
 	```
 	*/
 	func present<T, U>(animated: Bool, scene: @escaping (T) -> Scene<U>) -> AnyObserver<T> {
-		observer(for: scene, show: self.presenter(animated: animated), remove: self.dismisser(animated: true))
+		observer(for: scene, show: presenter(animated: animated), remove: dismisser(animated: true))
 	}
 
 	/**
@@ -158,14 +157,13 @@ extension UIViewController {
 
 	```
 	someObservable
-		.bind(to: present(animated: true) { someData in
-			ExampleViewController().configure { $0.connect(initialData: someData) }
-		})
-	}
+	    .bind(to: present(animated: true) { someData in
+	        ExampleViewController().configure { $0.connect(initialData: someData) }
+	    })
 	```
 	*/
 	func present<T>(animated: Bool, create: @escaping (T) -> UIViewController) -> AnyObserver<T> {
-		observer(for: create, show: self.presenter(animated: animated))
+		observer(for: create, show: presenter(animated: animated))
 	}
 }
 
@@ -173,15 +171,15 @@ extension UIViewController {
 extension UINavigationController {
 
 	func push<T>(animated: Bool, scene: @autoclosure @escaping () -> Scene<T>) -> Observable<T> {
-		observable(for: scene(), show: self.pusher(animated: animated), remove: self.popper(animated: animated))
+		observable(for: scene(), show: pusher(animated: animated), remove: popper(animated: animated))
 	}
 
 	func push<T, U>(animated: Bool, scene: @escaping (T) -> Scene<U>) -> AnyObserver<T> {
-		observer(for: scene, show: self.pusher(animated: animated), remove: self.popper(animated: true))
+		observer(for: scene, show: pusher(animated: animated), remove: popper(animated: true))
 	}
 
 	func push<T>(animated: Bool, create: @escaping (T) -> UIViewController) -> AnyObserver<T> {
-		observer(for: create, show: self.pusher(animated: animated))
+		observer(for: create, show: pusher(animated: animated))
 	}
 }
 
@@ -196,8 +194,9 @@ extension UINavigationController {
 		return { [unowned self] in
 			weak var controller = $0
 			return Completable.create { observer in
-				if let position = self.viewControllers.firstIndex(where: { $0 === controller }), position > 0 {
-					self.popToViewController(self.viewControllers[position - 1], animated: animated)
+				if let position = this.viewControllers.firstIndex(where: { $0 === controller }), position > 0 {
+					this.popToViewController(this.viewControllers[position - 1], animated: animated)
+					observer(.completed)
 				}
 				return Disposables.create()
 			}
@@ -224,21 +223,14 @@ extension UIViewController {
 	}
 
 	func dismisser(animated: Bool) -> (UIViewController) -> Completable {
-		return {
+		return { [unowned self] in
 			weak var controller = $0
 			return Completable.create { observer in
-				if let parent = controller?.presentingViewController {
-					parent.dismiss(animated: animated) {
+				DispatchQueue.main.async {
+					guard controller != nil else { observer(.completed); return }
+					self.dismiss(animated: animated) {
 						observer(.completed)
 					}
-				}
-				else if let this = controller {
-					this.dismiss(animated: true, completion: {
-						observer(.completed)
-					})
-				}
-				else {
-					observer(.completed)
 				}
 				return Disposables.create()
 			}
