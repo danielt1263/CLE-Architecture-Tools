@@ -94,9 +94,9 @@ extension UIViewController {
 
 	```
 	someObservable
-	    .flatMapFirst { [unowned self] someData in
-	        present(animated: true, scene: ExampleViewController().scene { $0.connect(initialData: someData) })
-	    }
+		.flatMapFirst { [unowned self] someData in
+			present(animated: true, scene: ExampleViewController().scene { $0.connect(initialData: someData) })
+		}
 	```
 	*/
 	func present<T>(animated: Bool, scene: @autoclosure @escaping () -> Scene<T>) -> Observable<T> {
@@ -115,9 +115,9 @@ extension UIViewController {
 
 	```
 	someObservable
-	    .flatMapFirst { [unowned self, unowned myButton] someData in
-	        present(animated: true, overSourceView: myButton, scene: ExampleViewController().scene { $0.connect(initialData: someData) })
-	    }
+		.flatMapFirst { [unowned self, unowned myButton] someData in
+			present(animated: true, overSourceView: myButton, scene: ExampleViewController().scene { $0.connect(initialData: someData) })
+		}
 	```
 	*/
 	func present<T>(animated: Bool, overSourceView sourceView: UIView, scene: @autoclosure @escaping () -> Scene<T>) -> Observable<T> {
@@ -136,9 +136,9 @@ extension UIViewController {
 
 	```
 	someObservable
-	    .bind(to: present(animated: true) { someData in
-	        ExampleViewController().scene { $0.connect(initialData: someData) }
-	    })
+		.bind(to: present(animated: true) { someData in
+			ExampleViewController().scene { $0.connect(initialData: someData) }
+		})
 	```
 	*/
 	func present<T, U>(animated: Bool, scene: @escaping (T) -> Scene<U>) -> AnyObserver<T> {
@@ -157,9 +157,9 @@ extension UIViewController {
 
 	```
 	someObservable
-	    .bind(to: present(animated: true) { someData in
-	        ExampleViewController().configure { $0.connect(initialData: someData) }
-	    })
+		.bind(to: present(animated: true) { someData in
+			ExampleViewController().configure { $0.connect(initialData: someData) }
+		})
 	```
 	*/
 	func present<T>(animated: Bool, create: @escaping (T) -> UIViewController) -> AnyObserver<T> {
@@ -194,8 +194,8 @@ extension UINavigationController {
 		return { [unowned self] in
 			weak var controller = $0
 			return Completable.create { observer in
-				if let position = this.viewControllers.firstIndex(where: { $0 === controller }), position > 0 {
-					this.popToViewController(this.viewControllers[position - 1], animated: animated)
+				if let index = self.viewControllers.firstIndex(where: { $0 === controller }), index > 0 {
+					self.popToViewController(self.viewControllers[index - 1], animated: animated)
 					observer(.completed)
 				}
 				return Disposables.create()
