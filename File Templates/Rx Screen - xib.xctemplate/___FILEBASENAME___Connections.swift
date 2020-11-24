@@ -5,15 +5,15 @@ import RxSwift
 import UIKit
 
 extension ___VARIABLE_productName___ViewController {
-	func connect() -> Observable<ExampleAction> {
+	func connect() -> Observable<___VARIABLE_productName___Action> {
 
 		// connect views here.
-		
-		let action = Observable<ExampleAction>.never()
+
+		let action = Observable<___VARIABLE_productName___Action>.never()
 		return action
 	}
 }
 
-enum ExampleAction {
+enum ___VARIABLE_productName___Action {
 
 }
