@@ -8,38 +8,48 @@
 import UIKit
 import RxSwift
 
-/// Presents a scene onto the top view controller of the presentation stack. The scene will be dismissed when either the action observable completes/errors or is disposed.
-/// - Parameters:
-///   - animated: Pass `true` to animate the presentation; otherwise, pass `false`.
-///   - scene: A factory function for creating the Scene.
-/// - Returns: The Scene's output action `Observable`.
+/**
+Presents a scene onto the top view controller of the presentation stack. The scene will be dismissed when either the action observable completes/errors or is disposed.
+- Parameters:
+- animated: Pass `true` to animate the presentation; otherwise, pass `false`.
+- sourceView: If the scene will be presented in a popover controller, this is the view that will serve as the focus.
+- scene: A factory function for creating the Scene.
+- Returns: The Scene's output action `Observable`.
+*/
 func presentScene<Action>(animated: Bool, overSourceView sourceView: UIView? = nil, scene: @escaping () -> Scene<Action>) -> Observable<Action> {
 	Observable.using({ ScenePresentationHandler(scene: scene(), sourceView: sourceView, animated: animated) }, observableFactory: { $0.action })
 }
 
-/// Presents a scene onto the top view controller of the presentation stack. Can be used in a bind/subscribe/do onNext closure. The scene will dismiss when the action observable completes or errors.
-/// - Parameters:
-///   - animated: Pass `true` to animate the presentation; otherwise, pass `false`.
-///   - scene: A factory function for creating the Scene.
+/**
+Presents a scene onto the top view controller of the presentation stack. Can be used in a bind/subscribe/do onNext closure. The scene will dismiss when the action observable completes or errors.
+- Parameters:
+- animated: Pass `true` to animate the presentation; otherwise, pass `false`.
+- sourceView: If the scene will be presented in a popover controller, this is the view that will serve as the focus.
+- scene: A factory function for creating the Scene.
+*/
 func finalPresentScene<Action>(animated: Bool, overSourceView sourceView: UIView? = nil, scene: @escaping () -> Scene<Action>) {
 	_ = presentScene(animated: animated, overSourceView: sourceView, scene: scene)
 		.subscribe()
 }
 
 extension UINavigationController {
-	/// Push a scene onto a navigation constroller's stack. The scene will be popped when either the action observable completes/errors or is disposed.
-	/// - Parameters:
-	///   - animated: Pass `true` to animate the presentation; otherwise, pass `false`.
-	///   - scene: A factory function for creating the Scene.
-	/// - Returns: The Scene's output action `Observable`.
+	/**
+	Push a scene onto a navigation constroller's stack. The scene will be popped when either the action observable completes/errors or is disposed.
+	- Parameters:
+	- animated: Pass `true` to animate the presentation; otherwise, pass `false`.
+	- scene: A factory function for creating the Scene.
+	- Returns: The Scene's output action `Observable`.
+	*/
 	func pushScene<Action>(animated: Bool, scene: @escaping () -> Scene<Action>) -> Observable<Action> {
 		Observable.using({ [weak self] in SceneNavigationHandler(parent: self, scene: scene(), animated: animated) }, observableFactory: { $0.action })
 	}
 
-	/// Pushes a scene onto a navigation controller's stack. Can be used in a bind/subscribe/do onNext closure. The scene will be popped when the action observable completes or errors.
-	/// - Parameters:
-	///   - animated: Pass `true` to animate the presentation; otherwise, pass `false`.
-	///   - scene: A factory function for creating the Scene.
+	/**
+	Pushes a scene onto a navigation controller's stack. Can be used in a bind/subscribe/do onNext closure. The scene will be popped when the action observable completes or errors.
+	- Parameters:
+	- animated: Pass `true` to animate the presentation; otherwise, pass `false`.
+	- scene: A factory function for creating the Scene.
+	*/
 	func finalPushScene<Action>(animated: Bool, scene: @escaping () -> Scene<Action>) {
 		_ = pushScene(animated: animated, scene: scene)
 			.subscribe()
