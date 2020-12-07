@@ -1,5 +1,5 @@
 //
-//  MapTo.swift
+//  RxHelpers.swift
 //  TCOMobile
 //
 //  Created by Daniel Tartaglia on 5/2/20.
@@ -17,5 +17,13 @@ extension ObservableType {
 
 	func compactMap<T>(to: T?) -> Observable<T> {
 		return compactMap { _ in to }
+	}
+}
+
+extension ObserverType {
+
+	func onSuccess(_ element: Element) -> Void {
+		onNext(element)
+		onCompleted()
 	}
 }
