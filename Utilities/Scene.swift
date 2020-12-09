@@ -1,9 +1,8 @@
 //
 //  Scene.swift
-//  rx-sandbox
 //
 //  Created by Daniel Tartaglia on 12/5/20.
-//  Copyright © 2020 Daniel Tartaglia. All rights reserved.
+//  Copyright © 2020 Daniel Tartaglia. MIT License.
 //
 
 import UIKit
@@ -15,7 +14,7 @@ struct Scene<Action> {
 }
 
 /// shortcuts for creating scenes and view controllers.
-extension Stage where Self: UIViewController {
+extension SceneShortcuts where Self: UIViewController {
 	/**
 	Create a scene by reconstituting an instance of this view controller from a storyboard with the same name as it.
 
@@ -80,5 +79,5 @@ extension Stage where Self: UIViewController {
 	}
 }
 
-protocol Stage { }
-extension UIViewController: Stage { }
+protocol SceneShortcuts { }
+extension UIViewController: SceneShortcuts { }

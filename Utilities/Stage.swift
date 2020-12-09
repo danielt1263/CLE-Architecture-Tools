@@ -109,13 +109,17 @@ private final class ScenePresentationHandler<Action>: Disposable {
 	}
 
 	func dispose() {
-		guard let child = child, let parent = parent, !child.isBeingDismissed else { return }
-		queue.async { [isAnimated] in
+		queue.async { [parent, child, isAnimated] in
 			let semaphore = DispatchSemaphore(value: 0)
 			DispatchQueue.main.async {
-				parent.dismiss(animated: isAnimated, completion: {
+				if let parent = parent, let child = child, parent.presentedViewController === child {
+					parent.dismiss(animated: isAnimated, completion: {
+						semaphore.signal()
+					})
+				}
+				else {
 					semaphore.signal()
-				})
+				}
 			}
 			semaphore.wait()
 		}
