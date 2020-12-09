@@ -14,11 +14,13 @@ struct Scene<Action> {
 }
 
 /// shortcuts for creating scenes and view controllers.
-extension SceneShortcuts where Self: UIViewController {
+extension NSObjectProtocol where Self: UIViewController {
 	/**
 	Create a scene by reconstituting an instance of this view controller from a storyboard with the same name as it.
 
 	- Parameter connect: A function describing how the view controller should be connected and returning an Observable that emits any data the scene needs to communicate to its parent.
+	- Parameter storyboardName: The name of the storyboard. If not supplied then the name of the view controller is assumed.
+	- Parameter bundle: The bundle to look for the storyboard in. If not supplied then the system will look in the main bundle.
 	- Returns: A Scene containing the view controller and return value of the connect function.
 
 	Example:
@@ -35,6 +37,8 @@ extension SceneShortcuts where Self: UIViewController {
 	Extract an instance of this view controller out of a storyboard with the same name as it and cofigure it using the supplied connect function.
 
 	- Parameter connect: A function describing how the view controller should be connected.
+	- Parameter storyboardName: The name of the storyboard. If not supplied then the name of the view controller is assumed.
+	- Parameter bundle: The bundle to look for the storyboard in. If not supplied then the system will look in the main bundle.
 	- Returns: A configured view controller.
 
 	Example:
@@ -78,6 +82,3 @@ extension SceneShortcuts where Self: UIViewController {
 		return self
 	}
 }
-
-protocol SceneShortcuts { }
-extension UIViewController: SceneShortcuts { }
