@@ -18,7 +18,7 @@ extension UIAlertController {
 		return action
 	}
 
-    func connectChoice<T>(choices: [T], description: (T) -> String) -> Observable<T> {
+	func connectChoice<T>(choices: [T], description: (T) -> String = { String(describing: $0) }) -> Observable<T> {
         let action = PublishSubject<T>()
 
         let cancelAction = UIAlertAction(title: "Cancel", style: .cancel, handler: { _ in action.onCompleted() })
