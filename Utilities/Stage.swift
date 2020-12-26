@@ -32,6 +32,30 @@ func finalPresentScene<Action>(animated: Bool, overSourceView sourceView: UIView
 		.subscribe()
 }
 
+/**
+Push a scene onto a navigation constroller's stack. The scene will be popped when either the action observable completes/errors or is disposed.
+- Parameter navigation: The navigation controller that scenes will be pushed onto.
+- Returns: A function that will push the given scene with the given animation state and returns the scenes output action.
+*/
+func pushScene<Action>(on navigation: UINavigationController) -> (_ animated: Bool, _ scene: @escaping () -> Scene<Action>) -> Observable<Action> {
+	weak var nav = navigation
+	return { animated, scene in
+		nav!.pushScene(animated: animated, scene: scene)
+	}
+}
+
+/**
+Pushes a scene onto a navigation controller's stack. Can be used in a bind/subscribe/do onNext closure. The scene will be popped when the action observable completes or errors.
+- Parameter navigation: The navigation controller that scenes will be pushed onto.
+- Returns: A function that will push the given scene with the given animation state and returns the scenes output action.
+*/
+func finalPushScene<Action>(on navigation: UINavigationController) -> (_ animated: Bool, _ scene: @escaping () -> Scene<Action>) -> Void {
+	weak var nav = navigation
+	return { animated, scene in
+		nav!.finalPushScene(animated: animated, scene: scene)
+	}
+}
+
 extension UINavigationController {
 	/**
 	Push a scene onto a navigation constroller's stack. The scene will be popped when either the action observable completes/errors or is disposed.

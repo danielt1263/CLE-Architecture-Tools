@@ -18,19 +18,19 @@ extension UIAlertController {
 		return action
 	}
 
-	func connectChoice<T>(choices: [T], description: (T) -> String = { String(describing: $0) }) -> Observable<T> {
-        let action = PublishSubject<T>()
+	func connectChoice<T>(choices: [T], description: (T) -> String = { String(describing: $0) }) -> Observable<T?> {
+		let action = PublishSubject<T?>()
 
-        let cancelAction = UIAlertAction(title: "Cancel", style: .cancel, handler: { _ in action.onCompleted() })
+		let cancelAction = UIAlertAction(title: "Cancel", style: .cancel, handler: { _ in action.onSuccess(nil) })
 
-        let actions = choices.map { element in
-            UIAlertAction(title: description(element), style: .default, handler: { _ in action.onSuccess(element) })
-        }
+		let actions = choices.map { element in
+			UIAlertAction(title: description(element), style: .default, handler: { _ in action.onSuccess(element) })
+		}
 
-        for action in actions + [cancelAction] {
-            addAction(action)
-        }
+		for action in actions + [cancelAction] {
+			addAction(action)
+		}
 
-        return action
-    }
+		return action
+	}
 }

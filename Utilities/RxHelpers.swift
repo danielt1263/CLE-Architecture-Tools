@@ -1,9 +1,8 @@
 //
 //  RxHelpers.swift
-//  TCOMobile
 //
 //  Created by Daniel Tartaglia on 5/2/20.
-//  Copyright © 2020 Trust Company of Oklohoma. All rights reserved.
+//  Copyright © 2020 Daniel Tartaglia. MIT License.
 //
 
 import Foundation
