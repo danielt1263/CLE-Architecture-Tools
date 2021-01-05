@@ -17,7 +17,18 @@ Presents a scene onto the top view controller of the presentation stack. The sce
 - Returns: The Scene's output action `Observable`.
 */
 func presentScene<Action>(animated: Bool, overSourceView sourceView: UIView? = nil, scene: @escaping () -> Scene<Action>) -> Observable<Action> {
-	Observable.using({ ScenePresentationHandler(scene: scene(), sourceView: sourceView, animated: animated) }, observableFactory: { $0.action })
+	Observable.deferred {
+		let s = scene()
+		weak var top = UIViewController.top()
+		weak var controller = s.controller
+		show(top: top!, controller: controller!, sourceView: sourceView, animated: animated)
+		let sharedAction = s.action.share()
+		_ = sharedAction
+			.subscribe(onDisposed: {
+				remove(parent: top, child: controller, animated: animated)
+			})
+		return sharedAction
+	}
 }
 
 /**
@@ -65,7 +76,19 @@ extension UINavigationController {
 	- Returns: The Scene's output action `Observable`.
 	*/
 	func pushScene<Action>(animated: Bool, scene: @escaping () -> Scene<Action>) -> Observable<Action> {
-		Observable.using({ [weak self] in SceneNavigationHandler(parent: self, scene: scene(), animated: animated) }, observableFactory: { $0.action })
+		Observable.deferred { [unowned self] in
+			let s = scene()
+			let sharedAction = s.action.share()
+			let top = self.topViewController
+			self.pushViewController(s.controller, animated: animated)
+			_ = sharedAction
+				.subscribe(onDisposed: {
+					if let top = top {
+						self.popToViewController(top, animated: animated)
+					}
+				})
+			return sharedAction
+		}
 	}
 
 	/**
@@ -80,73 +103,39 @@ extension UINavigationController {
 	}
 }
 
-private final class SceneNavigationHandler<Action>: Disposable {
-	weak var parent: UINavigationController?
-	weak var saveTop: UIViewController?
-	weak var child: UIViewController?
-	let action: Observable<Action>
-	let isAnimated: Bool
+private let queue = DispatchQueue(label: "ScenePresentationHandler")
 
-	init(parent: UINavigationController?, scene: Scene<Action>, animated: Bool) {
-		self.parent = parent
-		child = scene.controller
-		action = scene.action
-		isAnimated = animated
-		saveTop = parent?.topViewController
-		parent?.pushViewController(scene.controller, animated: animated)
-	}
+private func show(top: UIViewController, controller: UIViewController, sourceView: UIView?, animated: Bool) {
+	queue.async {
+		let semaphore = DispatchSemaphore(value: 0)
+		DispatchQueue.main.async {
+			if let popoverPresentationController = controller.popoverPresentationController, let sourceView = sourceView {
+				popoverPresentationController.sourceView = sourceView
+				popoverPresentationController.sourceRect = sourceView.bounds
+			}
 
-	func dispose() {
-		guard let saveTop = saveTop else { return }
-		parent?.popToViewController(saveTop, animated: isAnimated)
+			top.present(controller, animated: animated, completion: {
+				semaphore.signal()
+			})
+		}
+		semaphore.wait()
 	}
 }
 
-private let queue = DispatchQueue(label: "ScenePresentationHandler")
-
-private final class ScenePresentationHandler<Action>: Disposable {
-	weak var parent: UIViewController?
-	weak var child: UIViewController?
-	let action: Observable<Action>
-	let isAnimated: Bool
-
-	init(scene: Scene<Action>, sourceView: UIView?, animated: Bool) {
-		child = scene.controller
-		action = scene.action
-		isAnimated = animated
-
-		queue.async {
-			let semaphore = DispatchSemaphore(value: 0)
-			DispatchQueue.main.async {
-				if let popoverPresentationController = scene.controller.popoverPresentationController, let sourceView = sourceView {
-					popoverPresentationController.sourceView = sourceView
-					popoverPresentationController.sourceRect = sourceView.bounds
-				}
-
-				self.parent = UIViewController.top()
-				self.parent!.present(scene.controller, animated: animated, completion: {
+private func remove(parent: UIViewController?, child: UIViewController?, animated: Bool) {
+	queue.async { [parent, child, animated] in
+		let semaphore = DispatchSemaphore(value: 0)
+		DispatchQueue.main.async {
+			if let parent = parent, let child = child, parent.presentedViewController === child {
+				parent.dismiss(animated: animated, completion: {
 					semaphore.signal()
 				})
 			}
-			semaphore.wait()
-		}
-	}
-
-	func dispose() {
-		queue.async { [parent, child, isAnimated] in
-			let semaphore = DispatchSemaphore(value: 0)
-			DispatchQueue.main.async {
-				if let parent = parent, let child = child, parent.presentedViewController === child {
-					parent.dismiss(animated: isAnimated, completion: {
-						semaphore.signal()
-					})
-				}
-				else {
-					semaphore.signal()
-				}
+			else {
+				semaphore.signal()
 			}
-			semaphore.wait()
 		}
+		semaphore.wait()
 	}
 }
 
