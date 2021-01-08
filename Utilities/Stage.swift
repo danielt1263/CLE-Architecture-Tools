@@ -123,7 +123,7 @@ private func show(top: UIViewController, controller: UIViewController, sourceVie
 }
 
 private func remove(parent: UIViewController?, child: UIViewController?, animated: Bool) {
-	queue.async { [parent, child, animated] in
+	queue.async { [weak parent, weak child, animated] in
 		let semaphore = DispatchSemaphore(value: 0)
 		DispatchQueue.main.async {
 			if let parent = parent, let child = child, parent.presentedViewController === child {
