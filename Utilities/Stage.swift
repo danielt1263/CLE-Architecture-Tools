@@ -17,18 +17,19 @@ Presents a scene onto the top view controller of the presentation stack. The sce
 - Returns: The Scene's output action `Observable`.
 */
 func presentScene<Action>(animated: Bool, overSourceView sourceView: UIView? = nil, scene: @escaping () -> Scene<Action>) -> Observable<Action> {
-	Observable.deferred {
-		let s = scene()
-		weak var top = UIViewController.top()
-		weak var controller = s.controller
-		show(top: top!, controller: controller!, sourceView: sourceView, animated: animated)
-		let sharedAction = s.action.share()
-		_ = sharedAction
-			.subscribe(onDisposed: {
-				remove(parent: top, child: controller, animated: animated)
-			})
-		return sharedAction
-	}
+	presentScene(animated: animated, assignToPopover: assignToPopover(sourceView), scene: scene)
+}
+
+/**
+Presents a scene onto the top view controller of the presentation stack. The scene will be dismissed when either the action observable completes/errors or is disposed.
+- Parameters:
+- animated: Pass `true` to animate the presentation; otherwise, pass `false`.
+- barButtonItem:  If the scene will be presented in a popover controller, this is the barButtonItem that will serve as the focus.
+- scene: A factory function for creating the Scene.
+- Returns: The Scene's output action `Observable`.
+*/
+func presentScene<Action>(animated: Bool, barButtonItem: UIBarButtonItem, scene: @escaping () -> Scene<Action>) -> Observable<Action> {
+	presentScene(animated: animated, assignToPopover: assignToPopover(barButtonItem), scene: scene)
 }
 
 /**
@@ -105,15 +106,28 @@ extension UINavigationController {
 
 private let queue = DispatchQueue(label: "ScenePresentationHandler")
 
-private func show(top: UIViewController, controller: UIViewController, sourceView: UIView?, animated: Bool) {
+private func presentScene<Action>(animated: Bool, assignToPopover: @escaping (UIPopoverPresentationController) -> Void = { _ in }, scene: @escaping () -> Scene<Action>) -> Observable<Action> {
+	Observable.deferred {
+		let s = scene()
+		weak var controller = s.controller
+		show(controller: controller!, animated: animated, assignToPopover: assignToPopover)
+		let sharedAction = s.action.share()
+		_ = sharedAction
+			.subscribe(onDisposed: {
+				remove(child: controller, animated: animated)
+			})
+		return sharedAction
+	}
+}
+
+private func show(controller: UIViewController, animated: Bool, assignToPopover: @escaping (UIPopoverPresentationController) -> Void) {
 	queue.async {
 		let semaphore = DispatchSemaphore(value: 0)
 		DispatchQueue.main.async {
-			if let popoverPresentationController = controller.popoverPresentationController, let sourceView = sourceView {
-				popoverPresentationController.sourceView = sourceView
-				popoverPresentationController.sourceRect = sourceView.bounds
+			if let popoverPresentationController = controller.popoverPresentationController {
+				assignToPopover(popoverPresentationController)
 			}
-
+			let top = UIViewController.top()
 			top.present(controller, animated: animated, completion: {
 				semaphore.signal()
 			})
@@ -122,12 +136,27 @@ private func show(top: UIViewController, controller: UIViewController, sourceVie
 	}
 }
 
-private func remove(parent: UIViewController?, child: UIViewController?, animated: Bool) {
-	queue.async { [weak parent, weak child, animated] in
+private func assignToPopover(_ barButtonItem: UIBarButtonItem) -> (UIPopoverPresentationController) -> Void {
+	{ popoverPresentationController in
+		popoverPresentationController.barButtonItem = barButtonItem
+	}
+}
+
+private func assignToPopover(_ sourceView: UIView?) -> (UIPopoverPresentationController) -> Void {
+	{ popoverPresentationController in
+		if let sourceView = sourceView {
+			popoverPresentationController.sourceView = sourceView
+			popoverPresentationController.sourceRect = sourceView.bounds
+		}
+	}
+}
+
+private func remove(child: UIViewController?, animated: Bool) {
+	queue.async { [weak child, animated] in
 		let semaphore = DispatchSemaphore(value: 0)
 		DispatchQueue.main.async {
-			if let parent = parent, let child = child, parent.presentedViewController === child {
-				parent.dismiss(animated: animated, completion: {
+			if let child = child {
+				child.presentingViewController!.dismiss(animated: animated, completion: {
 					semaphore.signal()
 				})
 			}
@@ -143,7 +172,7 @@ private extension UIViewController {
 	static func top() -> UIViewController {
 		guard let rootViewController = UIApplication.shared.delegate?.window??.rootViewController else { fatalError("No view controller present in app?") }
 		var result = rootViewController
-		while let vc = result.presentedViewController {
+		while let vc = result.presentedViewController, !vc.isBeingDismissed {
 			result = vc
 		}
 		return result

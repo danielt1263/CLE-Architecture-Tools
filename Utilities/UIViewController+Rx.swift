@@ -1,6 +1,5 @@
 //
 //  UIViewController+Rx.swift
-//  TCOMobile
 //
 //  Created by Daniel Tartaglia on 4/13/20.
 //  Copyright © 2020 Daniel Tartaglia. MIT License.
