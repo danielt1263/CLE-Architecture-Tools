@@ -8,13 +8,13 @@
 import UIKit
 import RxSwift
 
-struct Scene<Action> {
+public struct Scene<Action> {
 	let controller: UIViewController
 	let action: Observable<Action>
 }
 
 /// shortcuts for creating scenes and view controllers.
-extension NSObjectProtocol where Self: UIViewController {
+public extension NSObjectProtocol where Self: UIViewController {
 	/**
 	Create a scene by reconstituting an instance of this view controller from a storyboard with the same name as it.
 

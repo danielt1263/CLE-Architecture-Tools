@@ -16,7 +16,7 @@ Presents a scene onto the top view controller of the presentation stack. The sce
 - scene: A factory function for creating the Scene.
 - Returns: The Scene's output action `Observable`.
 */
-func presentScene<Action>(animated: Bool, overSourceView sourceView: UIView? = nil, scene: @escaping () -> Scene<Action>) -> Observable<Action> {
+public func presentScene<Action>(animated: Bool, overSourceView sourceView: UIView? = nil, scene: @escaping () -> Scene<Action>) -> Observable<Action> {
 	presentScene(animated: animated, assignToPopover: assignToPopover(sourceView), scene: scene)
 }
 
@@ -28,7 +28,7 @@ Presents a scene onto the top view controller of the presentation stack. The sce
 - scene: A factory function for creating the Scene.
 - Returns: The Scene's output action `Observable`.
 */
-func presentScene<Action>(animated: Bool, barButtonItem: UIBarButtonItem, scene: @escaping () -> Scene<Action>) -> Observable<Action> {
+public func presentScene<Action>(animated: Bool, barButtonItem: UIBarButtonItem, scene: @escaping () -> Scene<Action>) -> Observable<Action> {
 	presentScene(animated: animated, assignToPopover: assignToPopover(barButtonItem), scene: scene)
 }
 
@@ -39,7 +39,7 @@ Presents a scene onto the top view controller of the presentation stack. Can be 
 - sourceView: If the scene will be presented in a popover controller, this is the view that will serve as the focus.
 - scene: A factory function for creating the Scene.
 */
-func finalPresentScene<Action>(animated: Bool, overSourceView sourceView: UIView? = nil, scene: @escaping () -> Scene<Action>) {
+public func finalPresentScene<Action>(animated: Bool, overSourceView sourceView: UIView? = nil, scene: @escaping () -> Scene<Action>) {
 	_ = presentScene(animated: animated, overSourceView: sourceView, scene: scene)
 		.subscribe()
 }
@@ -49,7 +49,7 @@ Push a scene onto a navigation constroller's stack. The scene will be popped whe
 - Parameter navigation: The navigation controller that scenes will be pushed onto.
 - Returns: A function that will push the given scene with the given animation state and returns the scenes output action.
 */
-func pushScene<Action>(on navigation: UINavigationController) -> (_ animated: Bool, _ scene: @escaping () -> Scene<Action>) -> Observable<Action> {
+public func pushScene<Action>(on navigation: UINavigationController) -> (_ animated: Bool, _ scene: @escaping () -> Scene<Action>) -> Observable<Action> {
 	weak var nav = navigation
 	return { animated, scene in
 		nav!.pushScene(animated: animated, scene: scene)
@@ -61,14 +61,14 @@ Pushes a scene onto a navigation controller's stack. Can be used in a bind/subsc
 - Parameter navigation: The navigation controller that scenes will be pushed onto.
 - Returns: A function that will push the given scene with the given animation state and returns the scenes output action.
 */
-func finalPushScene<Action>(on navigation: UINavigationController) -> (_ animated: Bool, _ scene: @escaping () -> Scene<Action>) -> Void {
+public func finalPushScene<Action>(on navigation: UINavigationController) -> (_ animated: Bool, _ scene: @escaping () -> Scene<Action>) -> Void {
 	weak var nav = navigation
 	return { animated, scene in
 		nav!.finalPushScene(animated: animated, scene: scene)
 	}
 }
 
-extension UINavigationController {
+public extension UINavigationController {
 	/**
 	Push a scene onto a navigation constroller's stack. The scene will be popped when either the action observable completes/errors or is disposed.
 	- Parameters:

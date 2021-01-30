@@ -9,7 +9,7 @@ import RxCocoa
 import RxSwift
 import UIKit
 
-extension UIAlertController {
+public extension UIAlertController {
 	func connectOK(buttonTitle: String = "OK") -> Observable<Void> {
 		let action = PublishSubject<Void>()
 		addAction(UIAlertAction(title: buttonTitle, style: .default, handler: { _ in

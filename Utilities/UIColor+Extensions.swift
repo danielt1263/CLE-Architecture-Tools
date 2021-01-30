@@ -8,7 +8,7 @@
 import UIKit
 
 
-extension UIColor {
+public extension UIColor {
 
 	convenience init(hex: UInt32, alpha: CGFloat = 1.0) {
 		let red   = (hex & 0xFF0000) >> 16

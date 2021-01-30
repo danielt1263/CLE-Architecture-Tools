@@ -7,17 +7,21 @@
 
 import Foundation
 
-struct Identifier<T, ID>: RawRepresentable, Hashable where T: Codable & Hashable {
-	let rawValue: T
+public struct Identifier<T, ID>: RawRepresentable, Hashable where T: Codable & Hashable {
+	public let rawValue: T
+
+	public init(rawValue: T) {
+		self.rawValue = rawValue
+	}
 }
 
 extension Identifier: Codable {
-	init(from decoder: Decoder) throws {
+	public init(from decoder: Decoder) throws {
 		let container = try decoder.singleValueContainer()
 		rawValue = try container.decode(T.self)
 	}
 
-	func encode(to encoder: Encoder) throws {
+	public func encode(to encoder: Encoder) throws {
 		var container = encoder.singleValueContainer()
 		try container.encode(rawValue)
 	}

@@ -8,7 +8,7 @@
 import Foundation
 import RxSwift
 
-extension ObservableType {
+public extension ObservableType {
 
 	func map<T>(to: T) -> Observable<T> {
 		return map { _ in to }
@@ -19,7 +19,7 @@ extension ObservableType {
 	}
 }
 
-extension ObserverType {
+public extension ObserverType {
 
 	func onSuccess(_ element: Element) -> Void {
 		onNext(element)

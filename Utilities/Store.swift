@@ -8,7 +8,7 @@
 import Foundation
 import RxSwift
 
-final class Store<Action, State, Environment> {
+public final class Store<Action, State, Environment> {
 
 	let state: Observable<State>
 
@@ -40,7 +40,7 @@ final class Store<Action, State, Environment> {
 
 extension Store: ObserverType {
 
-	func on(_ event: Event<Action>) {
+	public func on(_ event: Event<Action>) {
 		if let element = event.element {
 			lock.lock()
 			action.onNext(element)

@@ -9,7 +9,8 @@ import UIKit
 import RxSwift
 import RxCocoa
 
-extension Reactive where Base: UIViewController {
+public extension Reactive where Base: UIViewController {
+
 	var viewWillAppear: Observable<Bool> {
 		return base.rx.methodInvoked(#selector(UIViewController.viewWillAppear(_:)))
 			.map { $0[0] as! Bool }
