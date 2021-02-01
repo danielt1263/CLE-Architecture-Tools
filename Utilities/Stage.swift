@@ -155,7 +155,7 @@ private func remove(child: UIViewController?, animated: Bool) {
 	queue.async { [weak child, animated] in
 		let semaphore = DispatchSemaphore(value: 0)
 		DispatchQueue.main.async {
-			if let child = child {
+			if let child = child, !child.isBeingDismissed {
 				child.presentingViewController!.dismiss(animated: animated, completion: {
 					semaphore.signal()
 				})
