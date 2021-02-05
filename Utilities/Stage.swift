@@ -77,15 +77,15 @@ public extension UINavigationController {
 	- Returns: The Scene's output action `Observable`.
 	*/
 	func pushScene<Action>(animated: Bool, scene: @escaping () -> Scene<Action>) -> Observable<Action> {
-		Observable.deferred { [unowned self] in
+		Observable.deferred { [weak self] in
 			let s = scene()
 			let sharedAction = s.action.share()
-			let top = self.topViewController
-			self.pushViewController(s.controller, animated: animated)
+			let top = self?.topViewController
+			self?.pushViewController(s.controller, animated: animated)
 			_ = sharedAction
 				.subscribe(onDisposed: {
 					if let top = top {
-						self.popToViewController(top, animated: animated)
+						self?.popToViewController(top, animated: animated)
 					}
 				})
 			return sharedAction
