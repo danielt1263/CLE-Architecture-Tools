@@ -9,8 +9,13 @@ import UIKit
 import RxSwift
 
 public struct Scene<Action> {
-	let controller: UIViewController
-	let action: Observable<Action>
+	public let controller: UIViewController
+	public let action: Observable<Action>
+
+	public init(controller: UIViewController, action: Observable<Action>) {
+		self.controller = controller
+		self.action = action
+	}
 }
 
 /// shortcuts for creating scenes and view controllers.

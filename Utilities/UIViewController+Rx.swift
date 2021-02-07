@@ -20,4 +20,11 @@ public extension Reactive where Base: UIViewController {
 		return base.rx.methodInvoked(#selector(UIViewController.viewDidDisappear(_:)))
 			.map { $0[0] as! Bool }
 	}
+
+	func dismissSelf(animated: Bool) -> Observable<Void> {
+		Observable.deferred { [base] in
+			remove(child: base, animated: animated)
+			return Observable.just(())
+		}
+	}
 }

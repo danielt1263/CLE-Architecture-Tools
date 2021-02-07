@@ -9,10 +9,14 @@ Pod::Spec.new do |spec|
 
   spec.homepage     = "https://github.com/danielt1263/CLE-Architecture-Tools"
   spec.license      = "MIT"
-  spec.author             = { "Daniel Tartaglia" => "danielt1263@gmail.com" }
+  spec.requires_arc = true
+  spec.author       = { "Daniel Tartaglia" => "danielt1263@gmail.com" }
   spec.platform     = :ios
-  spec.platform     = :ios, "8.0"
+  spec.platform     = :ios, "9.0"
   spec.source       = { :git => "https://github.com/danielt1263/CLE-Architecture-Tools.git", :tag => "#{spec.version}" }
   spec.source_files  = "Utilities/**/*.swift"
-  spec.frameworks = "RxSwift", "RxCocoa"
+  spec.dependency "RxSwift", "6.0.0"
+  spec.dependency "RxCocoa", "6.0.0"
+  spec.swift_version = '5.1'
+  
 end

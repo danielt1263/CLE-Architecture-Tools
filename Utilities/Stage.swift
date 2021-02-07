@@ -151,7 +151,7 @@ private func assignToPopover(_ sourceView: UIView?) -> (UIPopoverPresentationCon
 	}
 }
 
-private func remove(child: UIViewController?, animated: Bool) {
+func remove(child: UIViewController?, animated: Bool) {
 	queue.async { [weak child, animated] in
 		let semaphore = DispatchSemaphore(value: 0)
 		DispatchQueue.main.async {

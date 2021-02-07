@@ -7,6 +7,15 @@ import Foundation
 import RxSwift
 import RxCocoa
 
+extension ObservableType {
+	/// Absorbs errors and routes them to the error router instead. If the source emits an error, this operator will emit a completed event and the error router will emit the error as a next event.
+	/// - Parameter errorRouter: The error router that will accept the error.
+	/// - Returns: The source observable's events with an error event converted to a completed event.
+	public func rerouteError(_ errorRouter: ErrorRouter) -> Observable<Element> {
+		errorRouter.rerouteError(self)
+	}
+}
+
 public final class ErrorRouter {
 
 	public let error: Observable<Error>
@@ -27,14 +36,5 @@ public final class ErrorRouter {
 				_subject.onNext(error)
 				return .empty()
 			}
-	}
-}
-
-extension ObservableType {
-	/// Absorbs errors and routes them to the error router instead. If the source emits an error, this operator will emit a completed event and the error router will emit the error as a next event.
-	/// - Parameter errorRouter: The error router that will accept the error.
-	/// - Returns: The source observable's events with an error event converted to a completed event.
-	public func rerouteError(_ errorRouter: ErrorRouter) -> Observable<Element> {
-		errorRouter.rerouteError(self)
 	}
 }
