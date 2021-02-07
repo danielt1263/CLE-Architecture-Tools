@@ -10,9 +10,9 @@ import RxSwift
 
 public final class Store<Action, State, Environment> {
 
-	let state: Observable<State>
+	public let state: Observable<State>
 
-	init(initial: State, environment: Environment, reducer: @escaping (inout State, Action, Environment) -> Observable<Action>) {
+	public init(initial: State, environment: Environment, reducer: @escaping (inout State, Action, Environment) -> Observable<Action>) {
 		state = action
 			.scan(into: initial) { [lock, action, disposeBag] in
 				reducer(&$0, $1, environment)
