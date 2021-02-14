@@ -87,3 +87,16 @@ public extension NSObjectProtocol where Self: UIViewController {
 		return self
 	}
 }
+
+public extension NSObjectProtocol {
+	/**
+	Can be used to setup a view controller before `viewDidLoad` is called. Can also be used to setup other UIKit objects.
+	- Parameter fn: Closure that accepts the object.
+	- Returns: The object.
+	*/
+	@discardableResult
+	func setup(_ fn: (Self) -> Void) -> Self {
+		fn(self)
+		return self
+	}
+}

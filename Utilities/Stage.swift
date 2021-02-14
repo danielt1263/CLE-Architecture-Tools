@@ -16,8 +16,8 @@ Presents a scene onto the top view controller of the presentation stack. The sce
 - scene: A factory function for creating the Scene.
 - Returns: The Scene's output action `Observable`.
 */
-public func presentScene<Action>(animated: Bool, overSourceView sourceView: UIView? = nil, scene: @escaping () -> Scene<Action>) -> Observable<Action> {
-	presentScene(animated: animated, assignToPopover: assignToPopover(sourceView), scene: scene)
+public func presentScene<Action>(animated: Bool, over sourceView: UIView? = nil, scene: @escaping () -> Scene<Action>) -> Observable<Action> {
+	Observable.using({ PresentationCoordinator(animated: animated, scene: scene(), assignToPopover: assignToPopover(sourceView)) }, observableFactory: { $0.action })
 }
 
 /**
@@ -28,8 +28,8 @@ Presents a scene onto the top view controller of the presentation stack. The sce
 - scene: A factory function for creating the Scene.
 - Returns: The Scene's output action `Observable`.
 */
-public func presentScene<Action>(animated: Bool, barButtonItem: UIBarButtonItem, scene: @escaping () -> Scene<Action>) -> Observable<Action> {
-	presentScene(animated: animated, assignToPopover: assignToPopover(barButtonItem), scene: scene)
+public func presentScene<Action>(animated: Bool, over barButtonItem: UIBarButtonItem, scene: @escaping () -> Scene<Action>) -> Observable<Action> {
+	Observable.using({ PresentationCoordinator(animated: animated, scene: scene(), assignToPopover: assignToPopover(barButtonItem)) }, observableFactory: { $0.action })
 }
 
 /**
@@ -39,33 +39,21 @@ Presents a scene onto the top view controller of the presentation stack. Can be 
 - sourceView: If the scene will be presented in a popover controller, this is the view that will serve as the focus.
 - scene: A factory function for creating the Scene.
 */
-public func finalPresentScene<Action>(animated: Bool, overSourceView sourceView: UIView? = nil, scene: @escaping () -> Scene<Action>) {
-	_ = presentScene(animated: animated, overSourceView: sourceView, scene: scene)
+public func finalPresentScene<Action>(animated: Bool, over sourceView: UIView? = nil, scene: @escaping () -> Scene<Action>) {
+	_ = presentScene(animated: animated, over: sourceView, scene: scene)
 		.subscribe()
 }
 
 /**
-Push a scene onto a navigation constroller's stack. The scene will be popped when either the action observable completes/errors or is disposed.
-- Parameter navigation: The navigation controller that scenes will be pushed onto.
-- Returns: A function that will push the given scene with the given animation state and returns the scenes output action.
+Presents a scene onto the top view controller of the presentation stack. Can be used in a bind/subscribe/do onNext closure. The scene will dismiss when the action observable completes or errors.
+- Parameters:
+- animated: Pass `true` to animate the presentation; otherwise, pass `false`.
+- barButtonItem:  If the scene will be presented in a popover controller, this is the barButtonItem that will serve as the focus.
+- scene: A factory function for creating the Scene.
 */
-public func pushScene<Action>(on navigation: UINavigationController) -> (_ animated: Bool, _ scene: @escaping () -> Scene<Action>) -> Observable<Action> {
-	weak var nav = navigation
-	return { animated, scene in
-		nav!.pushScene(animated: animated, scene: scene)
-	}
-}
-
-/**
-Pushes a scene onto a navigation controller's stack. Can be used in a bind/subscribe/do onNext closure. The scene will be popped when the action observable completes or errors.
-- Parameter navigation: The navigation controller that scenes will be pushed onto.
-- Returns: A function that will push the given scene with the given animation state and returns the scenes output action.
-*/
-public func finalPushScene<Action>(on navigation: UINavigationController) -> (_ animated: Bool, _ scene: @escaping () -> Scene<Action>) -> Void {
-	weak var nav = navigation
-	return { animated, scene in
-		nav!.finalPushScene(animated: animated, scene: scene)
-	}
+public func finalPresentScene<Action>(animated: Bool, over barButtonItem: UIBarButtonItem, scene: @escaping () -> Scene<Action>) {
+	_ = presentScene(animated: animated, over: barButtonItem, scene: scene)
+		.subscribe()
 }
 
 public extension UINavigationController {
@@ -77,19 +65,7 @@ public extension UINavigationController {
 	- Returns: The Scene's output action `Observable`.
 	*/
 	func pushScene<Action>(animated: Bool, scene: @escaping () -> Scene<Action>) -> Observable<Action> {
-		Observable.deferred { [weak self] in
-			let s = scene()
-			let sharedAction = s.action.share()
-			let top = self?.topViewController
-			self?.pushViewController(s.controller, animated: animated)
-			_ = sharedAction
-				.subscribe(onDisposed: {
-					if let top = top {
-						self?.popToViewController(top, animated: animated)
-					}
-				})
-			return sharedAction
-		}
+		Observable.using({ [weak self] in NavigationCoordinator(navigation: self, animated: animated, scene: scene()) }, observableFactory: { $0.action })
 	}
 
 	/**
@@ -104,21 +80,55 @@ public extension UINavigationController {
 	}
 }
 
-private let queue = DispatchQueue(label: "ScenePresentationHandler")
+private class PresentationCoordinator<Action>: Disposable {
+	let action: Observable<Action>
+	private weak var controller: UIViewController?
+	private let animated: Bool
 
-private func presentScene<Action>(animated: Bool, assignToPopover: @escaping (UIPopoverPresentationController) -> Void = { _ in }, scene: @escaping () -> Scene<Action>) -> Observable<Action> {
-	Observable.deferred {
-		let s = scene()
-		weak var controller = s.controller
-		show(controller: controller!, animated: animated, assignToPopover: assignToPopover)
-		let sharedAction = s.action.share()
-		_ = sharedAction
-			.subscribe(onDisposed: {
-				remove(child: controller, animated: animated)
-			})
-		return sharedAction
+	init(animated: Bool, scene: Scene<Action>, assignToPopover: @escaping (UIPopoverPresentationController) -> Void = { _ in }) {
+		self.controller = scene.controller
+		self.action = scene.action
+		self.animated = animated
+		show(controller: scene.controller, animated: animated, assignToPopover: assignToPopover)
+	}
+
+	func dispose() {
+		remove(child: controller, animated: animated)
 	}
 }
+
+private class NavigationCoordinator<Action>: Disposable {
+	let action: Observable<Action>
+	private weak var navigation: UINavigationController?
+	private weak var parent: UIViewController?
+	private weak var controller: UIViewController?
+	private let animated: Bool
+
+	init(navigation: UINavigationController?, animated: Bool, scene: Scene<Action>) {
+		self.action = scene.action
+		self.navigation = navigation
+		self.controller = scene.controller
+		self.animated = animated
+		queue.async { [weak navigation] in
+			DispatchQueue.main.async {
+				self.parent = navigation?.topViewController
+				navigation?.pushViewController(scene.controller, animated: animated)
+			}
+		}
+	}
+
+	func dispose() {
+		queue.async { [weak parent, weak navigation, animated] in
+			DispatchQueue.main.async {
+				if let parent = parent {
+					navigation?.popToViewController(parent, animated: animated)
+				}
+			}
+		}
+	}
+}
+
+private let queue = DispatchQueue(label: "ScenePresentationHandler")
 
 private func show(controller: UIViewController, animated: Bool, assignToPopover: @escaping (UIPopoverPresentationController) -> Void) {
 	queue.async {
