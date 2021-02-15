@@ -32,9 +32,9 @@ public extension NSObjectProtocol where Self: UIViewController {
 
 	`let exampleScene = ExampleViewController.scene { $0.connect() }`
 	*/
-	static func scene<Action>(storyboardName: String? = nil, bundle: Bundle? = nil, _ connect: (Self) -> Observable<Action>) -> Scene<Action> {
-		let storyboard = UIStoryboard(name: storyboardName ?? String(describing: self), bundle: bundle)
-		let controller = storyboard.instantiateInitialViewController() as! Self
+	static func scene<Action>(storyboardName: String = "", bundle: Bundle? = nil, identifier: String = "", _ connect: (Self) -> Observable<Action>) -> Scene<Action> {
+		let storyboard = UIStoryboard(name: storyboardName.isEmpty ? String(describing: self) : storyboardName, bundle: bundle)
+		let controller = identifier.isEmpty ? storyboard.instantiateInitialViewController() as! Self : storyboard.instantiateViewController(withIdentifier: identifier) as! Self
 		return controller.scene(connect)
 	}
 
@@ -50,9 +50,9 @@ public extension NSObjectProtocol where Self: UIViewController {
 
 	`let exampleViewController = ExampleViewController.create { $0.connect() }`
 	*/
-	static func create(storyboardName: String? = nil, bundle: Bundle? = nil, _ connect: (Self) -> Void) -> UIViewController {
-		let storyboard = UIStoryboard(name: storyboardName ?? String(describing: self), bundle: bundle)
-		let controller = storyboard.instantiateInitialViewController() as! Self
+	static func create(storyboardName: String = "", bundle: Bundle? = nil, identifier: String = "", _ connect: (Self) -> Void) -> UIViewController {
+		let storyboard = UIStoryboard(name: storyboardName.isEmpty ? String(describing: self) : storyboardName, bundle: bundle)
+		let controller = identifier.isEmpty ? storyboard.instantiateInitialViewController() as! Self : storyboard.instantiateViewController(withIdentifier: identifier) as! Self
 		return controller.configure(connect)
 	}
 
