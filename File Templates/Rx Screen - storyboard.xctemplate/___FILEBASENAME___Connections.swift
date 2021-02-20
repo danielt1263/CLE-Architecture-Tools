@@ -11,6 +11,8 @@ extension ___VARIABLE_productName___ViewController {
 
 		// return action to communicate to parent view controller.
 		let action = Observable<___VARIABLE_productName___Action>.never()
+			.take(until: rx.deallocating)
+
 		return action
 	}
 }

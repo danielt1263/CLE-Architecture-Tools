@@ -56,6 +56,50 @@ public func finalPresentScene<Action>(animated: Bool, over barButtonItem: UIBarB
 		.subscribe()
 }
 
+/**
+Shows a scene from the top view controller of the presentation stack. If the scene is internally pushed onto a navigation stack, the it will be popped when either the action observable completes/errors or is disposed.
+- Parameters:
+- sender: The object that initiated the request.
+- scene:  A factory function for creating the Scene.
+- Returns:  The Scene's output action `Observable`.
+*/
+public func showScene<Action>(sender: Any? = nil, scene: @escaping () -> Scene<Action>) -> Observable<Action> {
+	Observable.using({ ShowCoordinator(asDetail: false, sender: sender, scene: scene()) }, observableFactory: { $0.action })
+}
+
+/**
+Shows a scene as a detail from the top view controller of the presentation stack. If the scene is internally pushed onto a navigation stack, the it will be popped when either the action observable completes/errors or is disposed.
+- Parameters:
+- sender: The object that initiated the request.
+- scene:  A factory function for creating the Scene.
+- Returns:  The Scene's output action `Observable`.
+*/
+public func showDetailScene<Action>(sender: Any? = nil, scene: @escaping () -> Scene<Action>) -> Observable<Action> {
+	Observable.using({ ShowCoordinator(asDetail: true, sender: sender, scene: scene()) }, observableFactory: { $0.action })
+}
+
+/**
+Shows a scene from the top view controller of the presentation stack. If the scene is internally pushed onto a navigation stack, the it will be popped when the action observable completes/errors.
+- Parameters:
+- sender: The object that initiated the request.
+- scene:  A factory function for creating the Scene.
+*/
+public func finalShowScene<Action>(sender: Any? = nil, scene: @escaping () -> Scene<Action>) {
+	_ = Observable.using({ ShowCoordinator(asDetail: false, sender: sender, scene: scene()) }, observableFactory: { $0.action })
+		.subscribe()
+}
+
+/**
+Shows a scene as a detail from the top view controller of the presentation stack. If the scene is internally pushed onto a navigation stack, the it will be popped when either the action observable completes/errors.
+- Parameters:
+- sender: The object that initiated the request.
+- scene:  A factory function for creating the Scene.
+*/
+public func finalShowDetailScene<Action>(sender: Any? = nil, scene: @escaping () -> Scene<Action>) {
+	_ = Observable.using({ ShowCoordinator(asDetail: true, sender: sender, scene: scene()) }, observableFactory: { $0.action })
+		.subscribe()
+}
+
 public extension UINavigationController {
 	/**
 	Push a scene onto a navigation constroller's stack. The scene will be popped when either the action observable completes/errors or is disposed.
@@ -80,7 +124,7 @@ public extension UINavigationController {
 	}
 }
 
-private class PresentationCoordinator<Action>: Disposable {
+private final class PresentationCoordinator<Action>: Disposable {
 	let action: Observable<Action>
 	private weak var controller: UIViewController?
 	private let animated: Bool
@@ -89,62 +133,72 @@ private class PresentationCoordinator<Action>: Disposable {
 		self.controller = scene.controller
 		self.action = scene.action
 		self.animated = animated
-		show(controller: scene.controller, animated: animated, assignToPopover: assignToPopover)
+		queue.async {
+			let semaphore = DispatchSemaphore(value: 0)
+			DispatchQueue.main.async {
+				if let popoverPresentationController = scene.controller.popoverPresentationController {
+					assignToPopover(popoverPresentationController)
+				}
+				UIViewController.top().present(scene.controller, animated: animated, completion: {
+					semaphore.signal()
+				})
+			}
+			semaphore.wait()
+		}
 	}
 
 	func dispose() {
-		remove(child: controller, animated: animated)
+		remove(controller: controller, animated: animated)
 	}
 }
 
-private class NavigationCoordinator<Action>: Disposable {
+private final class NavigationCoordinator<Action>: Disposable {
 	let action: Observable<Action>
-	private weak var navigation: UINavigationController?
-	private weak var parent: UIViewController?
 	private weak var controller: UIViewController?
 	private let animated: Bool
 
 	init(navigation: UINavigationController?, animated: Bool, scene: Scene<Action>) {
 		self.action = scene.action
-		self.navigation = navigation
 		self.controller = scene.controller
 		self.animated = animated
 		queue.async { [weak navigation] in
 			DispatchQueue.main.async {
-				self.parent = navigation?.topViewController
 				navigation?.pushViewController(scene.controller, animated: animated)
 			}
 		}
 	}
 
 	func dispose() {
-		queue.async { [weak parent, weak navigation, animated] in
+		pop(controller: controller, animated: animated)
+	}
+}
+
+private final class ShowCoordinator<Action>: Disposable {
+	let action: Observable<Action>
+	weak var controller: UIViewController?
+
+	init(asDetail: Bool, sender: Any? = nil, scene: Scene<Action>) {
+		action = scene.action
+		controller = scene.controller
+		queue.async {
 			DispatchQueue.main.async {
-				if let parent = parent {
-					navigation?.popToViewController(parent, animated: animated)
+				let top = UIViewController.top()
+				if asDetail {
+					top.showDetailViewController(scene.controller, sender: sender)
+				}
+				else {
+					top.show(scene.controller, sender: sender)
 				}
 			}
 		}
 	}
+
+	func dispose() {
+		pop(controller: controller, animated: true)
+	}
 }
 
 private let queue = DispatchQueue(label: "ScenePresentationHandler")
-
-private func show(controller: UIViewController, animated: Bool, assignToPopover: @escaping (UIPopoverPresentationController) -> Void) {
-	queue.async {
-		let semaphore = DispatchSemaphore(value: 0)
-		DispatchQueue.main.async {
-			if let popoverPresentationController = controller.popoverPresentationController {
-				assignToPopover(popoverPresentationController)
-			}
-			let top = UIViewController.top()
-			top.present(controller, animated: animated, completion: {
-				semaphore.signal()
-			})
-		}
-		semaphore.wait()
-	}
-}
 
 private func assignToPopover(_ barButtonItem: UIBarButtonItem) -> (UIPopoverPresentationController) -> Void {
 	{ popoverPresentationController in
@@ -161,12 +215,12 @@ private func assignToPopover(_ sourceView: UIView?) -> (UIPopoverPresentationCon
 	}
 }
 
-func remove(child: UIViewController?, animated: Bool) {
-	queue.async { [weak child, animated] in
+func remove(controller: UIViewController?, animated: Bool) {
+	queue.async { [weak controller, animated] in
 		let semaphore = DispatchSemaphore(value: 0)
 		DispatchQueue.main.async {
-			if let child = child, !child.isBeingDismissed {
-				child.presentingViewController!.dismiss(animated: animated, completion: {
+			if let controller = controller, !controller.isBeingDismissed {
+				controller.presentingViewController!.dismiss(animated: animated, completion: {
 					semaphore.signal()
 				})
 			}
@@ -175,6 +229,16 @@ func remove(child: UIViewController?, animated: Bool) {
 			}
 		}
 		semaphore.wait()
+	}
+}
+
+func pop(controller: UIViewController?, animated: Bool) {
+	queue.async { [weak controller] in
+		DispatchQueue.main.async {
+			if let controller = controller, let navigation = controller.navigationController, let index = navigation.viewControllers.firstIndex(of: controller), index > 0 {
+				navigation.popToViewController(navigation.viewControllers[index - 1], animated: true)
+			}
+		}
 	}
 }
 

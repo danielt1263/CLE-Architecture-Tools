@@ -10,6 +10,8 @@ extension ___VARIABLE_productName___ViewController {
 		// connect views here.
 
 		let action = Observable<___VARIABLE_productName___Action>.never()
+			.take(until: rx.deallocating)
+
 		return action
 	}
 }
