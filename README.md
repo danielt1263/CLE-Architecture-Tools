@@ -11,9 +11,7 @@ The Tools foder contains helpers that I have developed but aren't needed in most
 When the user taps the "forgot password" link in one of my apps:
 ```
 forgotPasswordButton.rx.tap
-    .bind {
-        finalPresentScene(animated: true, scene: forgotPasswordFlow)
-    }
+    .bind(onNext: presentScene(animated: true, scene: forgotPasswordFlow))
     .disposed(by: disposeBag)
 ```
 
@@ -26,20 +24,16 @@ func forgotPasswordFlow() -> Scene<Void> {
     // Once we get the phone number, send a one-time password to the user and ask them to enter it.
     let otpResult = forgotPassword.action
         .observe(on: MainScheduler.instance)
-        .flatMapFirst { phoneNumber in
-            presentScene(animated: true) {
-                OTPViewController.scene { $0.passwordResetToken(forPhoneNumber: phoneNumber) }
-            }
-        }
+        .flatMapFirst(presentScene(animated: true) { phoneNumber in
+            OTPViewController.scene { $0.passwordResetToken(forPhoneNumber: phoneNumber) }
+        })
 
     // After they enter the OTP, allow them to reset their password.
     let resetPasswordResult = otpResult
         .observe(on: MainScheduler.instance)
-        .flatMapFirst { token in
-            presentScene(animated: true) {
-                ResetPasswordViewController.scene { $0.resetPassword(withToken: token) }
-            }
-        }
+        .flatMapFirst(presentScene(animated: true) { token in
+            ResetPasswordViewController.scene { $0.resetPassword(withToken: token) }
+        })
 
     // When `resetPasswordResult` completes, the entire flow will automatically unwind.
     return Scene(controller: forgotPassword.controller, action: resetPasswordResult)
