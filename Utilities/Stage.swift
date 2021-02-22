@@ -9,117 +9,140 @@ import UIKit
 import RxSwift
 
 /**
-Presents a scene onto the top view controller of the presentation stack. The scene will be dismissed when either the action observable completes/errors or is disposed.
-- Parameters:
-- animated: Pass `true` to animate the presentation; otherwise, pass `false`.
-- sourceView: If the scene will be presented in a popover controller, this is the view that will serve as the focus.
-- scene: A factory function for creating the Scene.
-- Returns: The Scene's output action `Observable`.
+ Presents a scene onto the top view controller of the presentation stack. The scene will be dismissed when either the action observable completes/errors or is disposed.
+ - Parameters:
+   - animated: Pass `true` to animate the presentation; otherwise, pass `false`.
+   - sourceView: If the scene will be presented in a popover controller, this is the source view that will serve as the focus.
+   - scene: A factory function for creating the Scene.
+ - Returns: A function that can be passed to `flatMap`, `flatMapFirst`, `flatMapLatest`, `concatMap` or can be `subscribe`d to.
 */
-public func presentScene<Action>(animated: Bool, over sourceView: UIView? = nil, scene: @escaping () -> Scene<Action>) -> Observable<Action> {
-	Observable.using({ PresentationCoordinator(animated: animated, scene: scene(), assignToPopover: assignToPopover(sourceView)) }, observableFactory: { $0.action })
-}
-
-/**
-Presents a scene onto the top view controller of the presentation stack. The scene will be dismissed when either the action observable completes/errors or is disposed.
-- Parameters:
-- animated: Pass `true` to animate the presentation; otherwise, pass `false`.
-- barButtonItem:  If the scene will be presented in a popover controller, this is the barButtonItem that will serve as the focus.
-- scene: A factory function for creating the Scene.
-- Returns: The Scene's output action `Observable`.
-*/
-public func presentScene<Action>(animated: Bool, over barButtonItem: UIBarButtonItem, scene: @escaping () -> Scene<Action>) -> Observable<Action> {
-	Observable.using({ PresentationCoordinator(animated: animated, scene: scene(), assignToPopover: assignToPopover(barButtonItem)) }, observableFactory: { $0.action })
-}
-
-/**
-Presents a scene onto the top view controller of the presentation stack. Can be used in a bind/subscribe/do onNext closure. The scene will dismiss when the action observable completes or errors.
-- Parameters:
-- animated: Pass `true` to animate the presentation; otherwise, pass `false`.
-- sourceView: If the scene will be presented in a popover controller, this is the view that will serve as the focus.
-- scene: A factory function for creating the Scene.
-*/
-public func finalPresentScene<Action>(animated: Bool, over sourceView: UIView? = nil, scene: @escaping () -> Scene<Action>) {
-	_ = presentScene(animated: animated, over: sourceView, scene: scene)
-		.subscribe()
-}
-
-/**
-Presents a scene onto the top view controller of the presentation stack. Can be used in a bind/subscribe/do onNext closure. The scene will dismiss when the action observable completes or errors.
-- Parameters:
-- animated: Pass `true` to animate the presentation; otherwise, pass `false`.
-- barButtonItem:  If the scene will be presented in a popover controller, this is the barButtonItem that will serve as the focus.
-- scene: A factory function for creating the Scene.
-*/
-public func finalPresentScene<Action>(animated: Bool, over barButtonItem: UIBarButtonItem, scene: @escaping () -> Scene<Action>) {
-	_ = presentScene(animated: animated, over: barButtonItem, scene: scene)
-		.subscribe()
-}
-
-/**
-Shows a scene from the top view controller of the presentation stack. If the scene is internally pushed onto a navigation stack, the it will be popped when either the action observable completes/errors or is disposed.
-- Parameters:
-- sender: The object that initiated the request.
-- scene:  A factory function for creating the Scene.
-- Returns:  The Scene's output action `Observable`.
-*/
-public func showScene<Action>(sender: Any? = nil, scene: @escaping () -> Scene<Action>) -> Observable<Action> {
-	Observable.using({ ShowCoordinator(asDetail: false, sender: sender, scene: scene()) }, observableFactory: { $0.action })
-}
-
-/**
-Shows a scene as a detail from the top view controller of the presentation stack. If the scene is internally pushed onto a navigation stack, the it will be popped when either the action observable completes/errors or is disposed.
-- Parameters:
-- sender: The object that initiated the request.
-- scene:  A factory function for creating the Scene.
-- Returns:  The Scene's output action `Observable`.
-*/
-public func showDetailScene<Action>(sender: Any? = nil, scene: @escaping () -> Scene<Action>) -> Observable<Action> {
-	Observable.using({ ShowCoordinator(asDetail: true, sender: sender, scene: scene()) }, observableFactory: { $0.action })
-}
-
-/**
-Shows a scene from the top view controller of the presentation stack. If the scene is internally pushed onto a navigation stack, the it will be popped when the action observable completes/errors.
-- Parameters:
-- sender: The object that initiated the request.
-- scene:  A factory function for creating the Scene.
-*/
-public func finalShowScene<Action>(sender: Any? = nil, scene: @escaping () -> Scene<Action>) {
-	_ = Observable.using({ ShowCoordinator(asDetail: false, sender: sender, scene: scene()) }, observableFactory: { $0.action })
-		.subscribe()
-}
-
-/**
-Shows a scene as a detail from the top view controller of the presentation stack. If the scene is internally pushed onto a navigation stack, the it will be popped when either the action observable completes/errors.
-- Parameters:
-- sender: The object that initiated the request.
-- scene:  A factory function for creating the Scene.
-*/
-public func finalShowDetailScene<Action>(sender: Any? = nil, scene: @escaping () -> Scene<Action>) {
-	_ = Observable.using({ ShowCoordinator(asDetail: true, sender: sender, scene: scene()) }, observableFactory: { $0.action })
-		.subscribe()
-}
-
-public extension UINavigationController {
-	/**
-	Push a scene onto a navigation constroller's stack. The scene will be popped when either the action observable completes/errors or is disposed.
-	- Parameters:
-	- animated: Pass `true` to animate the presentation; otherwise, pass `false`.
-	- scene: A factory function for creating the Scene.
-	- Returns: The Scene's output action `Observable`.
-	*/
-	func pushScene<Action>(animated: Bool, scene: @escaping () -> Scene<Action>) -> Observable<Action> {
-		Observable.using({ [weak self] in NavigationCoordinator(navigation: self, animated: animated, scene: scene()) }, observableFactory: { $0.action })
+public func presentScene<Element, Action>(animated: Bool, over sourceView: UIView? = nil, scene: @escaping (Element) -> Scene<Action>) -> (Element) -> Observable<Action> {
+	{ element in
+		Observable.using({ PresentationCoordinator(animated: animated, scene: scene(element), assignToPopover: assignToPopover(sourceView)) }, observableFactory: { $0.action })
 	}
+}
 
-	/**
-	Pushes a scene onto a navigation controller's stack. Can be used in a bind/subscribe/do onNext closure. The scene will be popped when the action observable completes or errors.
-	- Parameters:
-	- animated: Pass `true` to animate the presentation; otherwise, pass `false`.
-	- scene: A factory function for creating the Scene.
-	*/
-	func finalPushScene<Action>(animated: Bool, scene: @escaping () -> Scene<Action>) {
-		_ = pushScene(animated: animated, scene: scene)
+/**
+ Presents a scene onto the top view controller of the presentation stack. The scene will be dismissed when either the action observable completes/errors or is disposed.
+ - Parameters:
+   - animated: Pass `true` to animate the presentation; otherwise, pass `false`.
+   - barButtonItem: If the scene will be presented in a popover controller, this is the barButtonItem that will serve as the focus.
+   - scene: A factory function for creating the Scene.
+ - Returns: A function that can be passed to `flatMap`, `flatMapFirst`, `flatMapLatest`, `concatMap` or can be `subscribe`d to.
+*/
+public func presentScene<Element, Action>(animated: Bool, over barButtonItem: UIBarButtonItem, scene: @escaping (Element) -> Scene<Action>) -> (Element) -> Observable<Action> {
+	{ element in
+		Observable.using({ PresentationCoordinator(animated: animated, scene: scene(element), assignToPopover: assignToPopover(barButtonItem)) }, observableFactory: { $0.action })
+	}
+}
+
+/**
+ Presents a scene onto the top view controller of the presentation stack. Can be used in a bind/subscribe/do onNext closure. The scene will dismiss when the action observable completes or errors.
+ - Parameters:
+   - animated: Pass `true` to animate the presentation; otherwise, pass `false`.
+   - sourceView: If the scene will be presented in a popover controller, this is the view that will serve as the focus.
+   - scene: A factory function for creating the Scene.
+ - Returns: A function that can be passed to the `onNext:` closure of `bind`, `subscribe` or `do`.
+*/
+public func presentScene<Element, Action>(animated: Bool, over sourceView: UIView? = nil, scene: @escaping (Element) -> Scene<Action>) -> (Element) -> Void {
+	{ element in
+		_ = presentScene(animated: animated, over: sourceView, scene: scene)(element)
+			.subscribe()
+	}
+}
+
+/**
+ Presents a scene onto the top view controller of the presentation stack. Can be used in a bind/subscribe/do onNext closure. The scene will dismiss when the action observable completes or errors.
+ - Parameters:
+   - animated: Pass `true` to animate the presentation; otherwise, pass `false`.
+   - barButtonItem:  If the scene will be presented in a popover controller, this is the barButtonItem that will serve as the focus.
+   - scene: A factory function for creating the Scene.
+ - Returns: A function that can be passed to the `onNext:` closure of `bind`, `subscribe` or `do`.
+*/
+public func presentScene<Element, Action>(animated: Bool, over barButtonItem: UIBarButtonItem, scene: @escaping (Element) -> Scene<Action>) -> (Element) -> Void {
+	{ element in
+		_ = presentScene(animated: animated, over: barButtonItem, scene: scene)(element)
+			.subscribe()
+	}
+}
+
+/**
+ Shows a scene from the top view controller of the presentation stack. If the scene is internally pushed onto a navigation stack, the it will be popped when either the action observable completes/errors or is disposed.
+ - Parameters:
+   - sender: The object that initiated the request.
+   - scene: A factory function for creating the Scene.
+ - Returns: A function that can be passed to `flatMap`, `flatMapFirst`, `flatMapLatest`, `concatMap` or can be `subscribe`d to.
+*/
+public func showScene<Element, Action>(sender: Any? = nil, scene: @escaping (Element) -> Scene<Action>) -> (Element) -> Observable<Action> {
+	{ element in
+		Observable.using({ ShowCoordinator(asDetail: false, sender: sender, scene: scene(element)) }, observableFactory: { $0.action })
+	}
+}
+
+/**
+ Shows a scene from the top view controller of the presentation stack. If the scene is internally pushed onto a navigation stack, the it will be popped when the action observable completes/errors.
+ - Parameters:
+   - sender: The object that initiated the request.
+   - scene:  A factory function for creating the Scene.
+ - Returns: A function that can be passed to the `onNext:` closure of `bind`, `subscribe` or `do`.
+*/
+public func showScene<Element, Action>(sender: Any? = nil, scene: @escaping (Element) -> Scene<Action>) -> (Element) -> Void {
+	{ element in
+		_ = Observable.using({ ShowCoordinator(asDetail: false, sender: sender, scene: scene(element)) }, observableFactory: { $0.action })
+			.subscribe()
+	}
+}
+
+/**
+ Shows a scene as a detail from the top view controller of the presentation stack. If the scene is internally pushed onto a navigation stack, the it will be popped when either the action observable completes/errors or is disposed.
+ - Parameters:
+   - sender: The object that initiated the request.
+   - scene:  A factory function for creating the Scene.
+ - Returns: A function that can be passed to `flatMap`, `flatMapFirst`, `flatMapLatest`, `concatMap` or can be `subscribe`d to.
+*/
+public func showDetailScene<Element, Action>(sender: Any? = nil, scene: @escaping (Element) -> Scene<Action>) -> (Element) -> Observable<Action> {
+	{ element in
+		Observable.using({ ShowCoordinator(asDetail: true, sender: sender, scene: scene(element)) }, observableFactory: { $0.action })
+	}
+}
+
+/**
+ Shows a scene as a detail from the top view controller of the presentation stack. If the scene is internally pushed onto a navigation stack, the it will be popped when either the action observable completes/errors.
+ - Parameters:
+   - sender: The object that initiated the request.
+   - scene:  A factory function for creating the Scene.
+ - Returns: A function that can be passed to the `onNext:` closure of `bind`, `subscribe` or `do`.
+*/
+public func showDetailScene<Element, Action>(sender: Any? = nil, scene: @escaping (Element) -> Scene<Action>) -> (Element) -> Void {
+	{ element in
+		_ = Observable.using({ ShowCoordinator(asDetail: true, sender: sender, scene: scene(element)) }, observableFactory: { $0.action })
+			.subscribe()
+	}
+}
+
+/**
+ Push a scene onto a navigation constroller's stack. The scene will be popped when either the action observable completes/errors or is disposed.
+ - Parameters:
+   - animated: Pass `true` to animate the presentation; otherwise, pass `false`.
+   - scene: A factory function for creating the Scene.
+ - Returns: A function that can be passed to `flatMap`, `flatMapFirst`, `flatMapLatest`, `concatMap` or can be `subscribe`d to.
+*/
+public func pushScene<Element, Action>(on navigation: UINavigationController, animated: Bool, scene: @escaping (Element) -> Scene<Action>) -> (Element) -> Observable<Action> {
+	{ element in
+		Observable.using({ [weak navigation] in NavigationCoordinator(navigation: navigation, animated: animated, scene: scene(element)) }, observableFactory: { $0.action })
+	}
+}
+
+/**
+ Pushes a scene onto a navigation controller's stack. Can be used in a bind/subscribe/do onNext closure. The scene will be popped when the action observable completes or errors.
+ - Parameters:
+   - animated: Pass `true` to animate the presentation; otherwise, pass `false`.
+   - scene: A factory function for creating the Scene.
+ - Returns: A function that can be passed to the `onNext:` closure of `bind`, `subscribe` or `do`.
+*/
+public func pushScene<Element, Action>(on navigation: UINavigationController, animated: Bool, scene: @escaping (Element) -> Scene<Action>) -> (Element) -> Void {
+	{ element in
+		_ = Observable.using({ [weak navigation] in NavigationCoordinator(navigation: navigation, animated: animated, scene: scene(element)) }, observableFactory: { $0.action })
 			.subscribe()
 	}
 }
