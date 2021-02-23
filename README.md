@@ -39,3 +39,31 @@ func forgotPasswordFlow() -> Scene<Void> {
     return Scene(controller: forgotPassword.controller, action: resetPasswordResult)
 }
 ```
+
+### Imperative Use
+On the chance that you are converting from imperative code to using this library. The following functions will come in handy:
+```
+func call<T>(_ fn: (()) -> Observable<T>) -> Observable<T> {
+	fn(())
+}
+
+func final(_ fn: (()) -> Void) {
+	fn(())
+}
+```
+The `call` function is for when your view controller is returning information to its caller, otherwise use the `final` function. You can wrap these around the functions in the Stage.swift file. So for example:
+
+```
+final(presentScene(animated: true) {
+    UIAlertController(title: "Greeting", message: "Hello World", preferredStyle: .alert)
+        .scene { $0.connectOK() }
+})
+
+_ = call(presentScene(animated: true, over: button) {
+    UIAlertController(title: nil, message: "Which One?", preferredStyle: .alert)
+        .scene { $0.connectChoice(choices: ["This One", "That One"])}
+})
+.subscribe(onNext: {
+    print("A choice was made:", $0 as Any)
+})
+```
