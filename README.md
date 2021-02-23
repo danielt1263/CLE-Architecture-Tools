@@ -60,7 +60,7 @@ final(presentScene(animated: true) {
 })
 
 _ = call(presentScene(animated: true, over: button) {
-    UIAlertController(title: nil, message: "Which One?", preferredStyle: .alert)
+    UIAlertController(title: nil, message: "Which One?", preferredStyle: .actionSheet)
         .scene { $0.connectChoice(choices: ["This One", "That One"])}
 })
 .subscribe(onNext: {
