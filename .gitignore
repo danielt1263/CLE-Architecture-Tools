@@ -1,2 +1,7 @@
 Package.resolved
 .swiftpm
+.DS_Store
+xcuserdata/
+Podfile.lock
+RxSample/Pods
+RxSample/RxSample.xcworkspace

@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="17506" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="C8r-Vd-Mwt">
+    <device id="retina6_1" orientation="portrait" appearance="light"/>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="17505"/>
+        <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="System colors in document resources" minToolsVersion="11.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <scenes>
+        <!--Photo View Controller-->
+        <scene sceneID="4ZX-lh-cUz">
+            <objects>
+                <viewController id="C8r-Vd-Mwt" customClass="PhotoViewController" customModule="RxSample" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="S2V-hK-Un8">
+                        <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="GFV-JR-raR">
+                                <rect key="frame" x="0.0" y="246" width="414" height="414"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" secondItem="GFV-JR-raR" secondAttribute="height" multiplier="1:1" id="XTk-7p-f1E"/>
+                                </constraints>
+                            </imageView>
+                            <activityIndicatorView opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" animating="YES" style="large" translatesAutoresizingMaskIntoConstraints="NO" id="HLL-dj-1sE">
+                                <rect key="frame" x="188.5" y="434.5" width="37" height="37"/>
+                                <color key="color" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                            </activityIndicatorView>
+                        </subviews>
+                        <viewLayoutGuide key="safeArea" id="a2x-CU-7lC"/>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                        <constraints>
+                            <constraint firstItem="a2x-CU-7lC" firstAttribute="trailing" secondItem="GFV-JR-raR" secondAttribute="trailing" id="0qu-6E-LUE"/>
+                            <constraint firstItem="HLL-dj-1sE" firstAttribute="centerY" secondItem="a2x-CU-7lC" secondAttribute="centerY" id="6vU-uU-Tod"/>
+                            <constraint firstItem="GFV-JR-raR" firstAttribute="centerY" secondItem="a2x-CU-7lC" secondAttribute="centerY" id="Llf-Bh-OQQ"/>
+                            <constraint firstItem="GFV-JR-raR" firstAttribute="centerX" secondItem="a2x-CU-7lC" secondAttribute="centerX" id="OJl-1y-vOu"/>
+                            <constraint firstItem="HLL-dj-1sE" firstAttribute="centerX" secondItem="a2x-CU-7lC" secondAttribute="centerX" id="Pbs-fQ-tOM"/>
+                            <constraint firstItem="GFV-JR-raR" firstAttribute="leading" secondItem="a2x-CU-7lC" secondAttribute="leading" id="RFd-Hu-gCV"/>
+                        </constraints>
+                    </view>
+                    <connections>
+                        <outlet property="activityIndicator" destination="HLL-dj-1sE" id="Cjx-36-6OD"/>
+                        <outlet property="imageView" destination="GFV-JR-raR" id="jXf-uU-cCH"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="DGW-FF-B8Q" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="139" y="102"/>
+        </scene>
+    </scenes>
+    <resources>
+        <systemColor name="systemBackgroundColor">
+            <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+        </systemColor>
+    </resources>
+</document>
