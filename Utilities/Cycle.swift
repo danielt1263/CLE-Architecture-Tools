@@ -8,11 +8,11 @@
 import Foundation
 import RxSwift
 
-func cycle<Input, Output>(logic: @escaping (Observable<Input>) -> Observable<Output>, effects: @escaping (Observable<Output>) -> Observable<Input>) -> Observable<Output> {
+public func cycle<Input, Output>(logic: @escaping (Observable<Input>) -> Observable<Output>, effects: @escaping (Observable<Output>) -> Observable<Input>) -> Observable<Output> {
 	return Observable.using({ Cycle(logic: logic, effects: effects) }, observableFactory: { $0.output })
 }
 
-final class Cycle<Input, Output>: Disposable {
+private final class Cycle<Input, Output>: Disposable {
 	let output: Observable<Output>
 	private let subject = PublishSubject<Output>()
 	private let disposable: Disposable
