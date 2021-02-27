@@ -8,6 +8,7 @@
 import Foundation
 import RxSwift
 
+@available(*, deprecated, message: "Use cycle function instead")
 public final class Store<Action, State, Environment> {
 
 	public let state: Observable<State>
