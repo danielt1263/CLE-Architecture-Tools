@@ -153,8 +153,12 @@ private final class PresentationCoordinator<Action>: Disposable {
 	private let animated: Bool
 
 	init(animated: Bool, scene: Scene<Action>, assignToPopover: @escaping (UIPopoverPresentationController) -> Void = { _ in }) {
-		self.controller = scene.controller
 		self.action = scene.action
+			.do(
+				onError: { _ in remove(controller: scene.controller, animated: animated) },
+				onCompleted: { remove(controller: scene.controller, animated: animated) }
+			)
+		self.controller = scene.controller
 		self.animated = animated
 		queue.async {
 			let semaphore = DispatchSemaphore(value: 0)
@@ -182,6 +186,10 @@ private final class NavigationCoordinator<Action>: Disposable {
 
 	init(navigation: UINavigationController?, animated: Bool, scene: Scene<Action>) {
 		self.action = scene.action
+			.do(
+				onError: { _ in pop(controller: scene.controller, animated: animated) },
+				onCompleted: { pop(controller: scene.controller, animated: animated) }
+			)
 		self.controller = scene.controller
 		self.animated = animated
 		queue.async { [weak navigation] in
@@ -242,8 +250,8 @@ func remove(controller: UIViewController?, animated: Bool) {
 	queue.async { [weak controller, animated] in
 		let semaphore = DispatchSemaphore(value: 0)
 		DispatchQueue.main.async {
-			if let controller = controller, !controller.isBeingDismissed {
-				controller.presentingViewController!.dismiss(animated: animated, completion: {
+			if let parent = controller?.presentingViewController, controller!.isBeingDismissed == false {
+				parent.dismiss(animated: animated, completion: {
 					semaphore.signal()
 				})
 			}
