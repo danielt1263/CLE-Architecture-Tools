@@ -155,8 +155,8 @@ private final class PresentationCoordinator<Action>: Disposable {
 	init(animated: Bool, scene: Scene<Action>, assignToPopover: @escaping (UIPopoverPresentationController) -> Void = { _ in }) {
 		self.action = scene.action
 			.do(
-				onError: { _ in remove(controller: scene.controller, animated: animated) },
-				onCompleted: { remove(controller: scene.controller, animated: animated) }
+				onError: { [weak controller = scene.controller] _ in remove(controller: controller, animated: animated) },
+				onCompleted: { [weak controller = scene.controller] in remove(controller: controller, animated: animated) }
 			)
 		self.controller = scene.controller
 		self.animated = animated
@@ -187,8 +187,8 @@ private final class NavigationCoordinator<Action>: Disposable {
 	init(navigation: UINavigationController?, animated: Bool, scene: Scene<Action>) {
 		self.action = scene.action
 			.do(
-				onError: { _ in pop(controller: scene.controller, animated: animated) },
-				onCompleted: { pop(controller: scene.controller, animated: animated) }
+				onError: { [weak controller = scene.controller] _ in pop(controller: controller, animated: animated) },
+				onCompleted: { [weak controller = scene.controller] in pop(controller: controller, animated: animated) }
 			)
 		self.controller = scene.controller
 		self.animated = animated
