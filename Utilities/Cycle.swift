@@ -14,7 +14,7 @@ public func cycle<Input, Output>(logic: @escaping (Observable<Input>) -> Observa
 
 private final class Cycle<Input, Output>: Disposable {
 	let output: Observable<Output>
-	private let subject = PublishSubject<Output>()
+	private let subject = ReplaySubject<Output>.create(bufferSize: 1)
 	private let disposable: Disposable
 	init(logic: (Observable<Input>) -> Observable<Output>, effects: (Observable<Output>) -> Observable<Input>) {
 		disposable = logic(effects(subject))
