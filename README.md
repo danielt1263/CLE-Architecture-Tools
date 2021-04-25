@@ -11,7 +11,7 @@ The Tools folder contains helpers that I have developed but aren't needed in mos
 * RxCocoa
 
 ## Installation
-Two Ways to Install
+Three Ways to Install
 
 1. Drag and drop the Utilities folder into your xcode workspace under the project name folder
 
