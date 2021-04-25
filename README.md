@@ -6,6 +6,32 @@ The Utilities folder contains support code that should be included in the projec
 
 The Tools folder contains helpers that I have developed but aren't needed in most projects.
 
+## Requirements
+* RxSwift
+* RxCocoa
+
+## Installation
+Two Ways to Install
+
+1. Drag and drop the Utilities folder into your xcode workspace under the project name folder
+
+2. Use CocoaPods
+
+### [CocoaPods](https://guides.cocoapods.org/using/using-cocoapods.html)
+```
+# Podfile
+use_frameworks!
+
+target 'YOUR_TARGET_NAME' do
+   pod 'Cause-Logic-Effect'
+end
+ ```
+ Replace `YOUR_TARGET_NAME` and then, in the `Podfile` directory, type:
+
+```bash
+$ pod install
+```
+
 ## Use
 
 The idea behind this library is to provide an easy way to wrap a view controller as an Observable resource in order to make it a simple asynchronous event. In essence, your code will be able to work with its view controllers the same way it works with its server or database, through flatMap and bind.
