@@ -15,11 +15,10 @@ Two Ways to Install
 
 1. Drag and drop the Utilities folder into your xcode workspace under the project name folder
 
-2. Use CocoaPods
+2. Use Swift Package Manager.
 
-### [CocoaPods](https://guides.cocoapods.org/using/using-cocoapods.html)
+3. Use [CocoaPods](https://guides.cocoapods.org/using/using-cocoapods.html).
 ```
-# Podfile
 use_frameworks!
 
 target 'YOUR_TARGET_NAME' do
