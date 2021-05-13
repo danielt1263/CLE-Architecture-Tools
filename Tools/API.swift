@@ -8,7 +8,7 @@
 import Foundation
 import RxSwift
 
-struct Resource<T> {
+struct Endpoint<T> {
 	let request: URLRequest
 	let response: (Data) throws -> T
 }
@@ -24,7 +24,7 @@ final class API {
 		self.errorRouter = errorRouter
 	}
 
-	func load<T>(_ resource: Resource<T>) -> Observable<T> {
+	func load<T>(_ resource: Endpoint<T>) -> Observable<T> {
 		session.rx.data(request: resource.request)
 			.map(resource.response)
 			.trackActivity(activityIndicator)
@@ -32,14 +32,14 @@ final class API {
 	}
 }
 
-extension Resource where T: Decodable {
+extension Endpoint where T: Decodable {
 	init(request: URLRequest, decoder: JSONDecoder) {
 		self.request = request
 		self.response = { try decoder.decode(T.self, from: $0) }
 	}
 }
 
-extension Resource where T == Void {
+extension Endpoint where T == Void {
 	init(request: URLRequest) {
 		self.request = request
 		self.response = { _ in }

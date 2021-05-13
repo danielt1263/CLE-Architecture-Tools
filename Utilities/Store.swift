@@ -9,7 +9,7 @@ import Foundation
 import RxSwift
 
 @available(*, deprecated, message: "Use cycle function instead")
-public final class Store<Action, State, Environment> {
+public final class Store<Action, State, Environment>: ObserverType {
 
 	public let state: Observable<State>
 
@@ -34,13 +34,6 @@ public final class Store<Action, State, Environment> {
 		lock.unlock()
 	}
 
-	private let action = ReplaySubject<Action>.createUnbounded()
-	private let lock = NSRecursiveLock()
-	private let disposeBag = DisposeBag()
-}
-
-extension Store: ObserverType {
-
 	public func on(_ event: Event<Action>) {
 		if let element = event.element {
 			lock.lock()
@@ -48,4 +41,8 @@ extension Store: ObserverType {
 			lock.unlock()
 		}
 	}
+
+	private let action = ReplaySubject<Action>.createUnbounded()
+	private let lock = NSRecursiveLock()
+	private let disposeBag = DisposeBag()
 }
