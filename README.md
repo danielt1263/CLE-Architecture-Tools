@@ -2,9 +2,9 @@
 
 The File Templates can be use to create new Rx Scenes (use one of these instead of creating a View Controller directly.) Place the folder in `Library/Developer/Xcode/Templates/`.
 
-The Utilities folder contains support code that should be included in the project. The most important files, from an architectural perspective, are "Stage.swift" and "Scene.swift". The others contain code that I used in 80% or more of my projects.
+The Utilities folder contains support code that should be included in the project (and will be automatically included if you use SPM or CocoaPods.) The most important files, from an architectural perspective, are "Stage.swift" and "Scene.swift". The others contain code that I used in 80% or more of my projects.
 
-The Tools folder contains helpers that I have developed but aren't needed in most projects.
+The Tools folder contains helpers that I have developed but aren't needed in most projects. If you want to use any of those, you will have to drag them into your project manually.
 
 ## Requirements
 * RxSwift
