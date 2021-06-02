@@ -128,8 +128,8 @@ public func showDetailScene<Element, Action>(sender: Any? = nil, scene: @escapin
  - Returns: A function that can be passed to `flatMap`, `flatMapFirst`, `flatMapLatest`, `concatMap` or can be `subscribe`d to.
 */
 public func pushScene<Element, Action>(on navigation: UINavigationController, animated: Bool, scene: @escaping (Element) -> Scene<Action>) -> (Element) -> Observable<Action> {
-	{ element in
-		Observable.using({ [weak navigation] in NavigationCoordinator(navigation: navigation, animated: animated, scene: scene(element)) }, observableFactory: { $0.action })
+	{ [weak navigation] element in
+		Observable.using({ NavigationCoordinator(navigation: navigation, animated: animated, scene: scene(element)) }, observableFactory: { $0.action })
 	}
 }
 
@@ -141,8 +141,8 @@ public func pushScene<Element, Action>(on navigation: UINavigationController, an
  - Returns: A function that can be passed to the `onNext:` closure of `bind`, `subscribe` or `do`.
 */
 public func pushScene<Element, Action>(on navigation: UINavigationController, animated: Bool, scene: @escaping (Element) -> Scene<Action>) -> (Element) -> Void {
-	{ element in
-		_ = Observable.using({ [weak navigation] in NavigationCoordinator(navigation: navigation, animated: animated, scene: scene(element)) }, observableFactory: { $0.action })
+	{ [weak navigation] element in
+		_ = Observable.using({ NavigationCoordinator(navigation: navigation, animated: animated, scene: scene(element)) }, observableFactory: { $0.action })
 			.subscribe()
 	}
 }
