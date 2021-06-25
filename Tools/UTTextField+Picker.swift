@@ -11,14 +11,21 @@ import UIKit
 extension UITextField {
 	func picker<T>(choices: [T], initial: T? = nil, description: @escaping (T) -> String = { String(describing: $0) }) -> Observable<T> {
 		let pickerView = UIPickerView()
-		let choice = Observable.merge(
-			rx.controlEvent(.editingDidBegin).take(1).map { initial ?? choices[0] },
-			pickerView.rx.itemSelected.map { choices[$0.row] }
-		)
-		.share(replay: 1)
+		let choice = pickerView.rx.itemSelected.map { choices[$0.row] }
+			.share(replay: 1)
 
 		inputView = pickerView
-		delegate = NoTextInputDelegate.instance
+
+		_ = Observable.using(
+			{ [unowned self] in
+				DelegateHolder(textField: self, delegate: OnlyListItemDelegate(items: choices.map(description)))
+			},
+			observableFactory: { $0.delegate!.index }
+		)
+		.take(until: rx.deallocating)
+		.subscribe(onNext: { index in
+			pickerView.selectRow(index, inComponent: 0, animated: true)
+		})
 
 		_ = Observable.just(choices.map(description))
 			.bind(to: pickerView.rx.itemTitles) { _, element in
@@ -39,9 +46,39 @@ extension UITextField {
 	}
 }
 
-class NoTextInputDelegate: NSObject, UITextFieldDelegate {
-	static let instance = NoTextInputDelegate()
+private class DelegateHolder<T: UITextFieldDelegate>: Disposable {
+	private (set) var delegate: T?
+
+	init(textField: UITextField, delegate: T) {
+		textField.delegate = delegate
+		self.delegate = delegate
+	}
+
+	func dispose() {
+		delegate = nil
+	}
+}
+
+private class OnlyListItemDelegate: NSObject, UITextFieldDelegate {
+	let items: [String]
+	let index: Observable<Int>
+	private let _index = PublishSubject<Int>()
+
+	init(items: [String]) {
+		self.items = items
+		self.index = _index.asObservable()
+	}
+
 	func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
-		return false
+		let currentText = textField.text ?? ""
+		guard let stringRange = Range(range, in: currentText) else { return false }
+		let updatedText = currentText.replacingCharacters(in: stringRange, with: string)
+		if let index = items.firstIndex(where: { $0.hasPrefix(updatedText) }) {
+			_index.onNext(index)
+			return true
+		}
+		else {
+			return false
+		}
 	}
 }
