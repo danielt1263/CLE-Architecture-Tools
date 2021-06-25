@@ -9,28 +9,29 @@ import RxSwift
 import UIKit
 
 extension UITextField {
-	func picker<T>(choices: [T], initial: T? = nil, description: @escaping (T) -> String = { String(describing: $0) }) -> Observable<T?> {
+	func picker<T>(choices: [T], initial: T? = nil, description: @escaping (T) -> String = { String(describing: $0) }) -> Observable<T> {
 		let pickerView = UIPickerView()
-		let fullChoices = [""] + choices.map(description)
-		let choice = pickerView.rx.itemSelected.map { $0.row == 0 ? nil : choices[$0.row - 1] }
-			.startWith(initial)
-			.share(replay: 1)
+		let choice = Observable.merge(
+			rx.controlEvent(.editingDidBegin).take(1).map { initial ?? choices[0] },
+			pickerView.rx.itemSelected.map { choices[$0.row] }
+		)
+		.share(replay: 1)
 
 		inputView = pickerView
 		delegate = NoTextInputDelegate.instance
 
-		_ = Observable.just(fullChoices)
+		_ = Observable.just(choices.map(description))
 			.bind(to: pickerView.rx.itemTitles) { _, element in
 				return element
 			}
 
 		if let initial = initial {
 			pickerView.reloadAllComponents()
-			pickerView.selectRow((choices.firstIndex(where: { description($0) == description(initial) }) ?? -1) + 1, inComponent: 0, animated: false)
+			pickerView.selectRow(choices.firstIndex(where: { description($0) == description(initial) }) ?? 0, inComponent: 0, animated: false)
 		}
 
 		_ = choice
-			.map { $0.map { description($0) } }
+			.map(description)
 			.startWith(initial.map { description($0) })
 			.bind(to: rx.text)
 
