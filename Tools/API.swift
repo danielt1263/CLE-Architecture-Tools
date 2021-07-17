@@ -25,9 +25,17 @@ public final class API {
 		self.errorRouter = errorRouter
 	}
 
-	func load<T>(_ resource: Endpoint<T>) -> Observable<T> {
-		session.rx.data(request: resource.request)
-			.map(resource.response)
+	var error: Observable<Error> {
+		errorRouter.error
+	}
+
+	var isActive: Observable<Bool> {
+		activityIndicator.asObservable()
+	}
+
+	func load<T>(_ endpoint: Endpoint<T>) -> Observable<T> {
+		session.rx.data(request: endpoint.request)
+			.map(endpoint.response)
 			.trackActivity(activityIndicator)
 			.rerouteError(errorRouter)
 	}
