@@ -20,20 +20,25 @@ public final class ErrorRouter {
 
 	public let error: Observable<Error>
 	private let _subject = PublishSubject<Error>()
+	private let _lock = NSRecursiveLock()
 
 	public init() {
 		error = _subject.asObservable()
 	}
 
 	deinit {
+		_lock.lock()
 		_subject.onCompleted()
+		_lock.unlock()
 	}
 
 	fileprivate func rerouteError<O>(_ source: O) -> Observable<O.Element> where O: ObservableConvertibleType {
 		source.asObservable()
 			.observe(on: MainScheduler.instance)
-			.catch { [_subject] error in
+			.catch { [_lock, _subject] error in
+				_lock.lock()
 				_subject.onNext(error)
+				_lock.unlock()
 				return .empty()
 			}
 	}
