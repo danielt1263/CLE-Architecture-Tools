@@ -1,5 +1,13 @@
 # CLE-Architecture-Tools
 
+Version 2.0 has been pushed. I had to up the version number because depending on exactly how one is constructing their scenes, it could be a breaking change. For most applications of the library you will not have to update your code at all.
+
+**What's the big change that doesn't change much?**
+
+In version 1.x of the library, the scene creation methods created the view controller, then loaded the view controller's view and then called the connect closure. The view had to be loaded to ensure that all the VC's subviews were built so you could connect to the buttons, text fields and so on. However, this meant that the view was fully loaded before being added to the navigation or presentation stack, so you couldn't tell from inside the connect function how the controller was being presented.  For version 2.x, I made the connect closure escaping and now the library doesn't call it until after UIKit loads the view. This is done after the controller has been attached to the navigation or presentation stack.
+This means that for 2.x, you will have access to all the UIViewController properties that you normally would, even the ones that don't get assigned until after the controller has been attached to the view controller hierarchy.
+
+---
 The File Templates can be use to create new Rx Scenes (use one of these instead of creating a View Controller directly.) Place the folder in `Library/Developer/Xcode/Templates/`.
 
 The Utilities folder contains support code that should be included in the project (and will be automatically included if you use SPM or CocoaPods.) The most important files, from an architectural perspective, are "Stage.swift" and "Scene.swift". The others contain code that I used in 80% or more of my projects.
