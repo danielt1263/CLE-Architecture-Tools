@@ -32,7 +32,7 @@ public extension NSObjectProtocol where Self: UIViewController {
 
 	`let exampleScene = ExampleViewController.scene { $0.connect() }`
 	*/
-	static func scene<Action>(storyboardName: String = "", bundle: Bundle? = nil, identifier: String = "", _ connect: (Self) -> Observable<Action>) -> Scene<Action> {
+	static func scene<Action>(storyboardName: String = "", bundle: Bundle? = nil, identifier: String = "", _ connect: @escaping (Self) -> Observable<Action>) -> Scene<Action> {
 		let storyboard = UIStoryboard(name: storyboardName.isEmpty ? String(describing: self) : storyboardName, bundle: bundle)
 		let controller = identifier.isEmpty ? storyboard.instantiateInitialViewController() as! Self : storyboard.instantiateViewController(withIdentifier: identifier) as! Self
 		return controller.scene(connect)
@@ -50,7 +50,7 @@ public extension NSObjectProtocol where Self: UIViewController {
 
 	`let exampleViewController = ExampleViewController.create { $0.connect() }`
 	*/
-	static func create(storyboardName: String = "", bundle: Bundle? = nil, identifier: String = "", _ connect: (Self) -> Void) -> UIViewController {
+	static func create(storyboardName: String = "", bundle: Bundle? = nil, identifier: String = "", _ connect: @escaping (Self) -> Void) -> UIViewController {
 		let storyboard = UIStoryboard(name: storyboardName.isEmpty ? String(describing: self) : storyboardName, bundle: bundle)
 		let controller = identifier.isEmpty ? storyboard.instantiateInitialViewController() as! Self : storyboard.instantiateViewController(withIdentifier: identifier) as! Self
 		return controller.configure(connect)
@@ -66,9 +66,16 @@ public extension NSObjectProtocol where Self: UIViewController {
 
 	`let exampleScene = ExampleViewController().scene { $0.connect() }`
 	*/
-	func scene<Action>(_ connect: (Self) -> Observable<Action>) -> Scene<Action> {
-		loadViewIfNeeded()
-		return Scene(controller: self, action: connect(self))
+	func scene<Action>(_ connect: @escaping (Self) -> Observable<Action>) -> Scene<Action> {
+		let subject = PublishSubject<Action>()
+		_ = rx.viewDidLoad
+			.take(1)
+			.flatMap { [weak self] () -> Observable<Action> in
+				guard let self = self else { return .empty() }
+				return connect(self)
+			}
+			.bind(to: subject)
+		return Scene(controller: self, action: subject)
 	}
 
 	/**
@@ -81,9 +88,10 @@ public extension NSObjectProtocol where Self: UIViewController {
 
 	`let exampleViewController = ExampleViewController().create { $0.connect() }`
 	*/
-	func configure(_ connect: (Self) -> Void) -> UIViewController {
-		loadViewIfNeeded()
-		connect(self)
+	func configure(_ connect: @escaping (Self) -> Void) -> UIViewController {
+		_ = rx.viewDidLoad
+			.take(1)
+			.bind(with: self, onNext: { this, _ in connect(this) })
 		return self
 	}
 }

@@ -9,14 +9,29 @@ import UIKit
 import RxSwift
 import RxCocoa
 
-public extension Reactive where Base: UIViewController {
+extension Reactive where Base: UIViewController {
 
-	var viewWillAppear: Observable<Bool> {
+	var viewDidLoad: Observable<Void> {
+		base.rx.methodInvoked(#selector(UIViewController.viewDidLoad))
+			.map { _ in }
+	}
+
+	public var viewWillAppear: Observable<Bool> {
 		return base.rx.methodInvoked(#selector(UIViewController.viewWillAppear(_:)))
 			.map { $0[0] as! Bool }
 	}
 
-	var viewDidDisappear: Observable<Bool> {
+	public var viewDidAppear: Observable<Bool> {
+		return base.rx.methodInvoked(#selector(UIViewController.viewDidAppear(_:)))
+			.map { $0[0] as! Bool }
+	}
+
+	public var viewWillDisappear: Observable<Bool> {
+		return base.rx.methodInvoked(#selector(UIViewController.viewWillDisappear(_:)))
+			.map { $0[0] as! Bool }
+	}
+
+	public var viewDidDisappear: Observable<Bool> {
 		return base.rx.methodInvoked(#selector(UIViewController.viewDidDisappear(_:)))
 			.map { $0[0] as! Bool }
 	}
