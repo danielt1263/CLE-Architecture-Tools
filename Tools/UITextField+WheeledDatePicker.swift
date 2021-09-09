@@ -13,7 +13,9 @@ extension UITextField {
 	func wheeledDatePicker(initial: Date? = nil, formatter: DateFormatter, pickerFormatter: (UIDatePicker) -> Void) -> Observable<Date> {
 		let pickerView = UIDatePicker()
 		pickerFormatter(pickerView)
-		pickerView.preferredDatePickerStyle = .wheels
+		if #available(iOS 13.4, *) {
+			pickerView.preferredDatePickerStyle = .wheels
+		}
 		let choice = Observable.merge(
 			rx.controlEvent(.editingDidBegin).take(1).map { initial ?? Date() },
 			pickerView.rx.date.skip(1)
