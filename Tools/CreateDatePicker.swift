@@ -41,15 +41,16 @@ func createDatePicker(on view: UIView, tint: UIColor, entryMode: DateEntryMode, 
 		view.addSubview(textField)
 
 		let formatter = DateFormatter()
-		switch entryMode {
-		case .date:
-			formatter.dateStyle = 114 < view.bounds.width ? .medium : .short
-		case .time:
-			formatter.dateStyle = .none
-		case .dateAndTime:
-			formatter.dateStyle = 204 < view.bounds.width ? .medium : .short
-		}
+		formatter.dateStyle = entryMode == .time ? .none : .medium
 		formatter.timeStyle = entryMode == .date ? .none : .short
+
+		let constraintRect = CGSize(width: .greatestFiniteMagnitude, height: bounds.height)
+		let boundingBox = formatter.string(from: Date()).boundingRect(with: constraintRect, options: .usesLineFragmentOrigin, attributes: [.font: font!], context: nil)
+		let textWidth = ceil(boundingBox.width)
+
+		if textWidth + 14 > bounds.width && entryMode != .time {
+			formatter.dateStyle = .short
+		}
 
 		_ = picker.rx.date
 			.map { formatter.string(from: $0) }
