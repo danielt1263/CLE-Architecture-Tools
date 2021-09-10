@@ -14,13 +14,8 @@ enum DateEntryMode {
 	case dateAndTime
 }
 
-func setUpDatePicker(on view: UIView, tint: UIColor, entryMode: DateEntryMode, initial: Date? = nil) -> Observable<Date> {
+func createDatePicker(on view: UIView, tint: UIColor, entryMode: DateEntryMode, initial: Date?) -> UIDatePicker {
 	let picker = UIDatePicker()
-	setUpDatePicker(picker, on: view, tint: tint, entryMode: entryMode, initial: initial)
-	return picker.rx.date.asObservable()
-}
-
-func setUpDatePicker(_ picker: UIDatePicker, on view: UIView, tint: UIColor, entryMode: DateEntryMode, initial: Date?) {
 	switch entryMode {
 	case .date:
 		picker.datePickerMode = .date
@@ -61,6 +56,7 @@ func setUpDatePicker(_ picker: UIDatePicker, on view: UIView, tint: UIColor, ent
 			.take(until: textField.rx.deallocating)
 			.bind(to: textField.rx.text)
 	}
+	return picker
 }
 
 private final class NoTextDelegate: NSObject, UITextFieldDelegate {
