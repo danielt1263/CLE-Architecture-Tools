@@ -67,15 +67,16 @@ public extension NSObjectProtocol where Self: UIViewController {
 	`let exampleScene = ExampleViewController().scene { $0.connect() }`
 	*/
 	func scene<Action>(_ connect: @escaping (Self) -> Observable<Action>) -> Scene<Action> {
-		let subject = PublishSubject<Action>()
-		_ = rx.viewDidLoad
+		guard !isViewLoaded else { return Scene(controller: self, action: connect(self)) }
+		let action = rx.viewDidLoad
 			.take(1)
 			.flatMap { [weak self] () -> Observable<Action> in
 				guard let self = self else { return .empty() }
 				return connect(self)
 			}
-			.bind(to: subject)
-		return Scene(controller: self, action: subject)
+			.publish()
+		_ = action.connect()
+		return Scene(controller: self, action: action)
 	}
 
 	/**
@@ -89,9 +90,14 @@ public extension NSObjectProtocol where Self: UIViewController {
 	`let exampleViewController = ExampleViewController().create { $0.connect() }`
 	*/
 	func configure(_ connect: @escaping (Self) -> Void) -> UIViewController {
-		_ = rx.viewDidLoad
-			.take(1)
-			.bind(with: self, onNext: { this, _ in connect(this) })
+		if isViewLoaded {
+			connect(self)
+		}
+		else {
+			_ = rx.viewDidLoad
+				.take(1)
+				.bind(with: self, onNext: { this, _ in connect(this) })
+		}
 		return self
 	}
 }
