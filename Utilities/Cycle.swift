@@ -9,15 +9,54 @@ import Foundation
 import RxSwift
 
 public func cycle<Input, Output>(logic: @escaping (Observable<Input>) -> Observable<Output>, effects: @escaping (Observable<Output>) -> Observable<Input>) -> Observable<Output> {
+	return Observable.using({ Cycle(logic: logic, effects: [effects]) }, observableFactory: { $0.output })
+}
+
+public func cycle<Input, Output>(logic: @escaping (Observable<Input>) -> Observable<Output>, effects: [(Observable<Output>) -> Observable<Input>]) -> Observable<Output> {
 	return Observable.using({ Cycle(logic: logic, effects: effects) }, observableFactory: { $0.output })
 }
 
+public func react<State, Request, Action>(request: @escaping (State) -> Request?, effect: @escaping (Request) -> Observable<Action>) -> (Observable<State>) -> Observable<Action> where Request: Equatable {
+	{ $0.map(request)
+		.distinctUntilChanged()
+		.compactMap { $0 }
+		.flatMap(effect)
+	}
+}
+
+public func reactLatest<State, Request, Action>(request: @escaping (State) -> Request?, effect: @escaping (Request) -> Observable<Action>) -> (Observable<State>) -> Observable<Action> where Request: Equatable {
+	{ $0.map(request)
+		.distinctUntilChanged()
+		.flatMapLatest { (request) -> Observable<Action> in
+			guard let request = request else { return Observable.empty() }
+			return effect(request)
+		}
+	}
+}
+
+public func reactFirst<State, Request, Action>(request: @escaping (State) -> Request?, effect: @escaping (Request) -> Observable<Action>) -> (Observable<State>) -> Observable<Action> where Request: Equatable {
+	{ $0.map(request)
+		.distinctUntilChanged()
+		.compactMap { $0 }
+		.flatMapFirst(effect)
+	}
+}
+
+public func reactConcat<State, Request, Action>(request: @escaping (State) -> Request?, effect: @escaping (Request) -> Observable<Action>) -> (Observable<State>) -> Observable<Action> where Request: Equatable {
+	{ $0.map(request)
+		.distinctUntilChanged()
+		.compactMap { $0 }
+		.concatMap(effect)
+	}
+}
+
 private final class Cycle<Input, Output>: Disposable {
-	let output: Observable<Output>
-	private let subject = ReplaySubject<Output>.create(bufferSize: 1)
+	fileprivate let output: Observable<Output>
 	private let disposable: Disposable
-	init(logic: (Observable<Input>) -> Observable<Output>, effects: (Observable<Output>) -> Observable<Input>) {
-		disposable = logic(effects(subject))
+
+	init(logic: (Observable<Input>) -> Observable<Output>, effects: [(Observable<Output>) -> Observable<Input>]) {
+		let subject = ReplaySubject<Output>.create(bufferSize: 1)
+		disposable = logic(Observable.merge(effects.map { $0(subject) }))
 			.bind(to: subject)
 		output = subject.asObservable()
 	}
