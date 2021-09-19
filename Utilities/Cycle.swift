@@ -20,6 +20,13 @@ public func react<State, Request, Action>(request: @escaping (State) -> Request?
 	react(request: request, compare: { $0 == $1 }, effect: effect)
 }
 
+public func react<State, Request, Action>(request: @escaping (State) -> Request, effect: @escaping (Request) -> Observable<Action>) -> (Observable<State>) -> Observable<Action> where Request: Collection & Equatable {
+	{ $0.map(request)
+		.distinctUntilChanged()
+		.flatMapLatest { $0.isEmpty ? Observable.empty() : effect($0) }
+	}
+}
+
 public func react<State, Action>(request: @escaping (State) -> Bool, effect: Observable<Action>) -> (Observable<State>) -> Observable<Action> {
 	{ $0.map(request)
 		.distinctUntilChanged()
@@ -34,6 +41,13 @@ public func react<State, Request, Action>(request: @escaping (State) -> Request?
 			guard let request = request else { return Observable.empty() }
 			return effect(request)
 		}
+	}
+}
+
+public func react<State, Request, Action>(request: @escaping (State) -> Request, compare: @escaping (Request, Request) -> Bool, effect: @escaping (Request) -> Observable<Action>) -> (Observable<State>) -> Observable<Action> where Request: Collection {
+	{ $0.map(request)
+		.distinctUntilChanged(compare)
+		.flatMapLatest { $0.isEmpty ? Observable.empty() : effect($0) }
 	}
 }
 
