@@ -41,10 +41,10 @@ public func reaction<State, Request, Action>(request: @escaping (State) -> Reque
 	}
 }
 
-public func reaction<State, Action>(request: @escaping (State) -> Bool, effect: @escaping () -> Observable<Action>) -> (Observable<State>) -> Observable<Action> {
+public func reaction<State, Action>(request: @escaping (State) -> Bool, effect: @escaping (()) -> Observable<Action>) -> (Observable<State>) -> Observable<Action> {
 	{ $0.map(request)
 		.distinctUntilChanged()
-		.flatMapLatest { $0 ? effect() : Observable.empty() }
+		.flatMapLatest { $0 ? effect(()) : Observable.empty() }
 	}
 }
 
