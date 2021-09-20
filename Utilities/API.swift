@@ -7,7 +7,6 @@
 
 import RxSwift
 import Foundation
-import Cause_Logic_Effect
 
 public struct Endpoint<T> {
 	let request: URLRequest
