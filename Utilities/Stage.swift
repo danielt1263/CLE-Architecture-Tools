@@ -1,7 +1,7 @@
 //
 //  Stage.swift
 //
-//  Created by Daniel Tartaglia on 8/24/20.
+//  Created by Daniel Tartaglia on 8/24/2020.
 //  Copyright © 2020 Daniel Tartaglia. MIT License.
 //
 

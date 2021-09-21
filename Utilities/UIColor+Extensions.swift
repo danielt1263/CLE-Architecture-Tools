@@ -1,7 +1,7 @@
 //
 //  UIColorExtensions.swift
 //
-//  Created by Daniel Tartaglia on 12/4/14.
+//  Created by Daniel Tartaglia on 12/4/2014.
 //  Copyright (c) 2014 Daniel Tartaglia. MIT License.
 //
 

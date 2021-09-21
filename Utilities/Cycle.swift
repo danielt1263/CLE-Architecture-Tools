@@ -1,7 +1,7 @@
 //
 //  Cycle.swift
 //
-//  Created by Daniel Tartaglia on 2/26/21.
+//  Created by Daniel Tartaglia on 2/26/2021.
 //  Copyright © 2021 Daniel Tartaglia. MIT License.
 //
 
