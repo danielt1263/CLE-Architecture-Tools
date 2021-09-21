@@ -9,8 +9,13 @@ import RxSwift
 import Foundation
 
 public struct Endpoint<T> {
-	let request: URLRequest
-	let response: (Data) throws -> T
+	public let request: URLRequest
+	public let response: (Data) throws -> T
+
+	public init(request: URLRequest, response: @escaping (Data) throws -> T) {
+		self.request = request
+		self.response = response
+	}
 }
 
 public final class API {
@@ -24,24 +29,23 @@ public final class API {
 		self.errorRouter = errorRouter
 	}
 
-	var error: Observable<Error> {
+	public var error: Observable<Error> {
 		errorRouter.error
 	}
 
-	var isActive: Observable<Bool> {
+	public var isActive: Observable<Bool> {
 		activityIndicator.asObservable()
 	}
 
-	func response<T>(_ endpoint: Endpoint<T>) -> Observable<T> {
+	public func response<T>(_ endpoint: Endpoint<T>) -> Observable<T> {
 		session.rx.data(request: endpoint.request)
 			.map(endpoint.response)
 			.trackActivity(activityIndicator)
 			.rerouteError(errorRouter)
 	}
 
-	func resultResponse<T>(_ endpoint: Endpoint<T>) -> Observable<Result<T, Error>> {
+	public func resultResponse<T>(_ endpoint: Endpoint<T>) -> Observable<Result<T, Error>> {
 		session.rx.data(request: endpoint.request)
-			.trackActivity(activityIndicator)
 			.map { try Result.success(endpoint.response($0)) }
 			.catch { Observable.just(Result.failure($0)) }
 	}
@@ -55,7 +59,7 @@ extension Endpoint where T: Decodable {
 }
 
 extension Endpoint where T == Void {
-	init(request: URLRequest) {
+	public init(request: URLRequest) {
 		self.request = request
 		self.response = { _ in }
 	}
