@@ -47,7 +47,7 @@ public final class API {
      * Errors from the Observable are routed to the local error router.
      
     - Parameter endpoint: The API endpoint to which a request is made.
-    - Returns: A Observable of the response type whose network activity and errors are handled automatically.
+    - Returns: A Observable of the response type whose network activity and errors are handled automatically. This Observable will not emit an error event.
      */
 	public func response<T>(_ endpoint: Endpoint<T>) -> Observable<T> {
 		rawResponse(endpoint)
@@ -58,7 +58,7 @@ public final class API {
      Transforms an Endpoint<T> into an Observable of Result<T, Error> for making requests to the local URLSession.
      
      - Parameter endpoint: The API endpoint to which a request is made.
-     - Returns: A Observable Result of the response type.
+     - Returns: A Observable Result of the response type. This Observable will not emit an error event.
      */
 	public func resultResponse<T>(_ endpoint: Endpoint<T>) -> Observable<Result<T, Error>> {
 		rawResponse(endpoint)
@@ -66,6 +66,15 @@ public final class API {
 			.catch { Observable.just(Result.failure($0)) }
 	}
 
+	/**
+	 Transforms an Endpoint<T> into an Observable<T> for making requests to the local URLSession.
+
+	 * Network activity is tracked by the local activity indicator.
+	 * An error will emit if the network request fails.
+
+	 - Parameter endpoint: The API endpoint to which a request is made.
+	 - Returns: A Observable of the response type whose network activity and errors are handled automatically.
+	 */
 	public func rawResponse<T>(_ endpoint: Endpoint<T>) -> Observable<T> {
 		session.rx.data(request: endpoint.request)
 			.trackActivity(activityIndicator)
