@@ -38,16 +38,20 @@ public final class API {
 	}
 
 	public func response<T>(_ endpoint: Endpoint<T>) -> Observable<T> {
-		session.rx.data(request: endpoint.request)
-			.map(endpoint.response)
+		rawResponse(endpoint)
 			.trackActivity(activityIndicator)
 			.rerouteError(errorRouter)
 	}
 
 	public func resultResponse<T>(_ endpoint: Endpoint<T>) -> Observable<Result<T, Error>> {
-		session.rx.data(request: endpoint.request)
-			.map { try Result.success(endpoint.response($0)) }
+		rawResponse(endpoint)
+			.map { Result.success($0) }
 			.catch { Observable.just(Result.failure($0)) }
+	}
+
+	public func rawResponse<T>(_ endpoint: Endpoint<T>) -> Observable<T> {
+		session.rx.data(request: endpoint.request)
+			.map(endpoint.response)
 	}
 }
 
