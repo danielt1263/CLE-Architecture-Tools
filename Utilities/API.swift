@@ -39,7 +39,6 @@ public final class API {
 
 	public func response<T>(_ endpoint: Endpoint<T>) -> Observable<T> {
 		rawResponse(endpoint)
-			.trackActivity(activityIndicator)
 			.rerouteError(errorRouter)
 	}
 
@@ -51,6 +50,7 @@ public final class API {
 
 	public func rawResponse<T>(_ endpoint: Endpoint<T>) -> Observable<T> {
 		session.rx.data(request: endpoint.request)
+			.trackActivity(activityIndicator)
 			.map(endpoint.response)
 	}
 }
