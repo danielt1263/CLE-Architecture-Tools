@@ -18,6 +18,9 @@ public struct Endpoint<T> {
 	}
 }
 
+/**
+A high level abstraction around URLSession for making requests, tracking network activity and handling errors.
+*/
 public final class API {
 	private let session: URLSession
 	private let activityIndicator: ActivityIndicator
@@ -37,6 +40,15 @@ public final class API {
 		activityIndicator.asObservable()
 	}
 
+    /**
+     Transforms an Endpoint<T> into an Observable<T> for making requests to the local URLSession.
+
+     * Network activity is tracked by the local activity indicator.
+     * Errors from the Observable are routed to the local error router.
+     
+    - Parameter endpoint: The API endpoint to which a request is made.
+    - Returns: A Observable of the response type whose network activity and errors are handled automatically.
+     */
 	public func response<T>(_ endpoint: Endpoint<T>) -> Observable<T> {
 		session.rx.data(request: endpoint.request)
 			.map(endpoint.response)
@@ -44,6 +56,12 @@ public final class API {
 			.rerouteError(errorRouter)
 	}
 
+    /**
+     Transforms an Endpoint<T> into an Observable of Result<T, Error> for making requests to the local URLSession.
+     
+     - Parameter endpoint: The API endpoint to which a request is made.
+     - Returns: A Observable Result of the response type.
+     */
 	public func resultResponse<T>(_ endpoint: Endpoint<T>) -> Observable<Result<T, Error>> {
 		session.rx.data(request: endpoint.request)
 			.map { try Result.success(endpoint.response($0)) }
