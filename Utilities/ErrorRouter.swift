@@ -32,13 +32,17 @@ public final class ErrorRouter {
 		_lock.unlock()
 	}
 
+	func routeError(_ error: Error) {
+		_lock.lock()
+		_subject.onNext(error)
+		_lock.unlock()
+	}
+
 	fileprivate func rerouteError<O>(_ source: O) -> Observable<O.Element> where O: ObservableConvertibleType {
 		source.asObservable()
 			.observe(on: MainScheduler.instance)
-			.catch { [_lock, _subject] error in
-				_lock.lock()
-				_subject.onNext(error)
-				_lock.unlock()
+			.catch { [self] error in
+				self.routeError(error)
 				return .empty()
 			}
 	}

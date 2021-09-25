@@ -1,5 +1,10 @@
 # CLE-Architecture-Tools
 
+Version 3.x has been pushed. This version brings big changes to the `cycle` function. If you haven't used cycle yet, then the update won't affect your code. Otherwise, the minimum change will be to change the `effect` peramater to `reaction`.
+
+It also includes the API class from the Tools folder. This means it's now a standard part of the library. More functionality will be added to the API class throughout the minor releases of v3.
+
+---
 Version 2.0 has been pushed. I had to up the version number because depending on exactly how one is constructing their scenes, it could be a breaking change. For most applications of the library you will not have to update your code at all.
 
 **What's the big change that doesn't change much?**
