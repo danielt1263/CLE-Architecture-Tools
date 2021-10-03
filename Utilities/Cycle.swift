@@ -10,30 +10,46 @@ import RxSwift
 
 /**
  A free function that creates an Observable of the Output of the Cycle type.
- 
+
  - Parameter logic: A function that describes how to transform Observable Input to Output.
  - Parameter reactions: An array of functions that describe how to transform Observable Output back into Input.
  - Returns: An observable of type Output whose lifetime is bound to the internal Cycle type created by the `using` operator.
  */
 public func cycle<Input, Output>(
-    logic: @escaping (Observable<Input>) -> Observable<Output>,
-    reactions: [(Observable<Output>) -> Observable<Input>]
+	logic: @escaping (Observable<Input>) -> Observable<Output>,
+	reactions: [(Observable<Output>) -> Observable<Input>]
 ) -> Observable<Output> {
-	return Observable.using({ Cycle(logic: logic, effects: reactions) }, observableFactory: { $0.output })
+	return Observable.using({ Cycle(inputs: [], logic: logic, effects: reactions) }, observableFactory: { $0.output })
 }
 
 /**
  A free function that creates an Observable of the Output of the Cycle type.
- 
+
  - Parameter logic: A function that describes how to transform Observable Input to Output.
- - Parameter reactions: A single function that describes how to transform Observable Output back into Input.
+ - Parameter reaction: A single function that describes how to transform Observable Output back into Input.
  - Returns: An observable of type Output whose lifetime is bound to the internal Cycle type created by the `using` operator.
  */
 public func cycle<Input, Output>(
-    logic: @escaping (Observable<Input>) -> Observable<Output>,
-    reaction: @escaping (Observable<Output>) -> Observable<Input>
+	logic: @escaping (Observable<Input>) -> Observable<Output>,
+	reaction: @escaping (Observable<Output>) -> Observable<Input>
 ) -> Observable<Output> {
-	return Observable.using({ Cycle(logic: logic, effects: [reaction]) }, observableFactory: { $0.output })
+	return Observable.using({ Cycle(inputs: [], logic: logic, effects: [reaction]) }, observableFactory: { $0.output })
+}
+
+/**
+ A free function that creates an Observable of the Output of the Cycle type.
+
+ - Parameter inputs: An array of Observables of the Input type that can affect the logic.
+ - Parameter logic: A function that describes how to transform Observable Input to Output.
+ - Parameter reactions: An array of functions that describe how to transform Observable Output back into Input.
+ - Returns: An observable of type Output whose lifetime is bound to the internal Cycle type created by the `using` operator.
+ */
+public func cycle<Input, Output>(
+	inputs: [Observable<Input>],
+	logic: @escaping (Observable<Input>) -> Observable<Output>,
+	reactions: [(Observable<Output>) -> Observable<Input>]
+) -> Observable<Output> {
+	return Observable.using({ Cycle(inputs: inputs, logic: logic, effects: reactions) }, observableFactory: { $0.output })
 }
 
 /**
@@ -44,8 +60,8 @@ public func cycle<Input, Output>(
  - Returns: A new function that transforms Observable State into Observable Action.
  */
 public func reaction<State, Request, Action>(
-    request: @escaping (State) -> Request,
-    effect: @escaping (Request) -> Observable<Action>
+	request: @escaping (State) -> Request,
+	effect: @escaping (Request) -> Observable<Action>
 ) -> (Observable<State>) -> Observable<Action> where Request: Collection & Equatable {
 	reaction(request: request, compare: { $0 == $1 }, effect: effect)
 }
@@ -58,8 +74,8 @@ public func reaction<State, Request, Action>(
  - Returns: A new function that transforms Observable State into Observable Action.
  */
 public func reaction<State, Request, Action>(
-    request: @escaping (State) -> Request?,
-    effect: @escaping (Request) -> Observable<Action>
+	request: @escaping (State) -> Request?,
+	effect: @escaping (Request) -> Observable<Action>
 ) -> (Observable<State>) -> Observable<Action> where Request: Equatable {
 	reaction(request: request, compare: { $0 == $1 }, effect: effect)
 }
@@ -73,13 +89,13 @@ public func reaction<State, Request, Action>(
  - Returns: A new function that transforms Observable State into Observable Action.
  */
 public func reaction<State, Request, Action>(
-    request: @escaping (State) -> Request,
-    compare: @escaping (Request, Request) -> Bool,
-    effect: @escaping (Request) -> Observable<Action>
+	request: @escaping (State) -> Request,
+	compare: @escaping (Request, Request) -> Bool,
+	effect: @escaping (Request) -> Observable<Action>
 ) -> (Observable<State>) -> Observable<Action> where Request: Collection {
 	{ $0.map(request)
-		.distinctUntilChanged(compare)
-		.flatMapLatest { $0.isEmpty ? Observable.empty() : effect($0) }
+			.distinctUntilChanged(compare)
+			.flatMapLatest { $0.isEmpty ? Observable.empty() : effect($0) }
 	}
 }
 
@@ -92,16 +108,16 @@ public func reaction<State, Request, Action>(
  - Returns: A new function that transforms Observable State into Observable Action.
  */
 public func reaction<State, Request, Action>(
-    request: @escaping (State) -> Request?,
-    compare: @escaping (Request?, Request?) -> Bool,
-    effect: @escaping (Request) -> Observable<Action>
+	request: @escaping (State) -> Request?,
+	compare: @escaping (Request?, Request?) -> Bool,
+	effect: @escaping (Request) -> Observable<Action>
 ) -> (Observable<State>) -> Observable<Action> {
 	{ $0.map(request)
-		.distinctUntilChanged(compare)
-		.flatMapLatest { (request) -> Observable<Action> in
-			guard let request = request else { return Observable.empty() }
-			return effect(request)
-		}
+			.distinctUntilChanged(compare)
+			.flatMapLatest { (request) -> Observable<Action> in
+				guard let request = request else { return Observable.empty() }
+				return effect(request)
+			}
 	}
 }
 
@@ -113,30 +129,23 @@ public func reaction<State, Request, Action>(
  - Returns: A new function that transforms Observable State into Observable Action.
  */
 public func reaction<State, Action>(
-    request: @escaping (State) -> Bool,
-    effect: @escaping (()) -> Observable<Action>
+	request: @escaping (State) -> Bool,
+	effect: @escaping (()) -> Observable<Action>
 ) -> (Observable<State>) -> Observable<Action> {
 	{ $0.map(request)
-		.distinctUntilChanged()
-		.flatMapLatest { $0 ? effect(()) : Observable.empty() }
+			.distinctUntilChanged()
+			.flatMapLatest { $0 ? effect(()) : Observable.empty() }
 	}
 }
 
-/**
- Cycle
- 
- A type whose purpose is to transform Input to Output and manage effects (or reactions) that "cycle" the Output, by transforming Output back into Input.
-
- - Parameter logic: A function that describes how to transform Observable Input to Output.
- - Parameter effects: An array of functions that describe how to transform Observable Output to Input.
- */
 private final class Cycle<Input, Output>: Disposable {
 	fileprivate let output: Observable<Output>
 	private let disposable: Disposable
 
-	init(logic: (Observable<Input>) -> Observable<Output>, effects: [(Observable<Output>) -> Observable<Input>]) {
+	init(inputs: [Observable<Input>], logic: (Observable<Input>) -> Observable<Output>, effects: [(Observable<Output>) -> Observable<Input>]) {
 		let subject = ReplaySubject<Output>.create(bufferSize: 1)
-		disposable = logic(Observable.merge(effects.map { $0(subject) }))
+		let inputs = Observable.merge(inputs + effects.map { $0(subject) })
+		disposable = logic(inputs)
 			.bind(to: subject)
 		output = subject.asObservable()
 	}
