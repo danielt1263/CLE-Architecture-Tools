@@ -8,6 +8,9 @@
 import RxSwift
 import Foundation
 
+/**
+ An abstraction defining a server endpoint.
+ */
 public struct Endpoint<T> {
 	public let request: URLRequest
 	public let response: (Data) throws -> T
@@ -22,14 +25,14 @@ public struct Endpoint<T> {
  A high level abstraction around URLSession for making requests, tracking network activity and handling errors.
  */
 public final class API {
-	private let session: URLSession
 	private let activityIndicator: ActivityIndicator
 	private let errorRouter: ErrorRouter
+	private var data: (URLRequest) -> Observable<Data>
 
 	public init(session: URLSession = .shared, activityIndicator: ActivityIndicator = ActivityIndicator(), errorRouter: ErrorRouter = ErrorRouter()) {
-		self.session = session
 		self.activityIndicator = activityIndicator
 		self.errorRouter = errorRouter
+		self.data = session.rx.data(request:)
 	}
 
 	public var error: Observable<Error> {
@@ -66,8 +69,8 @@ public final class API {
 	public func successResponse(_ endpoint: Endpoint<Void>) -> Observable<Bool> {
 		rawResponse(endpoint)
 			.do(onError: { [errorRouter] in errorRouter.routeError($0) })
-			.map(to: true)
-			.catch { _ in Observable.just(false) }
+				.map(to: true)
+				.catch { _ in Observable.just(false) }
 	}
 
 	/**
@@ -82,8 +85,8 @@ public final class API {
 	public func successResponse<T>(_ endpoint: Endpoint<T>) -> Observable<T?> {
 		rawResponse(endpoint)
 			.do(onError: { [errorRouter] in errorRouter.routeError($0) })
-			.map { Optional.some($0) }
-			.catch { _ in Observable.just(nil) }
+				.map { Optional.some($0) }
+				.catch { _ in Observable.just(nil) }
 	}
 
 	/**
@@ -110,9 +113,17 @@ public final class API {
 	 - Returns: A Observable of the response type.
 	 */
 	public func rawResponse<T>(_ endpoint: Endpoint<T>) -> Observable<T> {
-		session.rx.data(request: endpoint.request)
+		data(endpoint.request)
 			.trackActivity(activityIndicator)
 			.map(endpoint.response)
+	}
+
+	/**
+	 Allows client to change the source that the above methods use for retrieving data. Use this method when you want to, for example, stub out a network request in favor of responding with local data while testing.
+	 - Parameter data: The function that should be used by the above methods to make network requests. All of the above methods will ultimate use the function passed in.
+	 */
+	public func setSource(_ data: @escaping (URLRequest) -> Observable<Data>) {
+		self.data = data
 	}
 }
 
