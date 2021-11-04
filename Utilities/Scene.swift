@@ -7,6 +7,7 @@
 
 import UIKit
 import RxSwift
+import RxCocoa
 
 public struct Scene<Action> {
 	public let controller: UIViewController
