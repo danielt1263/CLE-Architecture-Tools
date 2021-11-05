@@ -6,16 +6,15 @@ import UIKit
 
 extension ___VARIABLE_productName___ViewController {
 	func connect() -> Observable<___VARIABLE_productName___Action> {
-
+		
 		// connect views here.
-
-		let action = Observable<___VARIABLE_productName___Action>.never()
-			.take(until: rx.deallocating)
-
-		return action
+		
+		// return action to communicate to parent view controller.
+		return Observable<___VARIABLE_productName___Action>.never()
+		
 	}
 }
 
 enum ___VARIABLE_productName___Action {
-
+	
 }
