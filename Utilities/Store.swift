@@ -8,7 +8,6 @@
 import Foundation
 import RxSwift
 
-@available(*, deprecated, message: "Use cycle function instead")
 public final class Store<Action, State, Environment>: ObserverType {
 
 	public let state: Observable<State>
@@ -42,7 +41,52 @@ public final class Store<Action, State, Environment>: ObserverType {
 		}
 	}
 
-	private let action = ReplaySubject<Action>.createUnbounded()
+	private let action = PublishSubject<Action>()
 	private let lock = NSRecursiveLock()
 	private let disposeBag = DisposeBag()
+}
+
+public extension ObservableType {
+	static func cancel(id: AnyHashable) -> Observable<Element> {
+		Observable.deferred {
+			disposeBagsLock.lock()
+			disposeBags.removeValue(forKey: id)
+			disposeBagsLock.unlock()
+			return .empty()
+		}
+	}
+
+	func cancellable(id: AnyHashable, cancelInFlight: Bool = false) -> Observable<Element> {
+		Observable.deferred {
+			if cancelInFlight {
+				disposeBagsLock.sync {
+					disposeBags.removeValue(forKey: id)
+				}
+			}
+			let subject = PublishSubject<Element>()
+			let disposable = self.subscribe(subject)
+			disposeBagsLock.sync {
+				if let bag = disposeBags[id] {
+					bag.insert(disposable)
+				}
+				else {
+					let bag = DisposeBag()
+					bag.insert(disposable)
+					disposeBags[id] = bag
+				}
+			}
+			return subject
+		}
+	}
+}
+
+private var disposeBags: [AnyHashable: DisposeBag] = [:]
+private let disposeBagsLock = NSRecursiveLock()
+
+private extension NSRecursiveLock {
+	func sync(_ callback: () -> Void) {
+		lock()
+		callback()
+		unlock()
+	}
 }
