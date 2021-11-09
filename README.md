@@ -1,6 +1,17 @@
 # CLE-Architecture-Tools
 
-Version 3.x has been pushed. This version brings big changes to the `cycle` function. If you haven't used cycle yet, then the update won't affect your code. Otherwise, the minimum change will be to change the `effect` peramater to `reaction`.
+With version 3.3, I have removed the deprecation warning from the Store class. Some users have expressed that the `Store` type makes more sense to them than the `cyle` function. I also added the ability to cancel Observables that are returned from the store's reducer.
+
+Although I have removed the deprecation warning, I don't like the class and it might be instructive for me to explain why.
+
+A fundamental philosophy of CLE is the idea of an imperative shell with a functional core (first explained by [Gary Bernhardt](https://www.destroyallsoftware.com/talks/boundaries)) and expanded on in Swift by [Matt Diephouse](https://www.youtube.com/watch?v=7AGQ9dhWCX0). This means, among other things that the side effects (the imperative part) are on the outside edge of the system and are _not injected_ into the logic. This is a major departure from every other architectural style that I know of. The whole point of this architectural style is that you never need to Mock or Stub out any code in testing.
+
+Notice that I didn't mention Fakes in the above. Just Mocks and Stubs. That's because even CLE requires that you use TestObservable which is a Fake. If you are careful with the environment type that you use in the Store class and ensure that you only need to pass in Fakes through it when testing, you can keep to the philosophy while using it, but it doesn't strictly enforce it as well as the rest of my architecture.
+
+I'm happy to go into more depth for those that are interested. You can hit me up on social media or raise an issue on github if you have any questions or otherwise want to discuss it.
+
+---
+Version 3.x has been pushed. This version brings big changes to the `cycle` function. If you haven't used cycle yet, then the update won't affect your code. Otherwise, the minimum change will be to change the `effect` paramater to `reaction`.
 
 It also includes the API class from the Tools folder. This means it's now a standard part of the library. More functionality will be added to the API class throughout the minor releases of v3.
 
@@ -49,7 +60,7 @@ $ pod install
 The idea behind this library is to provide an easy way to wrap a view controller as an Observable resource in order to make it a simple asynchronous event. In essence, your code will be able to work with its view controllers the same way it works with its server or database, through flatMap and bind.
 
 ### Scene
-The core type is the `Scene` which consists of a view controller, along with an Observable that emits any needed user provided values along with a stop event when it's done. Alternativly, the calling code can `dispose()` the Scene's Observable if it wants to dismiss the view controller before completion.
+The core type is the `Scene` which consists of a view controller, along with an Observable that emits any needed user provided values along with a stop event when it's done. Alternatively, the calling code can `dispose()` the Scene's Observable if it wants to dismiss the view controller before completion.
 
 A `Scene` can be created from a view controller by calling the `scene` method. There is an instance method for constructing a Scene from an already existing view controller or you can use the `scene` static method which will load a view controller from a storyboard and create a Scene using that.
 
@@ -129,6 +140,6 @@ _ = call(presentScene(animated: true, over: button) {
 
 ## Other Types
 
-The other types/methods/functions in the library are ancelary that I use in at least 80% of my apps.
+The other types/methods/functions in the library are ancillary that I use in at least 80% of my apps.
 
-The `ActivityIndicator` and `ErrorRouter` types are used to track network requests. The `cycle` function can be used when you have an Observable that feeds back on itself. The `Identifier` type is used to create ids for `Identifiable` types. RxHelpers contains some misc methods to make mapping and Observer success easier to deal with. The "UIColor+Extensions" file contains a convience init function to create a color from a hex value. The "UIViewController+Rx.swift" file wraps some basic functions for handling a view controller internally. It includes `dismissSelf` and `popSelf` on those rare occasions when you want to remove a view controller _before_ it completes.
+The `ActivityIndicator` and `ErrorRouter` types are used to track network requests. The `cycle` function can be used when you have an Observable that feeds back on itself. The `Identifier` type is used to create ids for `Identifiable` types. RxHelpers contains some misc methods to make mapping and Observer success easier to deal with. The "UIColor+Extensions" file contains a convenience init function to create a color from a hex value. The "UIViewController+Rx.swift" file wraps some basic functions for handling a view controller internally. It includes `dismissSelf` and `popSelf` on those rare occasions when you want to remove a view controller _before_ it completes.
