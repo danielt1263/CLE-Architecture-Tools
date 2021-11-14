@@ -31,7 +31,7 @@ public func reaction<State, Request, Input>(
 	effect: @escaping (Request) -> Observable<Input>
 ) -> Reaction<State, Input> where Request: Collection {
 	{ $0.map(request)
-			.flatMap { $0.isEmpty ? Observable.empty() : effect($0) }
+		.flatMap { $0.isEmpty ? Observable.empty() : effect($0) }
 	}
 }
 
@@ -48,7 +48,7 @@ public func reaction<State, Request, Input>(
 	effect: @escaping (Request) -> Observable<Input>
 ) -> Reaction<State, Input> {
 	{ $0.compactMap(request)
-			.flatMap(effect)
+		.flatMap(effect)
 	}
 }
 
@@ -65,7 +65,6 @@ public func reaction<State, Input>(
 	effect: @escaping (()) -> Observable<Input>
 ) -> Reaction<State, Input> {
 	{ $0.map(request)
-			.distinctUntilChanged()
-			.flatMapLatest { $0 ? effect(()) : Observable.empty() }
+		.flatMap { $0 ? effect(()) : Observable.empty() }
 	}
 }
