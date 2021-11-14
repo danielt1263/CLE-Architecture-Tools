@@ -1,7 +1,7 @@
 //
 //  API.swift
 //
-//  Created by Daniel Tartaglia on 3/4/2021.
+//  Created by Daniel Tartaglia on 4 Mar 2021.
 //  Copyright © 2021 Daniel Tartaglia. MIT License.
 //
 
@@ -11,18 +11,19 @@ import Foundation
 /**
  An abstraction defining a server endpoint.
  */
-public struct Endpoint<T> {
+public struct Endpoint<Response> {
 	public let request: URLRequest
-	public let response: (Data) throws -> T
+	public let response: (Data) throws -> Response
 
-	public init(request: URLRequest, response: @escaping (Data) throws -> T) {
+	public init(request: URLRequest, response: @escaping (Data) throws -> Response) {
 		self.request = request
 		self.response = response
 	}
 }
 
 /**
- A high level abstraction around URLSession for making requests, tracking network activity and handling errors.
+ A high level abstraction around URLSession for making requests, tracking network activity and handling
+ errors.
  */
 public final class API {
 	private let activityIndicator: ActivityIndicator
@@ -35,22 +36,31 @@ public final class API {
 		self.data = session.rx.data(request:)
 	}
 
+	/**
+	 All requests thta fail (except for those made with `rawRequest` will have their errors routed to this
+	 Observable.
+	 */
 	public var error: Observable<Error> {
 		errorRouter.error
 	}
 
+	/**
+	 All requests made with this object will have their in flight status tracked.
+	 */
 	public var isActive: Observable<Bool> {
 		activityIndicator.asObservable()
 	}
 
 	/**
-	 Transforms an Endpoint<T> into an Observable<T> by making requests to the local URLSession.
+	 Transforms an Endpoint<Response> into an Observable<Response> by making requests to the local
+	 URLSession.
 
 	 * Network activity is tracked by the local activity indicator.
 	 * Errors from the Observable are routed to the local error router.
 
 	 - Parameter endpoint: The API endpoint for which a request is made.
-	 - Returns: An Observable of the response type whose network activity and errors are handled automatically. This Observable will not emit an error event.
+	 - Returns: An Observable of the response type whose network activity and errors are handled
+	 automatically. This Observable will not emit an error event.
 	 */
 	public func response<T>(_ endpoint: Endpoint<T>) -> Observable<T> {
 		rawResponse(endpoint)
@@ -58,7 +68,8 @@ public final class API {
 	}
 
 	/**
-	 Transforms an Endpoint<Void> into an Observable<Bool> for making requests to the local URLSession.
+	 Transforms an Endpoint<Void> into an Observable<Bool> for making requests to the local
+	 URLSession.
 
 	 * Network activity is tracked by the local activity indicator.
 	 * Errors from the network request are routed to the local error router and the response will emit false.
@@ -74,7 +85,8 @@ public final class API {
 	}
 
 	/**
-	 Transforms an Endpoint<T> into an Observable<T?> for making requests to the local URLSession.
+	 Transforms an Endpoint<Response> into an Observable<Response?> for making requests to the
+	 local URLSession.
 
 	 * Network activity is tracked by the local activity indicator.
 	 * Errors from the Observable are routed to the local error router and the response will emit nil.
@@ -90,7 +102,8 @@ public final class API {
 	}
 
 	/**
-	 Transforms an Endpoint<T> into an Observable of Result<T, Error> for making requests to the local URLSession.
+	 Transforms an Endpoint<Response> into an Observable of Result<Response, Error> for making
+	 requests to the local URLSession.
 
 	 * Network activity is tracked by the local activity indicator.
 
@@ -104,7 +117,8 @@ public final class API {
 	}
 
 	/**
-	 Transforms an Endpoint<T> into an Observable<T> for making requests to the local URLSession.
+	 Transforms an Endpoint<Response> into an Observable<Response> for making requests to the local
+	 URLSession.
 
 	 * Network activity is tracked by the local activity indicator.
 	 * An error will emit if the network request fails.
@@ -119,22 +133,25 @@ public final class API {
 	}
 
 	/**
-	 Allows client to change the source that the above methods use for retrieving data. Use this method when you want to, for example, stub out a network request in favor of responding with local data while testing.
-	 - Parameter data: The function that should be used by the above methods to make network requests. All of the above methods will ultimate use the function passed in.
+	 Allows client to change the source that the above methods use for retrieving data. Use this method
+	 when you want to, for example, stub out a network request in favor of responding with local data while
+	 testing.
+	 - Parameter data: The function that should be used by the above methods to make network
+	 requests. All of the above methods will ultimate use the function passed in.
 	 */
 	public func setSource(_ data: @escaping (URLRequest) -> Observable<Data>) {
 		self.data = data
 	}
 }
 
-extension Endpoint where T: Decodable {
+extension Endpoint where Response: Decodable {
 	public init(request: URLRequest, decoder: DataDecoder) {
 		self.request = request
-		self.response = { try decoder.decode(T.self, from: $0) }
+		self.response = { try decoder.decode(Response.self, from: $0) }
 	}
 }
 
-extension Endpoint where T == Void {
+extension Endpoint where Response == Void {
 	public init(request: URLRequest) {
 		self.request = request
 		self.response = { _ in }

@@ -1,7 +1,7 @@
 //
 //  Cycle.swift
 //
-//  Created by Daniel Tartaglia on 2/26/2021.
+//  Created by Daniel Tartaglia on 26 Feb 2021.
 //  Copyright © 2021 Daniel Tartaglia. MIT License.
 //
 
@@ -9,145 +9,99 @@ import Foundation
 import RxSwift
 
 /**
- A free function that creates an Observable of the Output of the Cycle type.
+ The various `cycle` functions below are designed to help the developer setup a state machine. Unlike
+ other libraries, this state machine is setup along the lines of a Mealy machine rather than a Moore machine.
+ The primary difference for our purpose is that the output is based on both the input and state, not just state.
+ The benefit of such a system is that fewer states are needed for the machine.
 
- - Parameter logic: A function that describes how to transform Observable Input to Output.
- - Parameter reactions: An array of functions that describe how to transform Observable Output back into Input.
- - Returns: An observable of type Output whose lifetime is bound to the internal Cycle type created by the `using` operator.
+ The first event emitted from `cycle` will always be `(nil, initialState)`. All events after that point
+ will contain a non-optional input.
  */
-public func cycle<Input, Output>(
-	logic: @escaping (Observable<Input>) -> Observable<Output>,
-	reactions: [(Observable<Output>) -> Observable<Input>]
-) -> Observable<Output> {
-	return Observable.using({ Cycle(inputs: [], logic: logic, effects: reactions) }, observableFactory: { $0.output })
-}
 
 /**
- A free function that creates an Observable of the Output of the Cycle type.
-
- - Parameter logic: A function that describes how to transform Observable Input to Output.
- - Parameter reaction: A single function that describes how to transform Observable Output back into Input.
- - Returns: An observable of type Output whose lifetime is bound to the internal Cycle type created by the `using` operator.
+ - Parameter inputs: An array of external inputs that drive the machine.
+ - Parameter initialState: The starting state of the machine.
+ - Parameter reduce: The function that defines how state transitions.
+ - Parameter reaction: A side effect that feedsback into the state machine.
+ - Returns: An Observable that emits the state of the machine as it updates, along with the most recent
+ input into the machine.
  */
-public func cycle<Input, Output>(
-	logic: @escaping (Observable<Input>) -> Observable<Output>,
-	reaction: @escaping (Observable<Output>) -> Observable<Input>
-) -> Observable<Output> {
-	return Observable.using({ Cycle(inputs: [], logic: logic, effects: [reaction]) }, observableFactory: { $0.output })
-}
-
-/**
- A free function that creates an Observable of the Output of the Cycle type.
-
- - Parameter inputs: An array of Observables of the Input type that can affect the logic.
- - Parameter logic: A function that describes how to transform Observable Input to Output.
- - Parameter reactions: An array of functions that describe how to transform Observable Output back into Input.
- - Returns: An observable of type Output whose lifetime is bound to the internal Cycle type created by the `using` operator.
- */
-public func cycle<Input, Output>(
+public func cycle<State, Input>(
 	inputs: [Observable<Input>],
-	logic: @escaping (Observable<Input>) -> Observable<Output>,
-	reactions: [(Observable<Output>) -> Observable<Input>]
-) -> Observable<Output> {
-	return Observable.using({ Cycle(inputs: inputs, logic: logic, effects: reactions) }, observableFactory: { $0.output })
+	initialState: State,
+	reduce: @escaping (inout State, Input) -> Void,
+	reaction: @escaping Reaction<State, Input>
+) -> Observable<(Input?, State)> {
+	return Observable.using({ Cycle(inputs: inputs, initialState: initialState, reduce: reduce, reactions: [reaction]) }, observableFactory: { $0.output })
 }
 
 /**
- A free function that given a "request" `(State) -> Request` and an "effect" `(Request) -> Observable<Action>`, returns a function transforming Observable State into Observable Action.
-
- - Parameter request: A function that transforms State to a Request.
- - Parameter effect: A function that transforms Request into an Observable Action.
- - Returns: A new function that transforms Observable State into Observable Action.
+ - Parameter inputs: An array of external inputs that drive the machine.
+ - Parameter initialState: The starting state of the machine.
+ - Parameter reduce: The function that defines how state transitions.
+ - Parameter reaction: An array of side effects that feedsback into the state machine.
+ - Returns: An Observable that emits the state of the machine as it updates, along with the most recent
+ input into the machine.
  */
-public func reaction<State, Request, Action>(
-	request: @escaping (State) -> Request,
-	effect: @escaping (Request) -> Observable<Action>
-) -> (Observable<State>) -> Observable<Action> where Request: Collection & Equatable {
-	reaction(request: request, compare: { $0 == $1 }, effect: effect)
+public func cycle<State, Input>(
+	inputs: [Observable<Input>],
+	initialState: State,
+	reduce: @escaping (inout State, Input) -> Void,
+	reactions: [Reaction<State, Input>]
+) -> Observable<(Input?, State)> {
+	return Observable.using({ Cycle(inputs: inputs, initialState: initialState, reduce: reduce, reactions: reactions) }, observableFactory: { $0.output })
 }
 
 /**
- A free function that given a "request" `(State) -> Request?` and an "effect" `(Request) -> Observable<Action>`, returns a function transforming Observable State into Observable Action.
-
- - Parameter request: A function that transforms State into an Optional Request.
- - Parameter effect: A function that transforms Request into an Observable Action.
- - Returns: A new function that transforms Observable State into Observable Action.
+ - Parameter inputs: An external input that drives the machine.
+ - Parameter initialState: The starting state of the machine.
+ - Parameter reduce: The function that defines how state transitions.
+ - Parameter reaction: A side effect that feedsback into the state machine.
+ - Returns: An Observable that emits the state of the machine as it updates, along with the most recent
+ input into the machine.
  */
-public func reaction<State, Request, Action>(
-	request: @escaping (State) -> Request?,
-	effect: @escaping (Request) -> Observable<Action>
-) -> (Observable<State>) -> Observable<Action> where Request: Equatable {
-	reaction(request: request, compare: { $0 == $1 }, effect: effect)
+public func cycle<State, Input>(
+	input: Observable<Input>,
+	initialState: State,
+	reduce: @escaping (inout State, Input) -> Void,
+	reaction: @escaping Reaction<State, Input>
+) -> Observable<(Input?, State)> {
+	return Observable.using({ Cycle(inputs: [input], initialState: initialState, reduce: reduce, reactions: [reaction]) }, observableFactory: { $0.output })
 }
 
 /**
- A free function that given a "request" `(State) -> Request`, a compare function `(Request, Request) -> Bool`, and an "effect" `(Request) -> Observable<Action>`, returns a function transforming Observable State into Observable Action.
-
- - Parameter request: A function that transforms State to a Request.
- - Parameter compare: A function that compares two Requests for equality. Comparison is used to avoid running the same Request twice through the effects.
- - Parameter effect: A function that transforms Request into an Observable Action.
- - Returns: A new function that transforms Observable State into Observable Action.
+ - Parameter input: An external input that drives the machine.
+ - Parameter initialState: The starting state of the machine.
+ - Parameter reduce: The function that defines how state transitions.
+ - Parameter reaction: A side effect that feedsback into the state machine.
+ - Returns: An Observable that emits the state of the machine as it updates, along with the most recent
+ input into the machine.
  */
-public func reaction<State, Request, Action>(
-	request: @escaping (State) -> Request,
-	compare: @escaping (Request, Request) -> Bool,
-	effect: @escaping (Request) -> Observable<Action>
-) -> (Observable<State>) -> Observable<Action> where Request: Collection {
-	{ $0.map(request)
-			.distinctUntilChanged(compare)
-			.flatMapLatest { $0.isEmpty ? Observable.empty() : effect($0) }
-	}
+public func cycle<State, Input>(
+	input: Observable<Input>,
+	initialState: State,
+	reduce: @escaping (inout State, Input) -> Void,
+	reactions: [Reaction<State, Input>]
+) -> Observable<(Input?, State)> {
+	return Observable.using({ Cycle(inputs: [input], initialState: initialState, reduce: reduce, reactions: reactions) }, observableFactory: { $0.output })
 }
 
-/**
- A free function that given a "request" `(State) -> Request?`, a compare function `(Request?, Request?) -> Bool`, and an "effect" `(Request) -> Observable<Action>`, returns a function transforming Observable State into Observable Action.
-
- - Parameter request: A function that transforms State to an Optional Request.
- - Parameter compare: A function that compares two Optional Requests for equality. Comparison is used to avoid running the same Request twice through the effects.
- - Parameter effect: A function that transforms Request into an Observable Action.
- - Returns: A new function that transforms Observable State into Observable Action.
- */
-public func reaction<State, Request, Action>(
-	request: @escaping (State) -> Request?,
-	compare: @escaping (Request?, Request?) -> Bool,
-	effect: @escaping (Request) -> Observable<Action>
-) -> (Observable<State>) -> Observable<Action> {
-	{ $0.map(request)
-			.distinctUntilChanged(compare)
-			.flatMapLatest { (request) -> Observable<Action> in
-				guard let request = request else { return Observable.empty() }
-				return effect(request)
-			}
-	}
-}
-
-/**
- A free function that given a "request" `(State) -> Bool` and an "effect" `(Request) -> Observable<Action>`, returns a function transforming Observable State into Observable Action.
-
- - Parameter request: A function that transforms State to a Bool.
- - Parameter effect: A function that transforms returns an Observable Action.
- - Returns: A new function that transforms Observable State into Observable Action.
- */
-public func reaction<State, Action>(
-	request: @escaping (State) -> Bool,
-	effect: @escaping (()) -> Observable<Action>
-) -> (Observable<State>) -> Observable<Action> {
-	{ $0.map(request)
-			.distinctUntilChanged()
-			.flatMapLatest { $0 ? effect(()) : Observable.empty() }
-	}
-}
-
-private final class Cycle<Input, Output>: Disposable {
-	fileprivate let output: Observable<Output>
+private final class Cycle<State, Input>: Disposable {
+	let output: Observable<(Input?, State)>
 	private let disposable: Disposable
 
-	init(inputs: [Observable<Input>], logic: (Observable<Input>) -> Observable<Output>, effects: [(Observable<Output>) -> Observable<Input>]) {
-		let subject = ReplaySubject<Output>.create(bufferSize: 1)
-		let inputs = Observable.merge(inputs + effects.map { $0(subject) })
-		disposable = logic(inputs)
-			.bind(to: subject)
-		output = subject.asObservable()
+	init(inputs: [Observable<Input>], initialState: State, reduce: @escaping (inout State, Input) -> Void, reactions: [Reaction<State, Input>]
+	) {
+		let subject = PublishSubject<Input>()
+		let allInputs = Observable.merge(inputs + [subject])
+		let state = allInputs
+			.scan(into: initialState, accumulator: reduce)
+			.startWith(initialState)
+		let output = Observable.zip(allInputs.map(Optional.some).startWith(nil), state)
+			.share(replay: 1)
+		self.output = output
+		disposable = Observable.merge(reactions.map { $0(output) })
+			.subscribe(subject)
 	}
 
 	func dispose() {
