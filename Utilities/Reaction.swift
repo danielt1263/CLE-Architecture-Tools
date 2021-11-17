@@ -9,7 +9,7 @@ import Foundation
 import RxSwift
 
 /**
- The various reaction functions are used to create feedback reactions for the above `cycle` functions. All of
+ The various reaction functions are used to create feedback reactions for the `cycle` functions. All of
  them take a closure defining a `request` and a closure defining an `effect` that will happen in response
  to a request. The general rule with all of them is that if the `request` closure returns an approprate value, a
  new effect will be generated with that request. The rules around what an approiate value is depends on the
@@ -22,7 +22,7 @@ public typealias Reaction<State, Input> = (Observable<(State, Input)>) -> Observ
  For this reaction, the request can be any type. If the `request` closure returns nil, no effect will be
  generated. If it contains a value, the effect closure will be called with the request.
 
- - Parameter request: A function that transforms State into an Optional Request.
+ - Parameter request: A function that transforms the Output into an Optional Request.
  - Parameter effect: A function that transforms Request into an Observable Action.
  - Returns: A new function that transforms Observable State into Observable Action.
  */
@@ -39,7 +39,7 @@ public func reaction<State, Request, Input>(
  For this reaction, the request is a collection. If it is empty, no effect will be generated. If it contains at least one
  value, the effect closure will be called with the collection value.
 
- - Parameter request: A function that transforms the output to a Collection.
+ - Parameter request: A function that transforms the Output into a Collection.
  - Parameter effect: A function that transforms Request into an Observable Action.
  - Returns: A new function that transforms Observable State into Observable Action.
  */
@@ -54,9 +54,9 @@ public func reaction<State, Request, Input>(
 
 /**
  For this reaction, the request is a Bool. If the `request` closure returns false, no effect will be generated. If
- it return true, the effect closure will be called.
+ it returns true, the effect closure will be called.
 
- - Parameter request: A function that transforms State to a Bool.
+ - Parameter request: A function that transforms the Output into a Bool.
  - Parameter effect: A function that transforms returns an Observable Action.
  - Returns: A new function that transforms Observable State into Observable Action.
  */

@@ -1,7 +1,7 @@
 Pod::Spec.new do |spec|
 
   spec.name         = "Cause-Logic-Effect"
-  spec.version      = "4.0.1"
+  spec.version      = "5.0.0"
   spec.summary      = "Tools for developing using the Cause-Logic-Effect architecture."
   spec.description  = <<-DESC
   The Cause-Logic-Effect architecture allows you to write code using a more functional style. The repo also have templates for creating view controllers using the CLE approach.

@@ -9,22 +9,19 @@ import Foundation
 import RxSwift
 
 /**
- The various `cycle` functions below are designed to help the developer setup a state machine. Unlike
- other libraries, this state machine is setup along the lines of a Mealy machine rather than a Moore machine.
- The primary difference for our purpose is that the output is based on both the input and state, not just state.
- The benefit of such a system is that fewer states are needed for the machine.
-
- The first event emitted from `cycle` will always be `(nil, initialState)`. All events after that point
- will contain a non-optional input.
+ The various `cycle` functions below are designed to help the developer setup a state machine. The
+ `reaction`s attached to the machine will recieve the most recent input along with the state _before_
+ applying the input. The return observable however will emit the state _after_ applying the input. For those
+ who are curious, this state machine acts like a Mealy machine for `reaction`s, but a Moor machine for
+ external output.
  */
 
 /**
  - Parameter inputs: An array of external inputs that drive the machine.
  - Parameter initialState: The starting state of the machine.
  - Parameter reduce: The function that defines how state transitions.
- - Parameter reaction: A side effect that feedsback into the state machine.
- - Returns: An Observable that emits the state of the machine as it updates, along with the most recent
- input into the machine.
+ - Parameter reaction: A side effect that feeds back into the state machine.
+ - Returns: An Observable that emits the state of the machine as it updates.
  */
 public func cycle<State, Input>(
 	inputs: [Observable<Input>],
@@ -39,9 +36,8 @@ public func cycle<State, Input>(
  - Parameter inputs: An array of external inputs that drive the machine.
  - Parameter initialState: The starting state of the machine.
  - Parameter reduce: The function that defines how state transitions.
- - Parameter reaction: An array of side effects that feedsback into the state machine.
- - Returns: An Observable that emits the state of the machine as it updates, along with the most recent
- input into the machine.
+ - Parameter reaction: An array of side effects that feeds back into the state machine.
+ - Returns: An Observable that emits the state of the machine as it updates.
  */
 public func cycle<State, Input>(
 	inputs: [Observable<Input>],
@@ -56,9 +52,8 @@ public func cycle<State, Input>(
  - Parameter inputs: An external input that drives the machine.
  - Parameter initialState: The starting state of the machine.
  - Parameter reduce: The function that defines how state transitions.
- - Parameter reaction: A side effect that feedsback into the state machine.
- - Returns: An Observable that emits the state of the machine as it updates, along with the most recent
- input into the machine.
+ - Parameter reaction: A side effect that feeds back into the state machine.
+ - Returns: An Observable that emits the state of the machine as it updates.
  */
 public func cycle<State, Input>(
 	input: Observable<Input>,
@@ -73,9 +68,8 @@ public func cycle<State, Input>(
  - Parameter input: An external input that drives the machine.
  - Parameter initialState: The starting state of the machine.
  - Parameter reduce: The function that defines how state transitions.
- - Parameter reaction: A side effect that feedsback into the state machine.
- - Returns: An Observable that emits the state of the machine as it updates, along with the most recent
- input into the machine.
+ - Parameter reaction: A side effect that feeds back into the state machine.
+ - Returns: An Observable that emits the state of the machine as it updates.
  */
 public func cycle<State, Input>(
 	input: Observable<Input>,
