@@ -1,7 +1,7 @@
 //
 //  Cycle.swift
 //
-//  Created by Daniel Tartaglia on 26 Feb 2021.
+//  Created by Daniel Tartaglia on 25 Feb 2021.
 //  Copyright © 2021 Daniel Tartaglia. MIT License.
 //
 
@@ -31,7 +31,7 @@ public func cycle<State, Input>(
 	initialState: State,
 	reduce: @escaping (inout State, Input) -> Void,
 	reaction: @escaping Reaction<State, Input>
-) -> Observable<(Input?, State)> {
+) -> Observable<State> {
 	return Observable.using({ Cycle(inputs: inputs, initialState: initialState, reduce: reduce, reactions: [reaction]) }, observableFactory: { $0.output })
 }
 
@@ -48,7 +48,7 @@ public func cycle<State, Input>(
 	initialState: State,
 	reduce: @escaping (inout State, Input) -> Void,
 	reactions: [Reaction<State, Input>]
-) -> Observable<(Input?, State)> {
+) -> Observable<State> {
 	return Observable.using({ Cycle(inputs: inputs, initialState: initialState, reduce: reduce, reactions: reactions) }, observableFactory: { $0.output })
 }
 
@@ -65,7 +65,7 @@ public func cycle<State, Input>(
 	initialState: State,
 	reduce: @escaping (inout State, Input) -> Void,
 	reaction: @escaping Reaction<State, Input>
-) -> Observable<(Input?, State)> {
+) -> Observable<State> {
 	return Observable.using({ Cycle(inputs: [input], initialState: initialState, reduce: reduce, reactions: [reaction]) }, observableFactory: { $0.output })
 }
 
@@ -82,28 +82,33 @@ public func cycle<State, Input>(
 	initialState: State,
 	reduce: @escaping (inout State, Input) -> Void,
 	reactions: [Reaction<State, Input>]
-) -> Observable<(Input?, State)> {
+) -> Observable<State> {
 	return Observable.using({ Cycle(inputs: [input], initialState: initialState, reduce: reduce, reactions: reactions) }, observableFactory: { $0.output })
 }
 
 private final class Cycle<State, Input>: Disposable {
-	let output: Observable<(Input?, State)>
+	let output: Observable<State>
 	private let disposable: Disposable
-
+	
 	init(inputs: [Observable<Input>], initialState: State, reduce: @escaping (inout State, Input) -> Void, reactions: [Reaction<State, Input>]
 	) {
-		let subject = PublishSubject<Input>()
-		let allInputs = Observable.merge(inputs + [subject])
+		let reactionInputs = PublishSubject<Input>()
+		let outsideInputs = Observable.merge(inputs)
+			.share(replay: 1)
+		let allInputs = Observable.merge(outsideInputs, reactionInputs)
+			.take(until: outsideInputs.takeLast(1))
+			.share(replay: 1)
 		let state = allInputs
 			.scan(into: initialState, accumulator: reduce)
 			.startWith(initialState)
-		let output = Observable.zip(allInputs.map(Optional.some).startWith(nil), state)
 			.share(replay: 1)
-		self.output = output
-		disposable = Observable.merge(reactions.map { $0(output) })
-			.subscribe(subject)
-	}
+		let reactionInput = Observable.zip(state, allInputs)
 
+		output = state
+		disposable = Observable.merge(reactions.map { $0(reactionInput) })
+			.subscribe(reactionInputs)
+	}
+	
 	func dispose() {
 		disposable.dispose()
 	}

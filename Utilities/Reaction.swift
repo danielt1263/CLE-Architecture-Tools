@@ -16,24 +16,7 @@ import RxSwift
  type of the request object.
  */
 
-public typealias Reaction<State, Input> = (Observable<(Input?, State)>) -> Observable<Input>
-
-/**
- For this reaction, the request is a collection. If it is empty, no effect will be generated. If it contains at least one
- value, the effect closure will be called with the collection value.
-
- - Parameter request: A function that transforms the output to a Collection.
- - Parameter effect: A function that transforms Request into an Observable Action.
- - Returns: A new function that transforms Observable State into Observable Action.
- */
-public func reaction<State, Request, Input>(
-	request: @escaping (Input?, State) -> Request,
-	effect: @escaping (Request) -> Observable<Input>
-) -> Reaction<State, Input> where Request: Collection {
-	{ $0.map(request)
-		.flatMap { $0.isEmpty ? Observable.empty() : effect($0) }
-	}
-}
+public typealias Reaction<State, Input> = (Observable<(State, Input)>) -> Observable<Input>
 
 /**
  For this reaction, the request can be any type. If the `request` closure returns nil, no effect will be
@@ -44,11 +27,28 @@ public func reaction<State, Request, Input>(
  - Returns: A new function that transforms Observable State into Observable Action.
  */
 public func reaction<State, Request, Input>(
-	request: @escaping (Input?, State) -> Request?,
+	request: @escaping (State, Input) -> Request?,
 	effect: @escaping (Request) -> Observable<Input>
 ) -> Reaction<State, Input> {
 	{ $0.compactMap(request)
-		.flatMap(effect)
+			.flatMap(effect)
+	}
+}
+
+/**
+ For this reaction, the request is a collection. If it is empty, no effect will be generated. If it contains at least one
+ value, the effect closure will be called with the collection value.
+
+ - Parameter request: A function that transforms the output to a Collection.
+ - Parameter effect: A function that transforms Request into an Observable Action.
+ - Returns: A new function that transforms Observable State into Observable Action.
+ */
+public func reaction<State, Request, Input>(
+	request: @escaping (State, Input) -> Request,
+	effect: @escaping (Request) -> Observable<Input>
+) -> Reaction<State, Input> where Request: Collection {
+	{ $0.map(request)
+			.flatMap { $0.isEmpty ? Observable.empty() : effect($0) }
 	}
 }
 
@@ -61,10 +61,11 @@ public func reaction<State, Request, Input>(
  - Returns: A new function that transforms Observable State into Observable Action.
  */
 public func reaction<State, Input>(
-	request: @escaping (Input?, State) -> Bool,
+	request: @escaping (State, Input) -> Bool,
 	effect: @escaping (()) -> Observable<Input>
 ) -> Reaction<State, Input> {
 	{ $0.map(request)
-		.flatMap { $0 ? effect(()) : Observable.empty() }
+			.distinctUntilChanged()
+			.flatMapLatest { $0 ? effect(()) : Observable.empty() }
 	}
 }
