@@ -11,61 +11,58 @@ import RxSwift
 /**
  The various reaction functions are used to create feedback reactions for the `cycle` functions. All of
  them take a closure defining a `request` and a closure defining an `effect` that will happen in response
- to a request. The general rule with all of them is that if the `request` closure returns an approprate value, a
- new effect will be generated with that request. The rules around what an approiate value is depends on the
- type of the request object.
+ to a request. The general rule with all of them is that if the `request` closure returns an approprate value,
+ the effect closure will receive it. The rules around what an approiate value is depends on the type of the
+ request object.
  */
 
 public typealias Reaction<State, Input> = (Observable<(State, Input)>) -> Observable<Input>
 
 /**
- For this reaction, the request can be any type. If the `request` closure returns nil, no effect will be
- generated. If it contains a value, the effect closure will be called with the request.
+ For this reaction, the request can be any type. If the `request` closure returns nil then `effect` will not
+ receive a value. If it contains a value, the effect closure will receive the request.
 
  - Parameter request: A function that transforms the Output into an Optional Request.
- - Parameter effect: A function that transforms Request into an Observable Action.
+ - Parameter effect: A function that should emit the results of the side effect.
  - Returns: A new function that transforms Observable State into Observable Action.
  */
-public func reaction<State, Request, Input>(
+public func reaction<State, Input, Request>(
 	request: @escaping (State, Input) -> Request?,
-	effect: @escaping (Request) -> Observable<Input>
+	effect: @escaping (Observable<Request>) -> Observable<Input>
 ) -> Reaction<State, Input> {
-	{ $0.compactMap(request)
-			.flatMap(effect)
-	}
+	{ effect($0.compactMap(request)) }
 }
 
 /**
- For this reaction, the request is a collection. If it is empty, no effect will be generated. If it contains at least one
- value, the effect closure will be called with the collection value.
+ For this reaction, the request is a collection. If it is empty then `effect` will not receive it. If it contains at
+ least one value, the effect closure will receive the request.
 
  - Parameter request: A function that transforms the Output into a Collection.
- - Parameter effect: A function that transforms Request into an Observable Action.
+ - Parameter effect: A function that should emit the results of the side effect.
  - Returns: A new function that transforms Observable State into Observable Action.
  */
 public func reaction<State, Request, Input>(
 	request: @escaping (State, Input) -> Request,
-	effect: @escaping (Request) -> Observable<Input>
+	effect: @escaping (Observable<Request>) -> Observable<Input>
 ) -> Reaction<State, Input> where Request: Collection {
-	{ $0.map(request)
-			.flatMap { $0.isEmpty ? Observable.empty() : effect($0) }
+	{ output in
+			effect(output.map(request).filter { !$0.isEmpty })
 	}
 }
 
 /**
- For this reaction, the request is a Bool. If the `request` closure returns false, no effect will be generated. If
- it returns true, the effect closure will be called.
+ For this reaction, the request is a Bool. If it is false then `effect` will not receive a next event. If it returns
+ true, the effect closure will receive a next event.
 
  - Parameter request: A function that transforms the Output into a Bool.
- - Parameter effect: A function that transforms returns an Observable Action.
+ - Parameter effect: A function that should emit the results of the side effect.
  - Returns: A new function that transforms Observable State into Observable Action.
  */
 public func reaction<State, Input>(
 	request: @escaping (State, Input) -> Bool,
-	effect: @escaping (()) -> Observable<Input>
+	effect: @escaping (Observable<()>) -> Observable<Input>
 ) -> Reaction<State, Input> {
-	{ $0.map(request)
-			.distinctUntilChanged()
-			.flatMapLatest { $0 ? effect(()) : Observable.empty() }
+	{ output in
+		effect(output.map(request).filter { $0 }.map { _ in })
 	}
 }
