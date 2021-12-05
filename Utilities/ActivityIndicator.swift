@@ -1,81 +1,80 @@
 //
 //  ActivityIndicator.swift
-//  RxExample
 //
-//  Created by Krunoslav Zaher on 10/18/15.
-//  Copyright © 2015 Krunoslav Zaher. All rights reserved.
+//  Created by Daniel Tartaglia on 05 Dec 2021.
+//  Copyright © 2021 Daniel Tartaglia. MIT License.
 //
 
 import Foundation
 import RxSwift
-import RxCocoa
 
-private struct ActivityToken<E> : ObservableConvertibleType, Disposable {
-    private let _source: Observable<E>
-    private let _dispose: Cancelable
-
-    init(source: Observable<E>, disposeAction: @escaping () -> Void) {
-        _source = source
-        _dispose = Disposables.create(with: disposeAction)
-    }
-
-    func dispose() {
-        _dispose.dispose()
-    }
-
-    func asObservable() -> Observable<E> {
-        return _source
-    }
+extension ObservableConvertibleType {
+	/**
+	 Attaches this Observable to the provided activity indicator object.
+	 - Parameter activityIndicator: The ActivityIndicator that this observable should be attached
+	 to.
+	 - Returns: An Observable that forwards events from the source.
+	 */
+	public func trackActivity(_ activityIndicator: ActivityIndicator) -> Observable<Element> {
+		activityIndicator.trackActivity(of: self)
+	}
 }
 
 /**
-Enables monitoring of sequence computation.
+ Monitors the activity of all attached Observables. As long as any one attached Observable is active,
+ `isActive` will emit `true`. Once all attached Observables have disposed, `isActive` will emit
+ `false`.
+ */
+public final class ActivityIndicator {
+	public let isActive: Observable<Bool>
 
-If there is at least one sequence computation in progress, `true` will be sent.
-When all activities complete `false` will be sent.
-*/
-public class ActivityIndicator : SharedSequenceConvertibleType {
-    public typealias Element = Bool
-    public typealias SharingStrategy = DriverSharingStrategy
+	private let subject = BehaviorSubject<Int>(value: 0)
+	private let lock = NSRecursiveLock()
 
-    private let _lock = NSRecursiveLock()
-    private let _relay = BehaviorRelay(value: 0)
-    private let _loading: SharedSequence<SharingStrategy, Bool>
+	public init() {
+		isActive = subject
+			.map { $0 > 0 }
+			.distinctUntilChanged()
+	}
 
-    public init() {
-        _loading = _relay.asDriver()
-            .map { $0 > 0 }
-            .distinctUntilChanged()
-    }
+	deinit {
+		subject.onCompleted()
+	}
 
-    fileprivate func trackActivityOfObservable<Source: ObservableConvertibleType>(_ source: Source) -> Observable<Source.Element> {
-        return Observable.using({ () -> ActivityToken<Source.Element> in
-            self.increment()
-            return ActivityToken(source: source.asObservable(), disposeAction: self.decrement)
-        }) { t in
-            return t.asObservable()
-        }
-    }
+	fileprivate func trackActivity<O>(of observable: O) -> Observable<O.Element> where O: ObservableConvertibleType {
+		Observable.using(
+			{ () -> AnyDisposable in
+				self.increment()
+				return AnyDisposable { self.decrement() }
+			},
+			observableFactory: { _ in observable.asObservable() }
+		)
+	}
 
-    private func increment() {
-        _lock.lock()
-        _relay.accept(_relay.value + 1)
-        _lock.unlock()
-    }
+	private func increment() {
+		lock.lock()
+		subject.onNext(try! subject.value() + 1)
+		lock.unlock()
+	}
 
-    private func decrement() {
-        _lock.lock()
-        _relay.accept(_relay.value - 1)
-        _lock.unlock()
-    }
-
-    public func asSharedSequence() -> SharedSequence<SharingStrategy, Element> {
-        return _loading
-    }
+	private func decrement() {
+		lock.lock()
+		subject.onNext(try! subject.value() - 1)
+		lock.unlock()
+	}
 }
 
-extension ObservableConvertibleType {
-    public func trackActivity(_ activityIndicator: ActivityIndicator) -> Observable<Element> {
-        return activityIndicator.trackActivityOfObservable(self)
-    }
+/**
+ A generic Disposable object that will execute the provided closure when disposed.
+ */
+public final class AnyDisposable: Disposable {
+	private let fn: () -> Void
+
+	public init(_ fn: @escaping () -> Void) {
+		self.fn = fn
+	}
+
+	public func dispose() {
+		fn()
+	}
 }
