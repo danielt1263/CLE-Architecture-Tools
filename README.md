@@ -1,5 +1,33 @@
 # CLE-Architecture-Tools
 
+I was helping someone recently and expressed the CLE architecture this way. maybe it will help others...
+
+Whenever you have a side effect that needs to be performed and you need the results. The template is something like:
+```
+let resultOfEffect = trigger
+    .withLatestFrom(additionalDataNeeded)
+    .flatMap { performSideEffect($0) }
+    .share(replay: 1) // if you are using the result in multiple places.
+```
+
+If you don't need the result, then it's
+```
+trigger
+    .withLatestFrom(additionalDataNeeded) // if any
+    .subscribe(onNext: { performEffect($0) })
+    .disposed(by: disposeBag)
+```
+or 
+```
+_ = trigger
+    .withLatestFrom(additionalDataNeeded) // if any
+    .take(until: event) // often `rx.deallocating`
+    .subscribe(onNext: { performEffect($0) })
+```
+
+Sometimes the trigger is complex. Sometimes the additionalDataNeeded is big. Either way the two templates above will serve most needs.
+
+---
 With version 3.3, I have removed the deprecation warning from the Store class. Some users have expressed that the `Store` type makes more sense to them than the `cyle` function. I also added the ability to cancel Observables that are returned from the store's reducer.
 
 Although I have removed the deprecation warning, I don't like the class and it might be instructive for me to explain why.
