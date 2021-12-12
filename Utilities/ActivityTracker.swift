@@ -1,5 +1,5 @@
 //
-//  ActivityIndicator.swift
+//  ActivityTracker.swift
 //
 //  Created by Daniel Tartaglia on 05 Dec 2021.
 //  Copyright © 2021 Daniel Tartaglia. MIT License.
@@ -15,8 +15,8 @@ extension ObservableConvertibleType {
 	 to.
 	 - Returns: An Observable that forwards events from the source.
 	 */
-	public func trackActivity(_ activityIndicator: ActivityIndicator) -> Observable<Element> {
-		activityIndicator.trackActivity(of: self)
+	public func trackActivity(_ activityTracker: ActivityTracker) -> Observable<Element> {
+		activityTracker.trackActivity(of: self)
 	}
 }
 
@@ -25,7 +25,7 @@ extension ObservableConvertibleType {
  `isActive` will emit `true`. Once all attached Observables have disposed, `isActive` will emit
  `false`.
  */
-public final class ActivityIndicator {
+public final class ActivityTracker {
 	public let isActive: Observable<Bool>
 
 	private let subject = BehaviorSubject<Int>(value: 0)

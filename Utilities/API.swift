@@ -26,11 +26,11 @@ public struct Endpoint<Response> {
  errors.
  */
 public final class API {
-	private let activityIndicator: ActivityIndicator
+	private let activityIndicator: ActivityTracker
 	private let errorRouter: ErrorRouter
 	private var data: (URLRequest) -> Observable<Data>
 
-	public init(session: URLSession = .shared, activityIndicator: ActivityIndicator = ActivityIndicator(), errorRouter: ErrorRouter = ErrorRouter()) {
+	public init(session: URLSession = .shared, activityIndicator: ActivityTracker = ActivityTracker(), errorRouter: ErrorRouter = ErrorRouter()) {
 		self.activityIndicator = activityIndicator
 		self.errorRouter = errorRouter
 		self.data = session.rx.data(request:)
