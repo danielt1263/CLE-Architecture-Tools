@@ -48,7 +48,7 @@ public final class API {
 	 All requests made with this object will have their in flight status tracked.
 	 */
 	public var isActive: Observable<Bool> {
-		activityIndicator.asObservable()
+		activityIndicator.isActive
 	}
 
 	/**
