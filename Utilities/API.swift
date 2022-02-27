@@ -26,12 +26,12 @@ public struct Endpoint<Response> {
  errors.
  */
 public final class API {
-	private let activityIndicator: ActivityTracker
+	private let activityTracker: ActivityTracker
 	private let errorRouter: ErrorRouter
 	private var data: (URLRequest) -> Observable<Data>
 
-	public init(session: URLSession = .shared, activityIndicator: ActivityTracker = ActivityTracker(), errorRouter: ErrorRouter = ErrorRouter()) {
-		self.activityIndicator = activityIndicator
+	public init(session: URLSession = .shared, activityTracker: ActivityTracker = ActivityTracker(), errorRouter: ErrorRouter = ErrorRouter()) {
+		self.activityTracker = activityTracker
 		self.errorRouter = errorRouter
 		self.data = session.rx.data(request:)
 	}
@@ -48,7 +48,7 @@ public final class API {
 	 All requests made with this object will have their in flight status tracked.
 	 */
 	public var isActive: Observable<Bool> {
-		activityIndicator.isActive
+		activityTracker.isActive
 	}
 
 	/**
@@ -128,7 +128,7 @@ public final class API {
 	 */
 	public func rawResponse<T>(_ endpoint: Endpoint<T>) -> Observable<T> {
 		data(endpoint.request)
-			.trackActivity(activityIndicator)
+			.trackActivity(activityTracker)
 			.map(endpoint.response)
 	}
 
