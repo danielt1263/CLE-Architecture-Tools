@@ -33,6 +33,13 @@ public func reaction<State, Input, Request>(
 	{ effect($0.compactMap(request)) }
 }
 
+public func reaction<State, Input, Request>(
+	request: @escaping (State, Input) -> Request?,
+	effect: @escaping (Request) -> Observable<Input>
+) -> Reaction<State, Input> {
+	{ $0.compactMap(request).flatMap(effect) }
+}
+
 /**
  For this reaction, the request is a collection. If it is empty then `effect` will not receive it. If it contains at
  least one value, the effect closure will receive the request.
@@ -45,9 +52,14 @@ public func reaction<State, Request, Input>(
 	request: @escaping (State, Input) -> Request,
 	effect: @escaping (Observable<Request>) -> Observable<Input>
 ) -> Reaction<State, Input> where Request: Collection {
-	{ output in
-			effect(output.map(request).filter { !$0.isEmpty })
-	}
+	{ effect($0.map(request).filter { !$0.isEmpty }) }
+}
+
+public func reaction<State, Request, Input>(
+	request: @escaping (State, Input) -> Request,
+	effect: @escaping (Request) -> Observable<Input>
+) -> Reaction<State, Input> where Request: Collection {
+	{ $0.map(request).filter { !$0.isEmpty }.flatMap(effect) }
 }
 
 /**
@@ -62,7 +74,12 @@ public func reaction<State, Input>(
 	request: @escaping (State, Input) -> Bool,
 	effect: @escaping (Observable<()>) -> Observable<Input>
 ) -> Reaction<State, Input> {
-	{ output in
-		effect(output.map(request).filter { $0 }.map { _ in })
-	}
+	{ effect($0.map(request).filter { $0 }.map { _ in }) }
+}
+
+public func reaction<State, Input>(
+	request: @escaping (State, Input) -> Bool,
+	effect: @escaping () -> Observable<Input>
+) -> Reaction<State, Input> {
+	{ $0.map(request).filter { $0 }.map(to: ()).flatMap(effect) }
 }

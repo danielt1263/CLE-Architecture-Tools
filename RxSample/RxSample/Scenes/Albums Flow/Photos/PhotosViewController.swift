@@ -19,7 +19,7 @@ final class PhotosViewController: UIViewController {
 final class PhotosViewCell: UICollectionViewCell {
 	@IBOutlet weak var imageView: UIImageView!
 	@IBOutlet weak var titleLabel: UILabel!
-	@IBOutlet weak var activityIndicator: UIActivityIndicatorView!
+	@IBOutlet weak var activityIndicatorView: UIActivityIndicatorView!
 
 	private (set) var disposeBag = DisposeBag()
 

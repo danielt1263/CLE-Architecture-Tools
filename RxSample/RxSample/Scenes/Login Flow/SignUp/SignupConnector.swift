@@ -6,13 +6,13 @@
 //  Copyright © 2020 Daniel Tartaglia. MIT License.
 //
 
+import Cause_Logic_Effect
 import RxCocoa
 import RxSwift
 import UIKit
 
 extension SignupViewController {
 	func connect() -> Observable<Never> {
-
 		let response = SignupLogic.signUp(
 			trigger: signupButton.rx.tap.asObservable(),
 			firstName: firstNameTextField.rx.text.asObservable(),
@@ -21,7 +21,7 @@ extension SignupViewController {
 			password: passwordTextField.rx.text.asObservable()
 		)
 		.flatMap { request -> Observable<User> in
-			apiResponse(from: request)
+			api.response(request)
 		}
 		.share(replay: 1)
 
@@ -29,7 +29,7 @@ extension SignupViewController {
 			.bind(onNext: save(user:))
 			.disposed(by: disposeBag)
 
-		activityIndicator.asObservable()
+		api.isActive
 			.bind(to: activityIndicatorView.rx.isAnimating)
 			.disposed(by: disposeBag)
 

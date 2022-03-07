@@ -18,7 +18,7 @@ extension UITableViewController {
 		tableView.delegate = nil
 
 		let albumsResult = tableView.refreshControl!.rx.controlEvent(.valueChanged).startWith(())
-            .flatMapLatest { apiResponse(from: .getAlbums) }
+			.flatMapLatest { api.response(.getAlbums) }
 			.share(replay: 1)
 
 		_ = Observable.merge(

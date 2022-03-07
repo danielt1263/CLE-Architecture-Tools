@@ -22,7 +22,7 @@ extension PhotoViewController {
 		photoRequest
 			.map(to: true)
 			.startWith(false)
-			.bind(to: activityIndicator.rx.isHidden)
+			.bind(to: activityIndicatorView.rx.isHidden)
 			.disposed(by: disposeBag)
 
 		photoRequest

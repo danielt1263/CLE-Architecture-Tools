@@ -21,7 +21,7 @@ extension UITableViewController {
 			user: user
 		)
 		.flatMapLatest {
-			apiResponse(from: .getPosts(id: $0))
+			api.response(.getPosts(id: $0))
 		}
 		.share(replay: 1)
 

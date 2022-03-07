@@ -19,7 +19,7 @@ extension UITableViewController {
 		tableView.register(UITableViewCell.self, forCellReuseIdentifier: "Cell")
 
 		let todosResult = tableView.refreshControl!.rx.controlEvent(.valueChanged).startWith(())
-            .flatMapLatest { apiResponse(from: .getTodos) }
+			.flatMapLatest { api.response(.getTodos) }
 			.share(replay: 1)
 
 		_ = Observable.merge(

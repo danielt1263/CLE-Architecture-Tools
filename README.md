@@ -1,11 +1,29 @@
 # CLE-Architecture-Tools
 
+The File Templates can be use to create new Rx Scenes (use one of these instead of creating a View Controller directly.) Place the folder in `Library/Developer/Xcode/Templates/`.
+
+The Utilities folder contains support code that should be included in the project (and will be automatically included if you use SPM or Cocoapods.) The most important files, from an architectural perspective, are "Stage.swift" and "Scene.swift". The others contain code that I used in 80% or more of my projects.
+
+The Tools folder contains helpers that I have developed but aren't needed in most projects. If you want to use any of those, you will have to drag them into your project manually.
+
+## Requirements
+* RxSwift
+* RxCocoa
+
+---
+A fundamental philosophy of CLE is the idea of an imperative shell with a functional core (first explained by [Gary Bernhardt](https://www.destroyallsoftware.com/talks/boundaries)) and expanded on in Swift by [Matt Diephouse](https://www.youtube.com/watch?v=7AGQ9dhWCX0). This means, among other things that the side effects (the imperative part) are on the outside edge of the system and are _not injected_ into the logic. This is a major departure from every other architectural style that I know of. The whole point of this architectural style is that you never need to Mock or Stub out any code in testing.
+
+Notice that I didn't mention Fakes in the above. Just Mocks and Stubs. That's because even CLE requires that you use TestObservable which is a Fake. If you are careful with the environment type that you use in the Store class and ensure that you only need to pass in Fakes through it when testing, you can keep to the philosophy while using it, but it doesn't strictly enforce it as well as the rest of my architecture.
+
+I'm happy to go into more depth for those that are interested. You can hit me up on social media or raise an issue on github if you have any questions or otherwise want to discuss it.
+
+---
 I was helping someone recently and expressed the CLE architecture this way. maybe it will help others...
 
 Whenever you have a side effect that needs to be performed and you need the results. The template is something like:
 ```
 let resultOfEffect = trigger
-    .withLatestFrom(additionalDataNeeded)
+    .withLatestFrom(additionalDataNeeded) // if any
     .flatMap { performSideEffect($0) }
     .share(replay: 1) // if you are using the result in multiple places.
 ```
@@ -28,22 +46,6 @@ _ = trigger
 Sometimes the trigger is complex. Sometimes the additionalDataNeeded is big. Either way the two templates above will serve most needs.
 
 ---
-With version 3.3, I have removed the deprecation warning from the Store class. Some users have expressed that the `Store` type makes more sense to them than the `cyle` function. I also added the ability to cancel Observables that are returned from the store's reducer.
-
-Although I have removed the deprecation warning, I don't like the class and it might be instructive for me to explain why.
-
-A fundamental philosophy of CLE is the idea of an imperative shell with a functional core (first explained by [Gary Bernhardt](https://www.destroyallsoftware.com/talks/boundaries)) and expanded on in Swift by [Matt Diephouse](https://www.youtube.com/watch?v=7AGQ9dhWCX0). This means, among other things that the side effects (the imperative part) are on the outside edge of the system and are _not injected_ into the logic. This is a major departure from every other architectural style that I know of. The whole point of this architectural style is that you never need to Mock or Stub out any code in testing.
-
-Notice that I didn't mention Fakes in the above. Just Mocks and Stubs. That's because even CLE requires that you use TestObservable which is a Fake. If you are careful with the environment type that you use in the Store class and ensure that you only need to pass in Fakes through it when testing, you can keep to the philosophy while using it, but it doesn't strictly enforce it as well as the rest of my architecture.
-
-I'm happy to go into more depth for those that are interested. You can hit me up on social media or raise an issue on github if you have any questions or otherwise want to discuss it.
-
----
-Version 3.x has been pushed. This version brings big changes to the `cycle` function. If you haven't used cycle yet, then the update won't affect your code. Otherwise, the minimum change will be to change the `effect` paramater to `reaction`.
-
-It also includes the API class from the Tools folder. This means it's now a standard part of the library. More functionality will be added to the API class throughout the minor releases of v3.
-
----
 Version 2.0 has been pushed. I had to up the version number because depending on exactly how one is constructing their scenes, it could be a breaking change. For most applications of the library you will not have to update your code at all.
 
 **What's the big change that doesn't change much?**
@@ -52,16 +54,6 @@ In version 1.x of the library, the scene creation methods created the view contr
 This means that for 2.x, you will have access to all the UIViewController properties that you normally would, even the ones that don't get assigned until after the controller has been attached to the view controller hierarchy.
 
 ---
-The File Templates can be use to create new Rx Scenes (use one of these instead of creating a View Controller directly.) Place the folder in `Library/Developer/Xcode/Templates/`.
-
-The Utilities folder contains support code that should be included in the project (and will be automatically included if you use SPM or CocoaPods.) The most important files, from an architectural perspective, are "Stage.swift" and "Scene.swift". The others contain code that I used in 80% or more of my projects.
-
-The Tools folder contains helpers that I have developed but aren't needed in most projects. If you want to use any of those, you will have to drag them into your project manually.
-
-## Requirements
-* RxSwift
-* RxCocoa
-
 ## Installation
 Three Ways to Install
 
@@ -170,4 +162,4 @@ _ = call(presentScene(animated: true, over: button) {
 
 The other types/methods/functions in the library are ancillary that I use in at least 80% of my apps.
 
-The `ActivityIndicator` and `ErrorRouter` types are used to track network requests. The `cycle` function can be used when you have an Observable that feeds back on itself. The `Identifier` type is used to create ids for `Identifiable` types. RxHelpers contains some misc methods to make mapping and Observer success easier to deal with. The "UIColor+Extensions" file contains a convenience init function to create a color from a hex value. The "UIViewController+Rx.swift" file wraps some basic functions for handling a view controller internally. It includes `dismissSelf` and `popSelf` on those rare occasions when you want to remove a view controller _before_ it completes.
+The `ActivityTracker` and `ErrorRouter` types are used to track network requests. The `cycle` function can be used when you have an Observable that feeds back on itself. The `Identifier` type is used to create ids for `Identifiable` types. RxHelpers contains some misc methods to make mapping and Observer success easier to deal with. The "UIColor+Extensions" file contains a convenience init function to create a color from a hex value. The "UIViewController+Rx.swift" file wraps some basic functions for handling a view controller internally. It includes `dismissSelf` and `popSelf` on those rare occasions when you want to remove a view controller _before_ it completes.

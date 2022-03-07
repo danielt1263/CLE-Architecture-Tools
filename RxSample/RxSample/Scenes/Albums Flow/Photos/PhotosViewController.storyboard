@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="17506" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="C8r-Vd-Mwt">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="19529" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="C8r-Vd-Mwt">
     <device id="retina6_1" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="17505"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="19519"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="System colors in document resources" minToolsVersion="11.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
@@ -65,13 +65,13 @@
                                             <constraint firstItem="ocH-Cl-fft" firstAttribute="centerY" secondItem="d2a-bY-K7a" secondAttribute="centerY" id="edw-TB-fNh"/>
                                         </constraints>
                                         <connections>
-                                            <outlet property="activityIndicator" destination="ocH-Cl-fft" id="va9-rC-zBv"/>
+                                            <outlet property="activityIndicatorView" destination="ocH-Cl-fft" id="va9-rC-zBv"/>
                                             <outlet property="imageView" destination="Bsf-gy-RU2" id="dku-IR-iZd"/>
                                             <outlet property="titleLabel" destination="CBx-S8-4X4" id="0yL-CX-hnL"/>
                                         </connections>
                                     </collectionViewCell>
                                 </cells>
-                                <collectionReusableView key="sectionHeaderView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" id="z1D-aZ-RaQ">
+                                <collectionReusableView key="sectionHeaderView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" reuseIdentifier="Header" id="z1D-aZ-RaQ">
                                     <rect key="frame" x="0.0" y="0.0" width="414" height="50"/>
                                     <autoresizingMask key="autoresizingMask"/>
                                     <subviews>

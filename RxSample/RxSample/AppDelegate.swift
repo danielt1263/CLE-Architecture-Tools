@@ -10,6 +10,8 @@ import Cause_Logic_Effect
 import RxSwift
 import UIKit
 
+let api = API()
+
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
@@ -28,7 +30,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 			.map(to: ())
 			.bind(onNext: presentScene(animated: true, scene: loginNavigation))
 
-		_ = errorRouter.error
+		_ = api.error
 			.map { $0.localizedDescription }
 			.bind(
 				onNext: presentScene(animated: true) { message in

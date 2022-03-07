@@ -12,7 +12,7 @@ import RxSwift
 final class PhotoViewController: UIViewController {
 
 	@IBOutlet weak var imageView: UIImageView!
-	@IBOutlet weak var activityIndicator: UIActivityIndicatorView!
+	@IBOutlet weak var activityIndicatorView: UIActivityIndicatorView!
 	
 	let disposeBag = DisposeBag()
 }

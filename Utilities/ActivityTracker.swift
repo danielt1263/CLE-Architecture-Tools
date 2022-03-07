@@ -11,7 +11,7 @@ import RxSwift
 extension ObservableConvertibleType {
 	/**
 	 Attaches this Observable to the provided activity indicator object.
-	 - Parameter activityIndicator: The ActivityIndicator that this observable should be attached
+	 - Parameter activityTracker: The ActivityTracker that this observable should be attached
 	 to.
 	 - Returns: An Observable that forwards events from the source.
 	 */

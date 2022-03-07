@@ -15,7 +15,7 @@ extension PhotosViewController {
 
 		let photos = Observable.just(album.id)
 			.flatMapLatest {
-				apiResponse(from: .getPhotos(id: $0))
+				api.response(.getPhotos(id: $0))
 			}
 			.share()
 
@@ -48,7 +48,7 @@ extension PhotosViewCell {
 			.map(to: false)
 			.startWith(true)
 			.distinctUntilChanged()
-			.bind(to: activityIndicator.rx.isAnimating)
+			.bind(to: activityIndicatorView.rx.isAnimating)
 			.disposed(by: disposeBag)
 	}
 }

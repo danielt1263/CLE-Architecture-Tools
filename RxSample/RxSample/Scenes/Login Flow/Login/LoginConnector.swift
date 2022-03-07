@@ -18,7 +18,7 @@ extension LoginViewController {
 		let response = loginButton.rx.tap
 			.withLatestFrom(credentials)
 			.flatMapLatest { _ in
-				apiResponse(from: .getUser(id: 1))
+				api.response(.getUser(id: 1))
 			}
 			.share(replay: 1)
 
@@ -26,7 +26,7 @@ extension LoginViewController {
 			.bind(onNext: save(user:))
 			.disposed(by: disposeBag)
 
-		activityIndicator.asObservable()
+		api.isActive
 			.bind(to: activityIndicatorView.rx.isAnimating)
 			.disposed(by: disposeBag)
 

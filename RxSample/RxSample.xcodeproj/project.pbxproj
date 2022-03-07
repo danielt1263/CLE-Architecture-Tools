@@ -24,7 +24,6 @@
 		721F88512560C56A00C11863 /* SignupConnector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 721F884D2560C56A00C11863 /* SignupConnector.swift */; };
 		721F88522560C56A00C11863 /* SignupViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 721F884E2560C56A00C11863 /* SignupViewController.xib */; };
 		721F88562560C59D00C11863 /* LoginNavigation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 721F88552560C59D00C11863 /* LoginNavigation.swift */; };
-		7220FDDE25C4455300419F39 /* ServerAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7220FDDD25C4455300419F39 /* ServerAPI.swift */; };
 		72418FC825615BA9003671A9 /* SplitViewControllerDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72418FC725615BA9003671A9 /* SplitViewControllerDelegate.swift */; };
 		72418FCD25615F49003671A9 /* Album.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72418FCC25615F49003671A9 /* Album.swift */; };
 		72418FD125616178003671A9 /* Todo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72418FD025616178003671A9 /* Todo.swift */; };
@@ -77,7 +76,6 @@
 		721F884D2560C56A00C11863 /* SignupConnector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignupConnector.swift; sourceTree = "<group>"; };
 		721F884E2560C56A00C11863 /* SignupViewController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = SignupViewController.xib; sourceTree = "<group>"; };
 		721F88552560C59D00C11863 /* LoginNavigation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginNavigation.swift; sourceTree = "<group>"; };
-		7220FDDD25C4455300419F39 /* ServerAPI.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ServerAPI.swift; sourceTree = "<group>"; };
 		72418FC725615BA9003671A9 /* SplitViewControllerDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SplitViewControllerDelegate.swift; sourceTree = "<group>"; };
 		72418FCC25615F49003671A9 /* Album.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Album.swift; sourceTree = "<group>"; };
 		72418FD025616178003671A9 /* Todo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Todo.swift; sourceTree = "<group>"; };
@@ -173,7 +171,6 @@
 		721F881D25609E9200C11863 /* API */ = {
 			isa = PBXGroup;
 			children = (
-				7220FDDD25C4455300419F39 /* ServerAPI.swift */,
 				721F88242560ACD200C11863 /* Requests.swift */,
 			);
 			path = API;
@@ -498,7 +495,6 @@
 				7243DF162495166E007F3D75 /* SettingsConnector.swift in Sources */,
 				721F882B2560B56D00C11863 /* Post.swift in Sources */,
 				7243DF142495166E007F3D75 /* SettingsLogic.swift in Sources */,
-				7220FDDE25C4455300419F39 /* ServerAPI.swift in Sources */,
 				72418FC825615BA9003671A9 /* SplitViewControllerDelegate.swift in Sources */,
 				721D6D8925E1C94900D0B506 /* PostNavigationConnector.swift in Sources */,
 				7243DF022495142E007F3D75 /* PhotoViewController.swift in Sources */,
@@ -597,7 +593,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
@@ -652,7 +648,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				SDKROOT = iphoneos;
