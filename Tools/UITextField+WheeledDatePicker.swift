@@ -2,7 +2,7 @@
 //  UITextField+WheeledDatePicker.swift
 //
 //  Created by Daniel Tartaglia on 9/9/21.
-//  Copyright © 2020 Daniel Tartaglia. MIT License.
+//  Copyright © 2022 Daniel Tartaglia. MIT License.
 //
 
 import RxCocoa

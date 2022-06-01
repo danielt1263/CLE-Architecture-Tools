@@ -3,7 +3,7 @@
 //  RxSample
 //
 //  Created by Daniel Tartaglia on 12/28/20.
-//  Copyright © 2020 Daniel Tartaglia. MIT License.
+//  Copyright © 2022 Daniel Tartaglia. MIT License.
 //
 
 import Cause_Logic_Effect

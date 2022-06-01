@@ -2,7 +2,7 @@
 //  Store.swift
 //
 //  Created by Daniel Tartaglia on 3/11/2017.
-//  Copyright © 2020 Daniel Tartaglia. MIT License
+//  Copyright © 2022 Daniel Tartaglia. MIT License
 //
 
 import Foundation
