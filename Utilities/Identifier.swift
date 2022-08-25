@@ -2,7 +2,7 @@
 //  Identifier.swift
 //
 //  Created by Daniel Tartaglia on 10/23/2020.
-//  Copyright © 2020 Haneke Design. MIT License
+//  Copyright © 2020 Daniel Tartaglia. MIT License
 //
 
 import Foundation
