@@ -1,8 +1,8 @@
 //
 //  Regex.swift
 //
-//  Created by Daniel Tartaglia on 2/6/16.
-//  Copyright © 2016 Daniel Tartaglia. MIT License.
+//  Created by Daniel Tartaglia on 6 Feb 2016.
+//  Copytright © 2022 Daniel Tartaglia. MIT License.
 //
 
 import Foundation

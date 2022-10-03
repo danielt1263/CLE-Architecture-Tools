@@ -1,8 +1,8 @@
 //
 //  UIColorExtensions.swift
 //
-//  Created by Daniel Tartaglia on 12/4/2014.
-//  Copyright (c) 2014 Daniel Tartaglia. MIT License.
+//  Created by Daniel Tartaglia on 4 Dec 2014.
+//  Copytright © 2022 Daniel Tartaglia. MIT License.
 //
 
 import UIKit
