@@ -1,6 +1,6 @@
 //
 // Created by Daniel Tartgaglia on 19 Dec 2020.
-// Copytright © 2022 Daniel Tartaglia. MIT License.
+// Copyright © 2022 Daniel Tartaglia. MIT License.
 //
 
 import Foundation

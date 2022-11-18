@@ -1,9 +1,8 @@
 //
 //  UIStackView+Rx.swift
-//  ION
 //
-//  Created by Daniel Tartaglia on 10/24/19.
-//  Copyright © 2019 Haneke Design. All rights reserved.
+//  Created by Daniel Tartaglia on 24 Oct 2019.
+//  Copyright © 2022 Daniel Tartaglia. MIT License.
 //
 
 import UIKit

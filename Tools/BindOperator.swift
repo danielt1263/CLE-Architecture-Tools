@@ -2,7 +2,7 @@
 //  AttachOperators.swift
 //
 //  Created by Daniel Tartaglia on 3 Oct 2022.
-//  Copytright © 2022 Daniel Tartaglia. MIT License.
+//  Copyright © 2022 Daniel Tartaglia. MIT License.
 //
 
 import RxCocoa

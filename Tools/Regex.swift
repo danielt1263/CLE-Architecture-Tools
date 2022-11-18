@@ -2,7 +2,7 @@
 //  Regex.swift
 //
 //  Created by Daniel Tartaglia on 6 Feb 2016.
-//  Copytright © 2022 Daniel Tartaglia. MIT License.
+//  Copyright © 2022 Daniel Tartaglia. MIT License.
 //
 
 import Foundation
