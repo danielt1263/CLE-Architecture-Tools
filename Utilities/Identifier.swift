@@ -26,3 +26,9 @@ extension Identifier: Codable {
 		try container.encode(rawValue)
 	}
 }
+
+extension Identifier: Identifiable {
+	public var id: Self {
+		self
+	}
+}
