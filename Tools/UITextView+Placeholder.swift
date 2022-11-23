@@ -10,8 +10,7 @@ import RxSwift
 import UIKit
 
 extension UITextView {
-	func withPlaceholder(_ placeholder: String, color placeholderColor: UIColor) {
-
+	func withPlaceholder(_ placeholder: String) {
 		let didBeginEditing = rx.didBeginEditing
 			.withLatestFrom(rx.text.orEmpty)
 			.filter { $0 == placeholder }
@@ -31,7 +30,7 @@ extension UITextView {
 			didBeginEditing.map(to: textColor),
 			didEndEditing.map(to: tintColor)
 		)
-		.startWith(placeholderColor)
+		.startWith(tintColor)
 		.bind(to: rx.textColor)
 	}
 }
