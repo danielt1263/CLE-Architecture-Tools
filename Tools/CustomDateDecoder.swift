@@ -5,6 +5,8 @@
 //  Copyright © 2022 Daniel Tartaglia. MIT License.
 //
 
+import Foundation
+
 enum CustomDateDecodingError: Error {
 	case unableToDecode(String)
 	case conflictingDecodeValues([Date])
