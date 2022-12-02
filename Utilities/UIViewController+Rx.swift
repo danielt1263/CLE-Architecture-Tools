@@ -1,7 +1,7 @@
 //
 //  UIViewController+Rx.swift
 //
-//  Created by Daniel Tartaglia on 4/13/2020.
+//  Created by Daniel Tartaglia on 13 Apr 2020.
 //  Copyright © 2022 Daniel Tartaglia. MIT License.
 //
 

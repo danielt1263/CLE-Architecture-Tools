@@ -1,7 +1,7 @@
 //
 //  UITextView+Placeholder.swift
 //
-//  Created by Daniel Tartaglia on 10/30/20.
+//  Created by Daniel Tartaglia on 30 Oct 2020.
 //  Copyright © 2022 Daniel Tartaglia. MIT License.
 //
 
