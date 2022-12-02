@@ -20,13 +20,13 @@ func customDateDecoder(formatters: [DateFormatter]) -> (Decoder) throws -> Date 
 	{ decoder in
 		let container = try decoder.singleValueContainer()
 		let text = try container.decode(String.self)
-		let dates = formatters.compactMap({ $0.date(from: text) })
-		guard !dates.isEmpty else {
+		let dates = formatters.compactMap { $0.date(from: text) }
+		guard let date = dates.first else {
 			throw CustomDateDecodingError.unableToDecode(text)
 		}
-		guard dates.allSatisfy({ $0 == dates.first }) else {
+		guard dates.allSatisfy({ $0 == date }) else {
 			throw CustomDateDecodingError.conflictingDecodeValues(dates)
 		}
-		return dates.first!
+		return date
 	}
 }
