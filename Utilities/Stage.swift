@@ -275,7 +275,9 @@ func pop(controller: UIViewController?, animated: Bool) {
 
 private extension UIViewController {
 	static func top() -> UIViewController {
-		guard let rootViewController = UIApplication.shared.delegate?.window??.rootViewController else { fatalError("No view controller present in app?") }
+		guard let rootViewController = UIApplication.shared.delegate?.window??.rootViewController
+				?? UIApplication.shared.keyWindow?.rootViewController
+		else { fatalError("No view controller present in app?") }
 		var result = rootViewController
 		while let vc = result.presentedViewController, !vc.isBeingDismissed {
 			result = vc
