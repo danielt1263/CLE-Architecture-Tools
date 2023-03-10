@@ -2,7 +2,7 @@
 //  Reaction.swift
 //
 //  Created by Daniel Tartaglia on 13 Nov 2021.
-//  Copyright © 2022 Daniel Tartaglia. MIT License.
+//  Copyright © 2023 Daniel Tartaglia. MIT License.
 //
 
 import Foundation

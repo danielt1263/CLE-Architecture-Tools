@@ -2,8 +2,8 @@
 //  AppDelegate.swift
 //  RxSample
 //
-//  Created by Daniel Tartaglia on 6/11/20.
-//  Copyright © 2022 Daniel Tartaglia. MIT License.
+//  Created by Daniel Tartaglia on 11 Jun 2020.
+//  Copyright © 2023 Daniel Tartaglia. MIT License.
 //
 
 import Cause_Logic_Effect

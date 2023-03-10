@@ -2,7 +2,7 @@
 //  StallUnless.swift
 //
 //  Created by Daniel Tartaglia on 1 Oct 2018.
-//  Copyright © 2022 Daniel Tartaglia. MIT License.
+//  Copyright © 2023 Daniel Tartaglia. MIT License.
 //
 
 import RxSwift

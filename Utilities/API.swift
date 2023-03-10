@@ -2,7 +2,7 @@
 //  API.swift
 //
 //  Created by Daniel Tartaglia on 4 Mar 2021.
-//  Copyright © 2022 Daniel Tartaglia. MIT License.
+//  Copyright © 2023 Daniel Tartaglia. MIT License.
 //
 
 import RxSwift

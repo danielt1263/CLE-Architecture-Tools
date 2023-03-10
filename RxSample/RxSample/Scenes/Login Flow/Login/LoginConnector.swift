@@ -3,7 +3,7 @@
 //  RxSample
 //
 //  Created by Daniel Tartaglia on 11/14/20.
-//  Copyright © 2022 Daniel Tartaglia. MIT License.
+//  Copyright © 2023 Daniel Tartaglia. MIT License.
 //
 
 import EnumKit

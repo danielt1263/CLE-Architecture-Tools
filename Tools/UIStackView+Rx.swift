@@ -2,7 +2,7 @@
 //  UIStackView+Rx.swift
 //
 //  Created by Daniel Tartaglia on 24 Oct 2019.
-//  Copyright © 2022 Daniel Tartaglia. MIT License.
+//  Copyright © 2023 Daniel Tartaglia. MIT License.
 //
 
 import UIKit

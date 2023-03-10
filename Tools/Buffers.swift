@@ -1,7 +1,9 @@
-//  ObservableBuffer.swift
 //
-//  Created by Daniel Tartaglia
-//  Copyright © 2019 Daniel Tartaglia. MIT License.
+//  Buffers.swift
+//
+//  Created by Daniel Tartaglia on 04 Apr, 2019
+//  Copyright © 2023 Daniel Tartaglia. MIT License.
+//
 
 import RxSwift
 

@@ -2,7 +2,7 @@
 //  RxHelpers.swift
 //
 //  Created by Daniel Tartaglia on 02 May 2020.
-//  Copyright © 2022 Daniel Tartaglia. MIT License.
+//  Copyright © 2023 Daniel Tartaglia. MIT License.
 //
 
 import Foundation

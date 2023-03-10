@@ -2,7 +2,7 @@
 //  UIButton+RxMenu.swift
 //
 //  Created by Daniel Tartaglia on 16 Nov 2022.
-//  Copyright © 2022 Daniel Tartaglia. MIT License.
+//  Copyright © 2023 Daniel Tartaglia. MIT License.
 //
 
 import RxSwift
