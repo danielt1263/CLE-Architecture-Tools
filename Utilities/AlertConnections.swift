@@ -11,28 +11,51 @@ import UIKit
 
 public extension UIAlertController {
 	func connectOK(buttonTitle: String = "OK") -> Observable<Void> {
-		let action = PublishSubject<Void>()
-		addAction(UIAlertAction(title: buttonTitle, style: .default, handler: { _ in
-			action.onSuccess(())
-		}))
-		return action
+		connect(buttons: [ButtonType(title: buttonTitle, style: .default, action: { _ in () })])
 	}
 
-	func connectChoice<T>(choices: [T], description: (T) -> String = { String(describing: $0) }, customizeActions: (UIAlertAction) -> Void = { _ in }, customizeCancel: (UIAlertAction) -> Void = { _ in }) -> Observable<T?> {
-		let action = PublishSubject<T?>()
-
-		let cancelAction = UIAlertAction(title: "Cancel", style: .cancel, handler: { _ in action.onSuccess(nil) })
-			.setup(customizeCancel)
-
-		let actions = choices.map { element in
-			UIAlertAction(title: description(element), style: .default, handler: { _ in action.onSuccess(element) })
-				.setup(customizeActions)
+	func connectChoice<T>(choices: [T],
+						  description: (T) -> String = { String(describing: $0) },
+						  customizeActions: @escaping (UIAlertAction) -> Void = { _ in },
+						  customizeCancel: @escaping (UIAlertAction) -> Void = { _ in }) -> Observable<T?> {
+		let buttons = choices.map { choice in
+			ButtonType<T?>(
+				title: description(choice),
+				style: .default,
+				action: { _ in choice },
+				customize: customizeActions
+			)
 		}
+		let cancel = ButtonType<T?>(title: "Cancel", style: .cancel, action: { _ in nil}, customize: customizeCancel)
+		return connect(buttons: buttons + [cancel])
+	}
+}
 
-		for action in actions + [cancelAction] {
-			addAction(action)
+extension UIAlertController {
+	struct ButtonType<Action> {
+		let title: String
+		let style: UIAlertAction.Style
+		let action: ([String]) -> Action
+		var customize: (UIAlertAction) -> Void = { _ in }
+	}
+
+	func connect<Action>(buttons: [ButtonType<Action>] = [],
+						 fields: [(UITextField) -> Void] = []) -> Observable<Action> {
+		let action = PublishSubject<Action>()
+		let alertActions = buttons.map { button in
+			let action = UIAlertAction(title: button.title, style: button.style) { [textFields] alertAction in
+				let texts = (textFields ?? []).map { $0.text ?? "" }
+				action.onSuccess(button.action(texts))
+			}
+			button.customize(action)
+			return action
 		}
-
+		for field in fields {
+			addTextField(configurationHandler: field)
+		}
+		for alertAction in alertActions {
+			addAction(alertAction)
+		}
 		return action
 	}
 }
