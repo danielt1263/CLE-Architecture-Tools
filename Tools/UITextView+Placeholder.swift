@@ -11,34 +11,27 @@ import UIKit
 
 extension UITextView {
 	func withPlaceholder(_ placeholder: String) {
-		let didBeginEditing = rx.didBeginEditing
-			.withLatestFrom(rx.text.orEmpty)
-			.filter { $0 == placeholder }
+		let label = {
+			let result = UILabel(frame: bounds)
+			result.text = placeholder
+			result.numberOfLines = 0
+			result.textColor = tintColor
+			result.frame = result.frame.offsetBy(dx: 4, dy: 8)
+			return result
+		}()
 
-		let didEndEditing = rx.didEndEditing
-			.withLatestFrom(rx.text.orEmpty.asObservable())
-			.filter { $0.isEmpty }
+		addSubview(label)
 
-		_ = Observable.merge(
-			didBeginEditing.map(to: ""),
-			didEndEditing.map(to: placeholder)
-		)
-		.startWith(placeholder)
-		.bind(to: rx.text)
+		_ = rx.observe(UIFont.self, "font")
+			.map { $0 != nil ? $0 : UIFont.systemFont(ofSize: 12) }
+			.take(until: rx.deallocating)
+			.bind(onNext: { [weak self] font in
+				label.font = font
+				label.frame.size = label.sizeThatFits(self?.bounds.size ?? CGSize.zero)
+			})
 
-		_ = Observable.merge(
-			didBeginEditing.map(to: textColor),
-			didEndEditing.map(to: tintColor)
-		)
-		.startWith(tintColor)
-		.bind(to: rx.textColor)
-	}
-}
-
-extension Reactive where Base: UITextView {
-	var textColor: Binder<UIColor?> {
-		Binder(base, binding: { view, color in
-			view.textColor = color
-		})
+		_ = rx.text.orEmpty.map { !$0.isEmpty }
+			.take(until: rx.deallocating)
+			.bind(to: label.rx.isHidden)
 	}
 }
