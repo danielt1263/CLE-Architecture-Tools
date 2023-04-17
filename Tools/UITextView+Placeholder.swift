@@ -15,12 +15,15 @@ extension UITextView {
 			let result = UILabel(frame: bounds)
 			result.text = placeholder
 			result.numberOfLines = 0
-			result.textColor = tintColor
 			result.frame = result.frame.offsetBy(dx: 4, dy: 8)
 			return result
 		}()
 
 		addSubview(label)
+
+		_ = rx.observe(UIColor.self, "tintColor")
+			.take(until: rx.deallocating)
+			.bind(to: label.rx.textColor)
 
 		_ = rx.observe(UIFont.self, "font")
 			.map { $0 != nil ? $0 : UIFont.systemFont(ofSize: 12) }
