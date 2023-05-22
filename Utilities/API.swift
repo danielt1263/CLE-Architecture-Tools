@@ -52,7 +52,21 @@ public final class API {
 	}
 
 	/**
-	 Transforms an Endpoint<Response> into an Observable<Response> by making requests to the local
+	 Send the endpoiint request to the server immediatly.
+
+	 * Network activity is tracked by the local activity indicator.
+	 * Errors from the Observable are routed to the local error router.
+
+	 - Parameter endpoint: The API endpoint for which a request is made.
+	 */
+	public func send(_ endpoint: Endpoint<Void>) {
+		_ = rawResponse(endpoint)
+			.rerouteError(errorRouter)
+			.subscribe()
+	}
+
+	/**
+	 Transforms an `Endpoint<Response>` into an `Observable<Response>` by making requests to the local
 	 URLSession.
 
 	 * Network activity is tracked by the local activity indicator.
@@ -68,7 +82,7 @@ public final class API {
 	}
 
 	/**
-	 Transforms an Endpoint<Void> into an Observable<Bool> for making requests to the local
+	 Transforms an `Endpoint<Void>` into an `Observable<Bool>` for making requests to the local
 	 URLSession.
 
 	 * Network activity is tracked by the local activity indicator.
@@ -85,7 +99,7 @@ public final class API {
 	}
 
 	/**
-	 Transforms an Endpoint<Response> into an Observable<Response?> for making requests to the
+	 Transforms an `Endpoint<Response>` into an `Observable<Response?>` for making requests to the
 	 local URLSession.
 
 	 * Network activity is tracked by the local activity indicator.
@@ -102,10 +116,11 @@ public final class API {
 	}
 
 	/**
-	 Transforms an Endpoint<Response> into an Observable of Result<Response, Error> for making
+	 Transforms an `Endpoint<Response>` into an `Observable` of `Result<Response, Error>` for making
 	 requests to the local URLSession.
 
 	 * Network activity is tracked by the local activity indicator.
+	 * Will not emit an error event. Instead any error will emit as a `.next(.failure)` event.
 
 	 - Parameter endpoint: The API endpoint to which a request is made.
 	 - Returns: A Observable Result of the response type. This Observable will not emit an error event.
@@ -117,7 +132,7 @@ public final class API {
 	}
 
 	/**
-	 Transforms an Endpoint<Response> into an Observable<Response> for making requests to the local
+	 Transforms an `Endpoint<Response>` into an `Observable<Response>` for making requests to the local
 	 URLSession.
 
 	 * Network activity is tracked by the local activity indicator.
