@@ -100,9 +100,14 @@ public func showScene<Element, Action>(sender: Any? = nil, scene: @escaping (Ele
  - scene:  A factory function for creating the Scene.
  - Returns: A function that can be passed to `flatMap`, `flatMapFirst`, `flatMapLatest`, `concatMap` or can be `subscribe`d to.
  */
-public func showDetailScene<Element, Action>(sender: Any? = nil, scene: @escaping (Element) -> Scene<Action>) -> (Element) -> Observable<Action> {
+public func showDetailScene<Element, Action>(sender: Any? = nil,
+											 scene: @escaping (Element) -> Scene<Action>)
+-> (Element) -> Observable<Action> {
 	{ element in
-		Observable.using({ ShowCoordinator(asDetail: true, sender: sender, scene: scene(element)) }, observableFactory: { $0.action })
+		Observable.using(
+			{ ShowCoordinator(asDetail: true, sender: sender, scene: scene(element)) },
+			observableFactory: { $0.action }
+		)
 	}
 }
 
@@ -113,9 +118,13 @@ public func showDetailScene<Element, Action>(sender: Any? = nil, scene: @escapin
  - scene:  A factory function for creating the Scene.
  - Returns: A function that can be passed to the `onNext:` closure of `bind`, `subscribe` or `do`.
  */
-public func showDetailScene<Element, Action>(sender: Any? = nil, scene: @escaping (Element) -> Scene<Action>) -> (Element) -> Void {
+public func showDetailScene<Element, Action>(sender: Any? = nil,
+											 scene: @escaping (Element) -> Scene<Action>) -> (Element) -> Void {
 	{ element in
-		_ = Observable.using({ ShowCoordinator(asDetail: true, sender: sender, scene: scene(element)) }, observableFactory: { $0.action })
+		_ = Observable.using(
+			{ ShowCoordinator(asDetail: true, sender: sender, scene: scene(element)) },
+			observableFactory: { $0.action }
+		)
 			.subscribe()
 	}
 }
@@ -127,9 +136,14 @@ public func showDetailScene<Element, Action>(sender: Any? = nil, scene: @escapin
  - scene: A factory function for creating the Scene.
  - Returns: A function that can be passed to `flatMap`, `flatMapFirst`, `flatMapLatest`, `concatMap` or can be `subscribe`d to.
  */
-public func pushScene<Element, Action>(on navigation: UINavigationController, animated: Bool, scene: @escaping (Element) -> Scene<Action>) -> (Element) -> Observable<Action> {
+public func pushScene<Element, Action>(on navigation: UINavigationController,
+									   animated: Bool,
+									   scene: @escaping (Element) -> Scene<Action>) -> (Element) -> Observable<Action> {
 	{ [weak navigation] element in
-		Observable.using({ NavigationCoordinator(navigation: navigation, animated: animated, scene: scene(element)) }, observableFactory: { $0.action })
+		Observable.using(
+			{ NavigationCoordinator(navigation: navigation, animated: animated, scene: scene(element)) },
+			observableFactory: { $0.action }
+		)
 	}
 }
 
@@ -140,10 +154,15 @@ public func pushScene<Element, Action>(on navigation: UINavigationController, an
  - scene: A factory function for creating the Scene.
  - Returns: A function that can be passed to the `onNext:` closure of `bind`, `subscribe` or `do`.
  */
-public func pushScene<Element, Action>(on navigation: UINavigationController, animated: Bool, scene: @escaping (Element) -> Scene<Action>) -> (Element) -> Void {
+public func pushScene<Element, Action>(on navigation: UINavigationController,
+									   animated: Bool,
+									   scene: @escaping (Element) -> Scene<Action>) -> (Element) -> Void {
 	{ [weak navigation] element in
-		_ = Observable.using({ NavigationCoordinator(navigation: navigation, animated: animated, scene: scene(element)) }, observableFactory: { $0.action })
-			.subscribe()
+		_ = Observable.using(
+			{ NavigationCoordinator(navigation: navigation, animated: animated, scene: scene(element)) },
+			observableFactory: { $0.action }
+		)
+		.subscribe()
 	}
 }
 
@@ -152,11 +171,17 @@ private final class PresentationCoordinator<Action>: Disposable {
 	private weak var controller: UIViewController?
 	private let animated: Bool
 
-	init(animated: Bool, scene: Scene<Action>, assignToPopover: @escaping (UIPopoverPresentationController) -> Void = { _ in }) {
+	init(animated: Bool,
+		 scene: Scene<Action>,
+		 assignToPopover: @escaping (UIPopoverPresentationController) -> Void = { _ in }) {
 		self.action = scene.action
 			.do(
-				onError: { [weak controller = scene.controller] _ in remove(controller: controller, animated: animated) },
-				onCompleted: { [weak controller = scene.controller] in remove(controller: controller, animated: animated) }
+				onError: { [weak controller = scene.controller] _ in
+					remove(controller: controller, animated: animated)
+				},
+				onCompleted: { [weak controller = scene.controller] in
+					remove(controller: controller, animated: animated)
+				}
 			)
 				self.controller = scene.controller
 				self.animated = animated
@@ -266,7 +291,10 @@ func remove(controller: UIViewController?, animated: Bool) {
 func pop(controller: UIViewController?, animated: Bool) {
 	queue.async { [weak controller] in
 		DispatchQueue.main.async {
-			if let controller = controller, let navigation = controller.navigationController, let index = navigation.viewControllers.firstIndex(of: controller), index > 0 {
+			if let controller = controller,
+				let navigation = controller.navigationController,
+				let index = navigation.viewControllers.firstIndex(of: controller),
+				index > 0 {
 				navigation.popToViewController(navigation.viewControllers[index - 1], animated: true)
 			}
 		}

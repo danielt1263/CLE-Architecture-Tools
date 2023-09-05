@@ -26,7 +26,7 @@ public extension UIAlertController {
 				customize: customizeActions
 			)
 		}
-		let cancel = ButtonType<T?>(title: "Cancel", style: .cancel, action: { _ in nil}, customize: customizeCancel)
+		let cancel = ButtonType<T?>(title: "Cancel", style: .cancel, action: { _ in nil }, customize: customizeCancel)
 		return connect(buttons: buttons + [cancel])
 	}
 }

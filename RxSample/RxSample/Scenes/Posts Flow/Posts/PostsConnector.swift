@@ -16,14 +16,15 @@ extension UITableViewController {
 		tableView.dataSource = nil
 		tableView.delegate = nil
 
-		let postsResult = PostsLogic.getPosts(
-			trigger: tableView.refreshControl!.rx.controlEvent(.valueChanged).asObservable(),
-			user: user
-		)
-		.flatMapLatest {
-			api.response(.getPosts(id: $0))
-		}
-		.share(replay: 1)
+        let postsResult = Observable.combineLatest(
+            tableView.refreshControl!.rx.controlEvent(.valueChanged).startWith(()),
+            user
+        )
+            .compactMap { $0.1?.id }
+            .flatMapLatest {
+                api.response(.getPosts(id: $0))
+            }
+            .share(replay: 1)
 
 		_ = Observable.merge(
 			tableView.refreshControl!.rx.controlEvent(.valueChanged).map(to: true),
@@ -32,18 +33,18 @@ extension UITableViewController {
 		.take(until: rx.deallocating)
 		.bind(to: tableView.refreshControl!.rx.isRefreshing)
 
-		_ = Observable.merge(
-			postsResult,
-			user.filter { $0 == nil }.map(to: [Post]())
-		)
-		.take(until: rx.deallocating)
-		.bind(to: tableView.rx.items) { tableView, row, item in
-			(tableView.dequeueReusableCell(withIdentifier: "Cell") ?? UITableViewCell(style: .subtitle, reuseIdentifier: "Cell"))
-				.setup {
-					$0.textLabel!.text = item.title
-					$0.detailTextLabel!.text = item.body
-				}
-		}
+        _ = Observable.merge(
+            postsResult,
+            user.filter { $0 == nil }.map(to: [Post]())
+        )
+        .take(until: rx.deallocating)
+        .bind(to: tableView.rx.items) { tableView, row, item in
+            (tableView.dequeueReusableCell(withIdentifier: "Cell") ?? UITableViewCell(style: .subtitle, reuseIdentifier: "Cell"))
+                .setup {
+                    $0.textLabel!.text = item.title
+                    $0.detailTextLabel!.text = item.body
+                }
+        }
 
 		let action = tableView.rx.modelSelected(Post.self)
 			.asObservable()
