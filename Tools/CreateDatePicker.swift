@@ -8,22 +8,9 @@
 import UIKit
 import RxSwift
 
-enum DateEntryMode {
-	case date
-	case time
-	case dateAndTime
-}
-
-func createDatePicker(on view: UIView, tint: UIColor, entryMode: DateEntryMode, initial: Date?) -> UIDatePicker {
+func createDatePicker(on view: UIView, tint: UIColor, entryMode: UIDatePicker.Mode, initial: Date?) -> UIDatePicker {
 	let picker = UIDatePicker()
-	switch entryMode {
-	case .date:
-		picker.datePickerMode = .date
-	case .time:
-		picker.datePickerMode = .time
-	case .dateAndTime:
-		picker.datePickerMode = .dateAndTime
-	}
+    picker.datePickerMode = entryMode
 	picker.date = initial ?? Date()
 
 	if #available(iOS 13.4, *) {
@@ -44,11 +31,11 @@ func createDatePicker(on view: UIView, tint: UIColor, entryMode: DateEntryMode, 
 		formatter.dateStyle = entryMode == .time ? .none : .medium
 		formatter.timeStyle = entryMode == .date ? .none : .short
 
-		let constraintRect = CGSize(width: .greatestFiniteMagnitude, height: bounds.height)
-		let boundingBox = formatter.string(from: Date()).boundingRect(with: constraintRect, options: .usesLineFragmentOrigin, attributes: [.font: font!], context: nil)
+        let constraintRect = CGSize(width: .greatestFiniteMagnitude, height: textField.bounds.height)
+        let boundingBox = formatter.string(from: Date()).boundingRect(with: constraintRect, options: .usesLineFragmentOrigin, attributes: [.font: textField.font!], context: nil)
 		let textWidth = ceil(boundingBox.width)
 
-		if textWidth + 14 > bounds.width && entryMode != .time {
+        if textWidth + 14 > textField.bounds.width && entryMode != .time {
 			formatter.dateStyle = .short
 		}
 

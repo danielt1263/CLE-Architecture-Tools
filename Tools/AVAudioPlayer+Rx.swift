@@ -6,8 +6,8 @@
 //
 
 import AVKit
+import Cause_Logic_Effect
 import Foundation
-import RxResource
 import RxSwift
 
 func audioPlayerSession(url: URL, togglePlay: Observable<Void>) -> Observable<AudioPlayerState> {

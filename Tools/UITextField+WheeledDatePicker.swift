@@ -9,24 +9,12 @@ import RxCocoa
 import RxSwift
 import UIKit
 
-enum DateEntryMode {
-	case date
-	case time
-	case dateAndTime
-}
-
 extension UITextField {
-	func wheeledDatePicker(entryMode: DateEntryMode, initial: Date? = nil) -> UIDatePicker {
+	func wheeledDatePicker(entryMode: UIDatePicker.Mode, initial: Date? = nil) -> UIDatePicker {
 		let picker = UIDatePicker()
-		switch entryMode {
-		case .date:
-			picker.datePickerMode = .date
-		case .time:
-			picker.datePickerMode = .time
-		case .dateAndTime:
-			picker.datePickerMode = .dateAndTime
-		}
-		if #available(iOS 13.4, *) {
+        picker.datePickerMode = entryMode
+
+        if #available(iOS 13.4, *) {
 			picker.preferredDatePickerStyle = .wheels
 		}
 
