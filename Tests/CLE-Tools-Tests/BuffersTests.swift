@@ -105,4 +105,21 @@ final class BuffersTests: XCTestCase {
 		}
 		XCTAssertEqual(actual.events, expected[0])
 	}
+
+	func test6() {
+		let scheduler = TestScheduler(initialClock: 0)
+		let values: [Character: [String]] = [
+			"1": ["A", "B"],
+			"2": ["C", "D"],
+			"3": ["E", "F"]
+		]
+		let source = scheduler.createObservable(timeline:  "-A-B-C-D-E-F|")
+		let boundry = scheduler.createObservable(timeline: "----A---A|")
+		let expected = parseEventsAndTimes(timeline:       "----1---2--3|", values: { values[$0]! })
+			.offsetTime(by: 200)
+		let actual = scheduler.start {
+			source.buffer(boundary: boundry)
+		}
+		XCTAssertEqual(actual.events, expected[0])
+	}
 }

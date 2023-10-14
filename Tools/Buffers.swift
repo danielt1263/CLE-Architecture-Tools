@@ -72,7 +72,7 @@ extension ObservableType {
 				case let .next(element):
 					buf[now] = element
 				case .completed:
-					if let lastEmit = lastEmit {
+					if let lastEmit {
 						let span = now.timeIntervalSince(lastEmit) + timeSpan.asTimeInterval - timeShift.asTimeInterval
 						observer.onNext(buf
 							.filter { $0.key > now.addingTimeInterval(-span) }
@@ -109,31 +109,38 @@ extension ObservableType {
 	 - returns: Array of elements observable sequence.
 	 */
 	func buffer<O>(boundary: O) -> Observable<[Element]> where O: ObservableConvertibleType {
-		return Observable.merge(self.materialize().map(BufferAction.element), boundary.asObservable().map { _ in BufferAction.trigger })
-			.scan((buf: [Element](), trigger: ([Element]?).none)) { prev, next in
-				switch next {
-				case let .element(event):
-					switch event {
-					case .next(let e):
-						return (buf: prev.buf + [e], trigger: nil)
-					case .error(let error):
-						throw error
-					case .completed:
-						return (buf: [], trigger: prev.buf)
-					}
-				case .trigger:
-					return (buf: [], trigger: prev.buf)
+		Observable.create { observer in
+			var buffer = [Element]()
+			let lock = NSRecursiveLock()
+			let source = self.subscribe { event in
+				lock.lock(); defer { lock.unlock() }
+				switch event {
+				case let .next(element):
+					buffer.append(element)
+				case let .error(error):
+					observer.onError(error)
+				case .completed:
+					observer.onNext(buffer)
+					observer.onCompleted()
 				}
 			}
-			.filter { $0.trigger != nil }
-			.map { $0.trigger! }
-			.take(until: self.takeLast(0))
-	}
-}
 
-private enum BufferAction<T> {
-	case element(Event<T>)
-	case trigger
+			let trigger = boundary.asObservable()
+				.subscribe { event in
+					lock.lock(); defer { lock.unlock() }
+					switch event {
+					case .next:
+						observer.onNext(buffer)
+						buffer = []
+					case let .error(error):
+						observer.onError(error)
+					case .completed:
+						break
+					}
+				}
+			return CompositeDisposable(source, trigger)
+		}
+	}
 }
 
 private extension RxTimeInterval {
