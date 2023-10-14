@@ -305,15 +305,11 @@ func pop(controller: UIViewController?, animated: Bool) {
 
 private extension UIApplication {
 	func topViewController() -> UIViewController {
-		var result: UIViewController?
-		if #available(iOS 13, *) {
-			result = connectedScenes
-				.lazy
-				.compactMap { ($0 as? UIWindowScene)?.keyWindow?.rootViewController }
-				.first
-		} else {
-			result = keyWindow?.rootViewController
-		}
+		var result = connectedScenes
+			.lazy
+			.compactMap { ($0 as? UIWindowScene)?.keyWindow?.rootViewController }
+			.first
+
 		while let vc = result?.presentedViewController, !vc.isBeingDismissed {
 			result = vc
 		}
