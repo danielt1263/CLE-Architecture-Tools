@@ -36,28 +36,28 @@ let package = Package(
 			],
 			path: "Tools"
 		),
-        .target(
-            name: "Test-Tools",
-            dependencies: [
-                "RxSwift",
-                .productItem(name: "RxTest", package: "RxSwift")
-            ],
-            path: "Tests/Test-Tools"
-        ),
-        .testTarget(
-            name: "Cause-Logic-Effect-Tests",
-            dependencies: [
-                "Cause-Logic-Effect",
-                "Test-Tools",
-                .productItem(name: "RxTest", package: "RxSwift")
-            ]
-        ),
+		.target(
+			name: "Test-Tools",
+			dependencies: [
+				"RxSwift",
+				.productItem(name: "RxTest", package: "RxSwift")
+			],
+			path: "Tests/Test-Tools"
+		),
+		.testTarget(
+			name: "Cause-Logic-Effect-Tests",
+			dependencies: [
+				"Cause-Logic-Effect",
+				"Test-Tools",
+				.productItem(name: "RxTest", package: "RxSwift")
+			]
+		),
 		.testTarget(
 			name: "CLE-Tools-Tests",
 			dependencies: [
 				"Cause-Logic-Effect",
 				"CLE-Tools",
-                "Test-Tools",
+				"Test-Tools",
 				.productItem(name: "RxTest", package: "RxSwift")
 			]
 		),
