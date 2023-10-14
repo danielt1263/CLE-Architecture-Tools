@@ -5,6 +5,7 @@
 //  Copyright © 2023 Daniel Tartaglia. MIT License.
 //
 
+import Foundation
 import RxSwift
 
 extension ObservableType {
@@ -135,7 +136,7 @@ private enum BufferAction<T> {
 	case trigger
 }
 
-private extension DispatchTimeInterval {
+private extension RxTimeInterval {
 	var asTimeInterval: TimeInterval {
 		switch self {
 		case .nanoseconds(let val): return Double(val) / 1_000_000_000.0

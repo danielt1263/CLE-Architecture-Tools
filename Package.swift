@@ -5,7 +5,7 @@ import PackageDescription
 let package = Package(
 	name: "Cause-Logic-Effect",
 	platforms: [
-		.iOS(.v9),
+		.iOS(.v15),
 	],
 	products: [
 		.library(
@@ -27,6 +27,22 @@ let package = Package(
 				.product(name: "RxCocoa", package: "RxSwift"),
 			],
 			path: "Utilities"
-		)
+		),
+		.target(
+			name: "CLE-Tools",
+			dependencies: [
+				"RxSwift",
+				.product(name: "RxCocoa", package: "RxSwift"),
+			],
+			path: "Tools"
+		),
+		.testTarget(
+			name: "CLE-Tools-Tests",
+			dependencies: [
+				"Cause-Logic-Effect",
+				"CLE-Tools",
+				.productItem(name: "RxTest", package: "RxSwift")
+			]
+		),
 	]
 )
