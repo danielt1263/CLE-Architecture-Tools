@@ -191,7 +191,7 @@ private final class PresentationCoordinator<Action>: Disposable {
 						if let popoverPresentationController = scene.controller.popoverPresentationController {
 							assignToPopover(popoverPresentationController)
 						}
-						UIViewController.top().present(scene.controller, animated: animated, completion: {
+				UIApplication.shared.topViewController().present(scene.controller, animated: animated, completion: {
 							semaphore.signal()
 						})
 					}
@@ -238,7 +238,7 @@ private final class ShowCoordinator<Action>: Disposable {
 		controller = scene.controller
 		queue.async {
 			DispatchQueue.main.async {
-				let top = UIViewController.top()
+				let top = UIApplication.shared.topViewController()
 				if asDetail {
 					top.showDetailViewController(scene.controller, sender: sender)
 				}
@@ -301,14 +301,20 @@ func pop(controller: UIViewController?, animated: Bool) {
 	}
 }
 
-private extension UIViewController {
-	static func top() -> UIViewController {
-		guard let rootViewController = UIApplication.shared.windows.filter({ $0.isKeyWindow }).first?.rootViewController
-		else { fatalError("No view controller present in app?") }
-		var result = rootViewController
-		while let vc = result.presentedViewController, !vc.isBeingDismissed {
+private extension UIApplication {
+	func topViewController() -> UIViewController {
+		var result: UIViewController?
+		if #available(iOS 13, *) {
+			result = connectedScenes
+				.lazy
+				.compactMap { ($0 as? UIWindowScene)?.keyWindow?.rootViewController }
+				.first
+		} else {
+			result = keyWindow?.rootViewController
+		}
+		while let vc = result?.presentedViewController, !vc.isBeingDismissed {
 			result = vc
 		}
-		return result
+		return result!
 	}
 }
