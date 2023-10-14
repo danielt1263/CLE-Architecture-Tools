@@ -9,7 +9,7 @@ import Foundation
 import RxSwift
 import RxTest
 
-extension TestScheduler {
+public extension TestScheduler {
     /**
      Creates an Observable that emits the elements in timeline up to the first stop event (or end of the
      timeline if no stop events exist). If the Observable is subscribed to a second time, it will emit the next set
@@ -159,7 +159,7 @@ extension TestScheduler {
  objects. Defaults to none which means only the `#` can be used to emit a generic error.
  - Returns: An array of event arrays.
  */
-func parseEventsAndTimes<T>(
+public func parseEventsAndTimes<T>(
     timeline: String,
     values: (String.Element) -> T?,
     errors: (String.Element) -> Error? = { _ in nil },
@@ -194,7 +194,7 @@ func parseEventsAndTimes<T>(
     .output
 }
 
-extension Array {
+public extension Array {
     func offsetTime<T>(by time: Int) -> [[Recorded<Event<T>>]] where Element == [Recorded<Event<T>>] {
         map { $0.map { Recorded(time: $0.time + time, value: $0.value) } }
     }
