@@ -11,7 +11,8 @@ import RxSwift
 extension ObservableType {
 
 	/**
-	 Projects elements from an observable sequence into a buffer that's sent out when its full and then every `skip` elements.
+	 Projects elements from an observable sequence into a buffer that's sent out when its full and then every `skip`
+	 elements.
 
 	 - seealso: [overlapping buffers in Introduction to Rx](http://introtorx.com/Content/v1.0.10621.0/13_TimeShiftedSequences.html#OverlappingBuffersByCount)
 
@@ -50,7 +51,8 @@ extension ObservableType {
 extension ObservableType {
 
 	/**
-	 Projects elements from an observable sequence into a buffer that's sent out after `timeSpan` and then every `timeShift` seconds.
+	 Projects elements from an observable sequence into a buffer that's sent out after `timeSpan` and then every
+	 `timeShift` seconds.
 
 	 - seealso: [overlapping buffers in Introduction to Rx](http://introtorx.com/Content/v1.0.10621.0/13_TimeShiftedSequences.html#OverlappingBuffersByTime)
 

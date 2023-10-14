@@ -11,8 +11,8 @@ extension ObservableType {
 	/**
 	 Absorbs errors and routes them to the error router instead. If the source emits an error, this operator will
 	 emit a completed event and the error router will emit the error as a next event.
-	 - Parameter errorRouter: The error router that will accept the error.
-	 - Returns: The source observable's events with an error event converted to a completed event.
+	 - parameter errorRouter: The error router that will accept the error.
+	 - returns: The source observable's events with an error event converted to a completed event.
 	 */
 	public func rerouteError(_ errorRouter: ErrorRouter) -> Observable<Element> {
 		errorRouter.rerouteError(self)

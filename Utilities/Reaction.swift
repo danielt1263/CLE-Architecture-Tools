@@ -22,9 +22,9 @@ public typealias Reaction<State, Input> = (Observable<(State, Input)>) -> Observ
  For this reaction, the request can be any type. If the `request` closure returns nil then `effect` will not
  receive a value. If it contains a value, the effect closure will receive the request.
 
- - Parameter request: A function that transforms the Output into an Optional Request.
- - Parameter effect: A function that should emit the results of the side effect.
- - Returns: A new function that transforms Observable State into Observable Action.
+ - parameter request: A function that transforms the Output into an Optional Request.
+ - parameter effect: A function that should emit the results of the side effect.
+ - returns: A new function that transforms Observable State into Observable Action.
  */
 public func reaction<State, Input, Request>(
 	request: @escaping (State, Input) -> Request?,
@@ -44,9 +44,9 @@ public func reaction<State, Input, Request>(
  For this reaction, the request is a collection. If it is empty then `effect` will not receive it. If it contains at
  least one value, the effect closure will receive the request.
 
- - Parameter request: A function that transforms the Output into a Collection.
- - Parameter effect: A function that should emit the results of the side effect.
- - Returns: A new function that transforms Observable State into Observable Action.
+ - parameter request: A function that transforms the Output into a Collection.
+ - parameter effect: A function that should emit the results of the side effect.
+ - returns: A new function that transforms Observable State into Observable Action.
  */
 public func reaction<State, Request, Input>(
 	request: @escaping (State, Input) -> Request,
@@ -66,9 +66,9 @@ public func reaction<State, Request, Input>(
  For this reaction, the request is a Bool. If it is false then `effect` will not receive a next event. If it returns
  true, the effect closure will receive a next event.
 
- - Parameter request: A function that transforms the Output into a Bool.
- - Parameter effect: A function that should emit the results of the side effect.
- - Returns: A new function that transforms Observable State into Observable Action.
+ - parameter request: A function that transforms the Output into a Bool.
+ - parameter effect: A function that should emit the results of the side effect.
+ - returns: A new function that transforms Observable State into Observable Action.
  */
 public func reaction<State, Input>(
 	request: @escaping (State, Input) -> Bool,

@@ -10,11 +10,13 @@ import RxSwift
 extension ObservableType {
 
 	/**
-	Emits values immediately if the boundary sequence last emitted true, otherwise collects elements from the source sequence until the boundary sequence emits true then emits the collected elements.
-	- parameter boundary: Triggering event sequence.
-	- parameter initial: The initial value of the boundary
-	- returns: An Observable sequence.
-	*/
+	 Emits values immediately if the boundary sequence last emitted true, otherwise collects elements from the source
+	 sequence until the boundary sequence emits true then emits the collected elements.
+
+	 - parameter boundary: Triggering event sequence.
+	 - parameter initial: The initial value of the boundary
+	 - returns: An Observable sequence.
+	 */
 	func stall<O>(unless boundary: O, initial: Bool) -> Observable<Element> where O: ObservableType, O.Element == Bool {
 		Observable.merge(
 			map(Action.value),

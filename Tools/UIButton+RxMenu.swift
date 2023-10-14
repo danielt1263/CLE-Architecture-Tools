@@ -12,14 +12,14 @@ import UIKit
 extension UIButton {
 	/**
 	 Shows a drop-down/pull-down menu on a UIButton.
-	 - Parameters:
-	 - title: The menu's title.
-	 - subtitle: The subtitle of the menu.
-	 - image:  Image to be displayed alongside the menu's title.
-	 - identifier: The menu's unique identifier. Pass nil to use an auto-generated identifier.
-	 - options: The menu's options.
-	 - children:  The menu's action-based sub-elements and sub-menus.
-	 - Returns: An Observable that emits the index of the selected menu item.
+
+	 - parameter title: The menu's title.
+	 - parameter subtitle: The subtitle of the menu.
+	 - parameter image:  Image to be displayed alongside the menu's title.
+	 - parameter identifier: The menu's unique identifier. Pass nil to use an auto-generated identifier.
+	 - parameter options: The menu's options.
+	 - parameter children:  The menu's action-based sub-elements and sub-menus.
+	 - returns: An Observable that emits the index of the selected menu item.
 	 */
 	func addPulldownMenu(title: String = "",
 						 subtitle: String = "",

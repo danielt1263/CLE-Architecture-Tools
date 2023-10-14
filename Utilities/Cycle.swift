@@ -14,11 +14,11 @@ import RxSwift
  _after_ applying the input. For those who are curious, this state machine acts like a Mealy machine for `reaction`s,
  and a Moor machine for external output.
 
- - Parameter inputs: An array of external inputs that drive the machine.
- - Parameter initialState: The starting state of the machine.
- - Parameter reduce: The function that defines how state transitions.
- - Parameter effects: Side effects that feed back into the state machine.
- - Returns: An Observable that emits the state of the machine as it updates.
+ - parameter inputs: An array of external inputs that drive the machine.
+ - parameter initialState: The starting state of the machine.
+ - parameter reduce: The function that defines how state transitions.
+ - parameter effects: Side effects that feed back into the state machine.
+ - returns: An Observable that emits the state of the machine as it updates.
  */
 public func cycle<State, Input>(
     inputs: [Observable<Input>],
@@ -47,10 +47,10 @@ public func cycle<State, Input>(
  This function helps the developer setup a feedback loop. It allows the minimum separation of logic and effects without
  making any assumptions about how the logic or effects are handled.
 
- - Parameter input: An external input that starts the feedback loop.
- - Parameter logic: The function that defines the logic of the feedback loop.
- - Parameter effect: The function that defines the side effects that feed back into the loop.
- - Returns: An Observable that emits the state of the machine as it updates.
+ - parameter input: An external input that starts the feedback loop.
+ - parameter logic: The function that defines the logic of the feedback loop.
+ - parameter effect: The function that defines the side effects that feed back into the loop.
+ - returns: An Observable that emits the state of the machine as it updates.
  */
 public func cycle<Output, Input>(
     input: Observable<Input>,

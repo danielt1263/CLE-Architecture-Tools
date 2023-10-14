@@ -11,9 +11,9 @@ import RxSwift
 extension ObservableConvertibleType {
 	/**
 	 Attaches this Observable to the provided activity indicator object.
-	 - Parameter activityTracker: The ActivityTracker that this observable should be attached
-	 to.
-	 - Returns: An Observable that forwards events from the source.
+
+	 - parameter activityTracker: The ActivityTracker that this observable should be attached to.
+	 - returns: An Observable that forwards events from the source.
 	 */
 	public func trackActivity(_ activityTracker: ActivityTracker) -> Observable<Element> {
 		activityTracker.trackActivity(of: self)
@@ -21,9 +21,8 @@ extension ObservableConvertibleType {
 }
 
 /**
- Monitors the activity of all attached Observables. As long as any one attached Observable is active,
- `isActive` will emit `true`. Once all attached Observables have disposed, `isActive` will emit
- `false`.
+ Monitors the activity of all attached Observables. As long as any one attached Observable is active, `isActive` will
+ emit `true`. Once all attached Observables have disposed, `isActive` will emit `false`.
  */
 public final class ActivityTracker {
 	public let isActive: Observable<Bool>

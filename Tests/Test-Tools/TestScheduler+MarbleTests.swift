@@ -15,12 +15,13 @@ public extension TestScheduler {
 	 timeline if no stop events exist). If the Observable is subscribed to a second time, it will emit the next set
 	 of events, up to the next stop event (or the end), in the timeline, or loop back to the first set of events if
 	 it just handled the last set.
-	 - Parameter timeline: A string representing the marble diagrams that this observable will emit.
-	 - Parameter errors: A dictionary defining any substrings in the timeline that represent custom error
+
+	 - parameter timeline: A string representing the marble diagrams that this observable will emit.
+	 - parameter errors: A dictionary defining any substrings in the timeline that represent custom error
 	 objects. Defaults to empty which means only the `#` can be used to emit an error.
-	 - Parameter resolution: A closure telling the function what resolution to use when timing
+	 - parameter resolution: A closure telling the function what resolution to use when timing
 	 events. Defaults to one second per character.
-	 - Returns: An Observable that behaves as defined above.
+	 - returns: An Observable that behaves as defined above.
 	 */
 	func createObservable(
 		timeline: String,
@@ -36,14 +37,15 @@ public extension TestScheduler {
 	 timeline if no stop events exist). If the Observable is subscribed to a second time, it will emit the next set
 	 of events, up to the next stop event (or the end), in the timeline, or loop back to the first set of events if
 	 it just handled the last set.
-	 - Parameter timeline: A string representing the marble diagrams that this observable will emit.
-	 - Parameter values: A dictionary defining any substrings in the timeline that represent a next
+
+	 - parameter timeline: A string representing the marble diagrams that this observable will emit.
+	 - parameter values: A dictionary defining any substrings in the timeline that represent a next
 	 element.
-	 - Parameter errors: A dictionary defining any substrings in the timeline that represent custom error
+	 - parameter errors: A dictionary defining any substrings in the timeline that represent custom error
 	 objects. Defaults to empty which means only the `#` can be used to emit a generic error.
-	 - Parameter resolution: A closure telling the function what resolution to use when timing
+	 - parameter resolution: A closure telling the function what resolution to use when timing
 	 events. Defaults to one second per character.
-	 - Returns: An Observable that behaves as defined above.
+	 - returns: An Observable that behaves as defined above.
 	 */
 	func createObservable<T>(
 		timeline: String,
@@ -58,10 +60,11 @@ public extension TestScheduler {
 	/**
 	 Creates an Observable that emits the recorded events in the provided array. If the Observable is
 	 subscribed to a second time, it will replay the array of events.
-	 - Parameter events: An array of recorded events to play.
-	 - Parameter resolution: A closure telling the function what resolution to use when timing
+
+	 - parameter events: An array of recorded events to play.
+	 - parameter resolution: A closure telling the function what resolution to use when timing
 	 events. Defaults to one second times the `Recorded` event's test time.
-	 - Returns: An Observable that behaves as defined above.
+	 - returns: An Observable that behaves as defined above.
 	 */
 	func createObservable<T>(
 		_ events: [Recorded<Event<T>>],
@@ -74,10 +77,11 @@ public extension TestScheduler {
 	 Creates an Observable that emits the recorded events in the first array of the provided two dimensional
 	 array. Each time the Observable is subscribed to, it will emit the recorded events in the next array, or
 	 loop back to the first array if it just handled the last array.
-	 - Parameter events: A two-dimensional array of recorded events to play.
-	 - Parameter resolution: A closure telling the function what resolution to use when timing
+
+	 - parameter events: A two-dimensional array of recorded events to play.
+	 - parameter resolution: A closure telling the function what resolution to use when timing
 	 events. Defaults to one second times the `Recorded` event's test time.
-	 - Returns: An Observable that behaves as defined above.
+	 - returns: An Observable that behaves as defined above.
 	 */
 	func createObservable<T>(
 		_ events: [[Recorded<Event<T>>]],
@@ -101,13 +105,11 @@ public extension TestScheduler {
 
 	 - parameter Arg: Type of arguments of mocked method.
 	 - parameter Ret: Return type of mocked method. `Observable<Ret>`
-
 	 - parameter args: parameters passed into mock.
 	 - parameter values: Dictionary of values in timeline. `["a": 1, "b": 2]`
 	 - parameter errors: Dictionary of errors in timeline.
 	 - parameter timelineSelector: Method implementation. The returned string value represents timeline of
 	 returned observable sequence. `---a---b------c----#----a--#----b`
-
 	 - returns: Implementation of method that accepts arguments with parameter `Arg` and returns observable sequence
 	 with parameter `Ret`.
 	 */
@@ -153,11 +155,11 @@ public extension TestScheduler {
  `errors` closure to lookup the character, if not found there it will call the `values` closure. If neither
  closure returns an object for the substring, then an error will be asserted.
 
- - Parameter timeline: A string that follows the rules as defined above.
- - Parameter values: A closure defining any substrings in the timeline that represent a next element.
- - Parameter errors: A closure defining any substrings in the timeline that represent custom error
+ - parameter timeline: A string that follows the rules as defined above.
+ - parameter values: A closure defining any substrings in the timeline that represent a next element.
+ - parameter errors: A closure defining any substrings in the timeline that represent custom error
  objects. Defaults to none which means only the `#` can be used to emit a generic error.
- - Returns: An array of event arrays.
+ - returns: An array of event arrays.
  */
 public func parseEventsAndTimes<T>(
 	timeline: String,

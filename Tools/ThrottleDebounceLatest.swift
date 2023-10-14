@@ -9,6 +9,15 @@ import Foundation
 import RxSwift
 
 extension ObservableType {
+	/**
+	 returns an Observable that emits the first item emitted by the source Observable then ignores elements from the
+	 source which are followed by another element within a specified relative time duration, using the specified
+	 scheduler to run throttling timers.
+
+	 - parameter dueTime: Throttling duration for each element.
+	 - parameter scheduler: Scheduler to run the throttle timers on.
+	 - returns: The throttled sequence.
+	 */
 	func throttleDebounceLatest(dueTime: RxTimeInterval, scheduler: SchedulerType) -> Observable<Element> {
 		Observable.create { observer in
 			var fireTime: RxTime?

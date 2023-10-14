@@ -24,10 +24,10 @@ public extension NSObjectProtocol where Self: UIViewController {
 	/**
 	Create a scene by reconstituting an instance of this view controller from a storyboard with the same name as it.
 
-	- Parameter connect: A function describing how the view controller should be connected and returning an Observable that emits any data the scene needs to communicate to its parent.
-	- Parameter storyboardName: The name of the storyboard. If not supplied then the name of the view controller is assumed.
-	- Parameter bundle: The bundle to look for the storyboard in. If not supplied then the system will look in the main bundle.
-	- Returns: A Scene containing the view controller and return value of the connect function.
+	- parameter connect: A function describing how the view controller should be connected and returning an Observable that emits any data the scene needs to communicate to its parent.
+	- parameter storyboardName: The name of the storyboard. If not supplied then the name of the view controller is assumed.
+	- parameter bundle: The bundle to look for the storyboard in. If not supplied then the system will look in the main bundle.
+	- returns: A Scene containing the view controller and return value of the connect function.
 
 	Example:
 
@@ -42,10 +42,10 @@ public extension NSObjectProtocol where Self: UIViewController {
 	/**
 	Extract an instance of this view controller out of a storyboard with the same name as it and cofigure it using the supplied connect function.
 
-	- Parameter connect: A function describing how the view controller should be connected.
-	- Parameter storyboardName: The name of the storyboard. If not supplied then the name of the view controller is assumed.
-	- Parameter bundle: The bundle to look for the storyboard in. If not supplied then the system will look in the main bundle.
-	- Returns: A configured view controller.
+	- parameter connect: A function describing how the view controller should be connected.
+	- parameter storyboardName: The name of the storyboard. If not supplied then the name of the view controller is assumed.
+	- parameter bundle: The bundle to look for the storyboard in. If not supplied then the system will look in the main bundle.
+	- returns: A configured view controller.
 
 	Example:
 
@@ -60,8 +60,8 @@ public extension NSObjectProtocol where Self: UIViewController {
 	/**
 	Create a scene from an already existing view controller.
 
-	- Parameter connect: A function describing how the view controller should be connected and returning an Observable that emits any data the scene needs to communicate to its parent.
-	- Returns: A Scene containing the view controller and return value of the connect function.
+	- parameter connect: A function describing how the view controller should be connected and returning an Observable that emits any data the scene needs to communicate to its parent.
+	- returns: A Scene containing the view controller and return value of the connect function.
 
 	Example:
 
@@ -83,8 +83,8 @@ public extension NSObjectProtocol where Self: UIViewController {
 	/**
 	Configure an existing view controller using the supplied connect function.
 
-	- Parameter connect: A function describing how the view controller should be connected.
-	- Returns: A configured view controller.
+	- parameter connect: A function describing how the view controller should be connected.
+	- returns: A configured view controller.
 
 	Example:
 
@@ -102,8 +102,8 @@ public extension NSObjectProtocol where Self: UIViewController {
 public extension NSObjectProtocol {
 	/**
 	Can be used to setup a view controller before `viewDidLoad` is called. Can also be used to setup other UIKit objects.
-	- Parameter fn: Closure that accepts the object.
-	- Returns: The object.
+	- parameter fn: Closure that accepts the object.
+	- returns: The object.
 	*/
 	@discardableResult
 	func setup(_ fn: (Self) -> Void) -> Self {

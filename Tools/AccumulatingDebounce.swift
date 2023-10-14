@@ -10,13 +10,12 @@ import RxSwift
 
 extension ObservableType {
 	/**
-	 Accumulates elements from an observable sequence where are followed by another element within a specified relative time
-	 duration, using the specified scheduler to run throttling timers.
+	 Accumulates elements from an observable sequence where are followed by another element within a specified relative
+	 time duration, using the specified scheduler to run throttling timers.
 
-	 - Parameters:
-	 - dueTime: Throttling duration for each element.
-	 - scheduler:  Scheduler to run the throttle timers on.
-	 - Returns: The throttled sequence.
+	 - parameter dueTime: Throttling duration for each element.
+	 - parameter scheduler:  Scheduler to run the throttle timers on.
+	 - returns: The throttled sequence.
 	 */
 	func accumulatingDebounce(_ dueTime: RxTimeInterval, scheduler: SchedulerType) -> Observable<[Element]> {
 		.create { observer in

@@ -57,7 +57,7 @@ public final class API {
 	 * Network activity is tracked by the local activity indicator.
 	 * Errors from the Observable are routed to the local error router.
 
-	 - Parameter endpoint: The API endpoint for which a request is made.
+	 - parameter endpoint: The API endpoint for which a request is made.
 	 */
 	public func send(_ endpoint: Endpoint<Void>) {
 		_ = rawResponse(endpoint)
@@ -72,8 +72,8 @@ public final class API {
 	 * Network activity is tracked by the local activity indicator.
 	 * Errors from the Observable are routed to the local error router.
 
-	 - Parameter endpoint: The API endpoint for which a request is made.
-	 - Returns: An Observable of the response type whose network activity and errors are handled
+	 - parameter endpoint: The API endpoint for which a request is made.
+	 - returns: An Observable of the response type whose network activity and errors are handled
 	 automatically. This Observable will not emit an error event.
 	 */
 	public func response<T>(_ endpoint: Endpoint<T>) -> Observable<T> {
@@ -88,8 +88,8 @@ public final class API {
 	 * Network activity is tracked by the local activity indicator.
 	 * Errors from the network request are routed to the local error router and the response will emit false.
 
-	 - Parameter endpoint: The API endpoint to which a request is made.
-	 - Returns: An Observable of `Bool` that will not emit an error event.
+	 - parameter endpoint: The API endpoint to which a request is made.
+	 - returns: An Observable of `Bool` that will not emit an error event.
 	 */
 	public func successResponse(_ endpoint: Endpoint<Void>) -> Observable<Bool> {
 		rawResponse(endpoint)
@@ -105,8 +105,8 @@ public final class API {
 	 * Network activity is tracked by the local activity indicator.
 	 * Errors from the Observable are routed to the local error router and the response will emit nil.
 
-	 - Parameter endpoint: The API endpoint to which a request is made.
-	 - Returns: A Observable of the response type that will not emit an error event.
+	 - parameter endpoint: The API endpoint to which a request is made.
+	 - returns: A Observable of the response type that will not emit an error event.
 	 */
 	public func successResponse<T>(_ endpoint: Endpoint<T>) -> Observable<T?> {
 		rawResponse(endpoint)
@@ -122,8 +122,8 @@ public final class API {
 	 * Network activity is tracked by the local activity indicator.
 	 * Will not emit an error event. Instead any error will emit as a `.next(.failure)` event.
 
-	 - Parameter endpoint: The API endpoint to which a request is made.
-	 - Returns: A Observable Result of the response type. This Observable will not emit an error event.
+	 - parameter endpoint: The API endpoint to which a request is made.
+	 - returns: A Observable Result of the response type. This Observable will not emit an error event.
 	 */
 	public func resultResponse<T>(_ endpoint: Endpoint<T>) -> Observable<Result<T, Error>> {
 		rawResponse(endpoint)
@@ -138,8 +138,8 @@ public final class API {
 	 * Network activity is tracked by the local activity indicator.
 	 * An error will emit if the network request fails.
 
-	 - Parameter endpoint: The API endpoint to which a request is made.
-	 - Returns: A Observable of the response type.
+	 - parameter endpoint: The API endpoint to which a request is made.
+	 - returns: A Observable of the response type.
 	 */
 	public func rawResponse<T>(_ endpoint: Endpoint<T>) -> Observable<T> {
 		data(endpoint.request)
@@ -151,7 +151,7 @@ public final class API {
 	 Allows client to change the source that the above methods use for retrieving data. Use this method
 	 when you want to, for example, stub out a network request in favor of responding with local data while
 	 testing.
-	 - Parameter data: The function that should be used by the above methods to make network
+	 - parameter data: The function that should be used by the above methods to make network
 	 requests. All of the above methods will ultimate use the function passed in.
 	 */
 	public func setSource(_ data: @escaping (URLRequest) -> Observable<Data>) {

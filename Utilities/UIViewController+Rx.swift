@@ -37,8 +37,8 @@ extension Reactive where Base: UIViewController {
 	}
 
 	/// Can be used to dismiss the view controller if you want to do it before the scene's action disposes.
-	/// - Parameter animated: Pass true to animate the transition.
-	/// - Returns: A trigger Observable to notify you that it's done.
+	/// - parameter animated: Pass true to animate the transition.
+	/// - returns: A trigger Observable to notify you that it's done.
 	public func dismissSelf(animated: Bool) -> Observable<Void> {
 		Observable.deferred { [base] in
 			remove(controller: base, animated: animated)
@@ -47,8 +47,8 @@ extension Reactive where Base: UIViewController {
 	}
 
 	/// Can be used to pop the view controller if you want to do it before the scene's action disposes. If the view controller wasn't pushed, then this does nothing.
-	/// - Parameter animated: Set this value to true to animate the transition. Pass false if you are setting up a navigation controller before its view is displayed.
-	/// - Returns: A trigger Observable to notify you that it's done.
+	/// - parameter animated: Set this value to true to animate the transition. Pass false if you are setting up a navigation controller before its view is displayed.
+	/// - returns: A trigger Observable to notify you that it's done.
 	public func popSelf(animated: Bool) -> Observable<Void> {
 		Observable.deferred { [base] in
 			pop(controller: base, animated: animated)
