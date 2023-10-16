@@ -25,7 +25,7 @@ class ThrottleDebounceLatestTests: XCTestCase {
 	func test1() {
 		let scheduler = TestScheduler(initialClock: 0)
 		let source = scheduler.createObservable(timeline: "-A-B-C-D|")
-		let expected = parseEventsAndTimes(timeline:      "-A-------D|", values: { String($0) })
+		let expected = parseEventsAndTimes(timeline:      "-A-----D|", values: { String($0) })
 			.offsetTime(by: 200)
 		let actual = scheduler.start {
 			source.throttleDebounceLatest(dueTime: .seconds(2), scheduler: scheduler)

@@ -20,8 +20,8 @@ extension ObservableType {
 	 */
 	func throttleDebounceLatest(dueTime: RxTimeInterval, scheduler: SchedulerType) -> Observable<Element> {
 		Observable.create { observer in
-			var fireTime: RxTime?
-			var nextEmit = Disposable?.none
+			var lastFire = RxTime?.none
+			var nextEmit = (Event<Element>, Disposable)?.none
 			let lock = NSRecursiveLock()
 			func delay(event: Event<Self.Element>) -> Disposable {
 				scheduler.scheduleRelative((), dueTime: dueTime) {
@@ -35,21 +35,23 @@ extension ObservableType {
 				lock.lock(); defer { lock.unlock() }
 				switch event {
 				case .next:
-					if fireTime == nil || dueTime.asTimeInterval < scheduler.now.timeIntervalSince(fireTime!) {
+					if lastFire == nil || dueTime.asTimeInterval < scheduler.now.timeIntervalSince(lastFire!) {
 						observer.on(event)
 					} else {
-						nextEmit?.dispose()
-						nextEmit = delay(event: event)
+						nextEmit?.1.dispose()
+						nextEmit = (event, delay(event: event))
 					}
-					fireTime = scheduler.now
+					lastFire = scheduler.now
 				case .error:
-					nextEmit?.dispose()
+					nextEmit?.1.dispose()
 					observer.on(event)
 				case .completed:
-					if nextEmit == nil {
+					if let nextEmit {
+						nextEmit.1.dispose()
+						observer.on(nextEmit.0)
 						observer.on(event)
 					} else {
-						nextEmit = delay(event: event)
+						observer.on(event)
 					}
 				}
 			}
