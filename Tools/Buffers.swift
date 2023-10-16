@@ -38,7 +38,7 @@ extension ObservableType {
 				case .completed:
 					prev.buf = Array(prev.buf.suffix(count - prev.step))
 					prev.step = 0
-					prev.trigger = !prev.buf.isEmpty
+					prev.trigger = true
 				case let .error(error):
 					throw error
 				}
@@ -74,18 +74,12 @@ extension ObservableType {
 				case let .next(element):
 					buf[now] = element
 				case .completed:
-					if let lastEmit {
-						let span = now.timeIntervalSince(lastEmit) + timeSpan.asTimeInterval - timeShift.asTimeInterval
-						observer.onNext(buf
-							.filter { $0.key > now.addingTimeInterval(-span) }
-							.sorted(by: { $0.key <= $1.key })
-							.map { $0.value })
-					}
-					else {
-						observer.onNext(buf
-							.sorted(by: { $0.key <= $1.key })
-							.map { $0.value })
-					}
+					let span = now.timeIntervalSince(lastEmit ?? .distantPast) + timeSpan.asTimeInterval - timeShift.asTimeInterval
+					let buffer = buf
+						.filter { $0.key > now.addingTimeInterval(-span) }
+						.sorted(by: { $0.key <= $1.key })
+						.map { $0.value }
+					observer.onNext(buffer)
 					observer.onCompleted()
 				case let .error(error):
 					observer.onError(error)
