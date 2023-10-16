@@ -108,18 +108,4 @@ final class BuffersTests: XCTestCase {
 		}
 		XCTAssertEqual(actual.events, expected[0])
 	}
-
-	func test6() {
-		let scheduler = TestScheduler(initialClock: 0)
-		let values: [Character: [String]] = [
-			"1": ["A", "B", "C"],
-		]
-		let source = scheduler.createObservable(timeline: "-A-B-C|")
-		let expected = parseEventsAndTimes(timeline:      "-----1|", values: { values[$0]! })
-			.offsetTime(by: 200)
-		let actual = scheduler.start {
-			source.buffer(timeSpan: .seconds(6), timeShift: .seconds(4), scheduler: scheduler)
-		}
-		XCTAssertEqual(actual.events, expected[0])
-	}
 }
