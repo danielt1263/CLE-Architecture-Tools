@@ -31,6 +31,7 @@ let package = Package(
 		.target(
 			name: "CLE-Tools",
 			dependencies: [
+				"Cause-Logic-Effect",
 				"RxSwift",
 				.product(name: "RxCocoa", package: "RxSwift"),
 			],
