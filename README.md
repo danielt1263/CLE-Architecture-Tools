@@ -24,6 +24,7 @@ Whenever you have a side effect that needs to be performed and you need the resu
 ```
 let resultOfEffect = trigger
     .withLatestFrom(additionalDataNeeded) // if any
+    .map { logic($0) } // handle any logic to convert the input data into something the effect needs
     .flatMap { performSideEffect($0) }
     .share(replay: 1) // if you are using the result in multiple places.
 ```
@@ -32,6 +33,7 @@ If you don't need the result, then it's
 ```
 trigger
     .withLatestFrom(additionalDataNeeded) // if any
+    .map { logic($0) } // handle any logic to convert the input data into something the effect needs
     .subscribe(onNext: { performEffect($0) })
     .disposed(by: disposeBag)
 ```
