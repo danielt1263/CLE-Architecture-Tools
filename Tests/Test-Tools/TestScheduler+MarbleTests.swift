@@ -2,7 +2,7 @@
 //  TestScheduler+MarbleTests.swift
 //
 //  Created by Daniel Tartaglia on 31 October 2021.
-//  Copyright © 2022 Daniel Tartaglia. All rights reserved.
+//  Copyright © 2023 Daniel Tartaglia. MIT License.
 //
 
 import Foundation
@@ -25,11 +25,10 @@ public extension TestScheduler {
 	 */
 	func createObservable(
 		timeline: String,
-		errors: [String.Element: Error] = [:],
-		resolution: @escaping (TestTime) -> RxTimeInterval = { .seconds($0) }
+		errors: [String.Element: Error] = [:]
 	) -> Observable<String> {
 		let events = parseEventsAndTimes(timeline: timeline, values: { String($0) }, errors: { errors[$0] })
-		return createObservable(events, resolution: resolution)
+		return createObservable(events)
 	}
 
 	/**
@@ -50,11 +49,10 @@ public extension TestScheduler {
 	func createObservable<T>(
 		timeline: String,
 		values: [String.Element: T],
-		errors: [String.Element: Error] = [:],
-		resolution: @escaping (TestTime) -> RxTimeInterval = { .seconds($0) }
+		errors: [String.Element: Error] = [:]
 	) -> Observable<T> {
-		let events = parseEventsAndTimes(timeline: timeline, values: { values[$0] }, errors: { errors[$0] })
-		return createObservable(events, resolution: resolution)
+		let events = parseEventsAndTimes(timeline: timeline, values: values, errors: errors)
+		return createObservable(events)
 	}
 
 	/**
@@ -67,36 +65,29 @@ public extension TestScheduler {
 	 - returns: An Observable that behaves as defined above.
 	 */
 	func createObservable<T>(
-		_ events: [Recorded<Event<T>>],
-		resolution: @escaping (TestTime) -> RxTimeInterval = { .seconds($0) }
+		_ events: [Recorded<Event<T>>]
 	) -> Observable<T> {
-		createObservable([events], resolution: resolution)
+		createObservable([events])
 	}
 
 	/**
-	 Creates an Observable that emits the recorded events in the first array of the provided two dimensional
-	 array. Each time the Observable is subscribed to, it will emit the recorded events in the next array, or
-	 loop back to the first array if it just handled the last array.
+	 Creates an Observable that emits the recorded events in the first array of the provided jagged array. Each time
+	 the Observable is subscribed to, it will emit the recorded events in the next array, or loop back to the first
+	 array if it just handled the last array.
 
-	 - parameter events: A two-dimensional array of recorded events to play.
-	 - parameter resolution: A closure telling the function what resolution to use when timing
-	 events. Defaults to one second times the `Recorded` event's test time.
+	 - parameter events: A jagged array of recorded events to play.
+	 - parameter resolution: A closure telling the function what resolution to use when timing events. Defaults to one
+	 second times the `Recorded` event's test time.
 	 - returns: An Observable that behaves as defined above.
 	 */
 	func createObservable<T>(
-		_ events: [[Recorded<Event<T>>]],
-		resolution: @escaping (TestTime) -> RxTimeInterval = { .seconds($0) }
+		_ events: [[Recorded<Event<T>>]]
 	) -> Observable<T> {
 		var attemptCount = 0
-		return Observable.create { observer in
-			let scheduledEvents = events[attemptCount % events.count].map { event in
-				return self.scheduleRelative((), dueTime: resolution(event.time)) {
-					observer.on(event.value)
-					return  Disposables.create()
-				}
-			}
-			attemptCount += 1
-			return Disposables.create(scheduledEvents)
+		return Observable.deferred {
+			defer { attemptCount += 1 }
+			return self.createColdObservable(events[attemptCount % events.count])
+				.asObservable()
 		}
 	}
 
@@ -108,8 +99,8 @@ public extension TestScheduler {
 	 - parameter args: parameters passed into mock.
 	 - parameter values: Dictionary of values in timeline. `["a": 1, "b": 2]`
 	 - parameter errors: Dictionary of errors in timeline.
-	 - parameter timelineSelector: Method implementation. The returned string value represents timeline of
-	 returned observable sequence. `---a---b------c----#----a--#----b`
+	 - parameter timelineSelector: Method implementation. The returned string value represents timeline of returned
+	 observable sequence. `---a---b------c----#----a--#----b`
 	 - returns: Implementation of method that accepts arguments with parameter `Arg` and returns observable sequence
 	 with parameter `Ret`.
 	 */
@@ -117,34 +108,43 @@ public extension TestScheduler {
 		args: TestableObserver<Arg>,
 		values: [String.Element: Ret],
 		errors: [String.Element: Error] = [:],
-		timelineSelector: @escaping (Arg) -> String,
-		resolution: @escaping (TestTime) -> RxTimeInterval = { .seconds($0) }
+		timelineSelector: @escaping (Arg) -> String
 	) -> (Arg) -> Observable<Ret> {
 		return { (parameters: Arg) -> Observable<Ret> in
 			args.onNext(parameters)
 			let timeline = timelineSelector(parameters)
-			return self.createObservable(timeline: timeline, values: values, errors: errors, resolution: resolution)
+			return self.createObservable(timeline: timeline, values: values, errors: errors)
 		}
 	}
 
+	/**
+	 Enables simple construction of mock implementations from marble timelines.
+
+	 - parameter Arg: Type of arguments of mocked method.
+	 - parameter args: parameters passed into mock.
+	 - parameter errors: Dictionary of errors in timeline.
+	 - parameter timelineSelector: Method implementation. The returned string value represents timeline of
+	 returned observable sequence. `---a---b------c----#----a--#----b`
+	 - returns: Implementation of method that accepts arguments with parameter `Arg` and returns observable sequence
+	 of Strings.
+	 */
 	func mock<Arg>(
 		args: TestableObserver<Arg>,
 		errors: [String.Element: Error] = [:],
-		timelineSelector: @escaping (Arg) -> String,
-		resolution: @escaping (TestTime) -> RxTimeInterval = { .seconds($0) }
+		timelineSelector: @escaping (Arg) -> String
 	) -> (Arg) -> Observable<String> {
 		return { (parameters: Arg) -> Observable<String> in
 			args.onNext(parameters)
 			let timeline = timelineSelector(parameters)
 			let events = parseEventsAndTimes(timeline: timeline, values: { String($0) }, errors: { errors[$0] })
-			return self.createObservable(events, resolution: resolution)
+			return self.createObservable(events)
 		}
 	}
 }
 
 /**
- Creates events arrays based on an input marble diagram. Timelines can continue after a stop event which
- will begin a new array of events.
+ Creates events arrays based on an input marble diagram. Timelines can continue after a stop event which will begin a
+ new array of events.
 
  Special characters in the timeline:
  "|": represents a completed stream.
@@ -152,13 +152,47 @@ public extension TestScheduler {
  "-": represents the advancing of time one time-unit without emitting a value.
 
  Any other character represents a value of type T, or a specialized Error type. The function will first query the
- `errors` closure to lookup the character, if not found there it will call the `values` closure. If neither
- closure returns an object for the substring, then an error will be asserted.
+ `errors` closure to lookup the character, if not found there it will call the `values` closure. If neither closure
+ returns an object for the substring, then an error will be asserted.
 
  - parameter timeline: A string that follows the rules as defined above.
- - parameter values: A closure defining any substrings in the timeline that represent a next element.
- - parameter errors: A closure defining any substrings in the timeline that represent custom error
- objects. Defaults to none which means only the `#` can be used to emit a generic error.
+ - parameter values: Dictionary of values in timeline. `[a:1, b:2]`
+ - parameter errors: Dictionary of errors in timeline. Defaults to empty which means only the `#` can be used to emit a
+ generic error.
+ - returns: An array of event arrays.
+ */
+public func parseEventsAndTimes<T>(
+	timeline: String,
+	values: [String.Element: T],
+	errors: [String.Element: Error] = [:],
+	defaultError: Error = NSError(domain: "Test Domain", code: -1, userInfo: nil)
+) -> [[Recorded<Event<T>>]] {
+	parseEventsAndTimes(
+		timeline: timeline,
+		values: { values[$0] },
+		errors: { errors[$0] },
+		defaultError: defaultError
+	)
+}
+
+/**
+ Creates events arrays based on an input marble diagram. Timelines can continue after a stop event which will begin a
+ new array of events.
+
+ Special characters in the timeline:
+ "|": represents a completed stream.
+ "#": represents a generic error in a stream.
+ "-": represents the advancing of time one time-unit without emitting a value.
+
+ Any other character represents a value of type T, or a specialized Error type. The function will first query the
+ `errors` closure to lookup the character, if not found there it will call the `values` closure. If the `values`
+ closure returns an empty array, it will be treated as "-".
+
+ - parameter timeline: A string that follows the rules as defined above.
+ - parameter values: A closure defining any substrings in the timeline that represent a next element. This returns an
+ array incase there is more than one next event at the same time-point.
+ - parameter errors: A closure defining any substrings in the timeline that represent custom error objects. Defaults to
+ none which means only the `#` can be used to emit a generic error.
  - returns: An array of event arrays.
  */
 public func parseEventsAndTimes<T>(
@@ -189,7 +223,7 @@ public func parseEventsAndTimes<T>(
 				state.output[index].append(.next(state.tick, element))
 				state.tick += 1
 			} else {
-				fatalError("unable to convert value into event: \(char)")
+				state.tick += 1
 			}
 		}
 	}
