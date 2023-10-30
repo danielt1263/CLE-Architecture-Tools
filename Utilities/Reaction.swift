@@ -9,14 +9,99 @@ import Foundation
 import RxSwift
 
 /**
- The various reaction functions are used to create feedback reactions for the `cycle` functions. All of
- them take a closure defining a `request` and a closure defining an `effect` that will happen in response
- to a request. The general rule with all of them is that if the `request` closure returns an approprate value,
- the effect closure will receive it. The rules around what an approiate value is depends on the type of the
- request object.
+ The various reaction functions are used to create feedback reactions for the `cycle` functions. All of them take a
+ closure defining a `Payload` and a closure defining an `effect` that will happen in response to a request. The general
+ rule with all of them is that if the `request` closure returns an approprate value, the effect closure will receive
+ it. The rules around what an approiate value is depends on the type of the request object.
  */
 
 public typealias Reaction<State, Input> = (Observable<(State, Input)>) -> Observable<Input>
+
+public struct Payload<State, Input, Action, Result> {
+	public let action: (State, Input) -> Action?
+	public let result: (Result) -> Input
+
+	public init(action: @escaping (State, Input) -> Action?, result: @escaping (Result) -> Input) {
+		self.action = action
+		self.result = result
+	}
+}
+
+public enum Interrupt<A> {
+	case stop
+	case act(A)
+}
+
+/**
+ A reaction that allows multiple effects to occur at the same time.
+
+ - parameter payload: Defines a payload such that when the `action` returns a non-nil value, the effect will be fired
+ and its result will be modified by the payload's `result`.
+ - parameter effect: Defines the effect that may be triggered.
+ - returns: A reaction assembled from the payload and effect.
+ */
+public func mergable<S, I, A, R>(_ payload: Payload<S, I, A, R>,
+								 effect: @escaping (A) -> Observable<R>) -> Reaction<S, I> {
+	{ $0.compactMap(payload.action)
+			.flatMap(effect)
+			.map(payload.result)
+	}
+}
+
+/**
+ A reaction that will stop/interrupt an effect when a new effect is requested.
+
+ - parameter payload: Defines a payload such that when the `action` returns a non-nil `Interrupt` value, any effect
+ currently in process will be stopped. If the action is `act` then a new effect wil be fired.
+ - parameter effect: Defines the effect that may be triggered.
+ - returns: A reaction assembled from the payload and effect.
+ */
+public func stoppable<S, I, A, R>(_ payload: Payload<S, I, Interrupt<A>, R>,
+								  effect: @escaping (A) -> Observable<R>) -> Reaction<S, I> {
+	{ $0.compactMap(payload.action)
+			.flatMapLatest { ignorable in
+				switch ignorable {
+				case .stop:
+					return Observable<R>.empty()
+				case .act(let action):
+					return effect(action)
+				}
+			}
+			.map(payload.result)
+	}
+}
+
+/**
+ A reaction that will ignore requests while a particular effect is being handled.
+
+ - parameter payload: Defines a payload such that when the `action` returns a non-nil value *and there isn't currently
+ an effect in process*, the effect will be fired and its result will be modified by the payload's `result`.
+ - parameter effect: Defines the effect that may be triggered.
+ - returns: A reaction assembled from the payload and effect.
+ */
+public func ignorable<S, I, A, R>(_ payload: Payload<S, I, A, R>,
+								  effect: @escaping (A) -> Observable<R>) -> Reaction<S, I> {
+	{ $0.compactMap(payload.action)
+			.flatMapFirst(effect)
+			.map(payload.result)
+	}
+}
+
+/**
+ A reaction that will stack requests such that only one will occur at a time but none will be ignored.
+
+ - parameter payload: Defines a payload such that when the `action` returns a non-nil value, the effect will be added
+ to the queue of requested effects. Its result will be modified by the payload's `result`.
+ - parameter effect: Defines the effect that may be triggered.
+ - returns: A reaction assembled from the payload and effect.
+ */
+public func stackable<S, I, A, R>(_ payload: Payload<S, I, A, R>,
+								  effect: @escaping (A) -> Observable<R>) -> Reaction<S, I> {
+	{ $0.compactMap(payload.action)
+			.concatMap(effect)
+			.map(payload.result)
+	}
+}
 
 /**
  For this reaction, the request can be any type. If the `request` closure returns nil then `effect` will not
