@@ -6,8 +6,8 @@
 //
 
 import Cause_Logic_Effect
-import Test_Tools
 import RxTest
+import Test_Tools
 import XCTest
 
 final class APITests: XCTestCase {
