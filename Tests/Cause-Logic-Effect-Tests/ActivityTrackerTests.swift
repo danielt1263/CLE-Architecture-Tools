@@ -14,7 +14,7 @@ final class ActivityTrackerTests: XCTestCase {
 	func test() {
 		let scheduler = TestScheduler(initialClock: 0)
 		let source = scheduler.createObservable(timeline: "--A|")
-		let expected = parseEventsAndTimes(timeline:     "FT-F", values: { $0 == "T" })
+		let expected = parseTimeline("FT-F", values: { $0 == "T" })
 		let result = scheduler.createObserver(Bool.self)
 		let activityTracker = ActivityTracker()
 
@@ -34,7 +34,7 @@ final class ActivityTrackerTests: XCTestCase {
 	func test1() {
 		let scheduler = TestScheduler(initialClock: 0)
 		let source = scheduler.createObservable(timeline:  "--A|")
-		let expected = parseEventsAndTimes(timeline:      "FT---F", values: { $0 == "T" })
+		let expected = parseTimeline("FT---F", values: { $0 == "T" })
 		let result = scheduler.createObserver(Bool.self)
 		let activityTracker = ActivityTracker()
 
@@ -60,7 +60,7 @@ final class ActivityTrackerTests: XCTestCase {
 	func test2() {
 		let scheduler = TestScheduler(initialClock: 0)
 		let source = scheduler.createObservable(timeline:  "--A|")
-		let expected = parseEventsAndTimes(timeline:      "FT-FT-F", values: { $0 == "T" })
+		let expected = parseTimeline("FT-FT-F", values: { $0 == "T" })
 		let result = scheduler.createObserver(Bool.self)
 		let activityTracker = ActivityTracker()
 

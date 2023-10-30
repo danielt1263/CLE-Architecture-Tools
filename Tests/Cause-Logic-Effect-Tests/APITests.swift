@@ -29,7 +29,7 @@ final class APITests: XCTestCase {
 		}
 		scheduler.start()
 
-		XCTAssertEqual(isActive.events, parseEventsAndTimes(timeline: "F-T-F", values: { $0 == "T" })[0])
+		XCTAssertEqual(isActive.events, parseTimeline("F-T-F", values: { $0 == "T" })[0])
 		XCTAssertEqual(error.events, [])
 		XCTAssertTrue(onErrorCalled)
 	}
@@ -52,7 +52,7 @@ final class APITests: XCTestCase {
 		}
 		scheduler.start()
 
-		XCTAssertEqual(isActive.events, parseEventsAndTimes(timeline: "F-T-F", values: { $0 == "T" })[0])
+		XCTAssertEqual(isActive.events, parseTimeline("F-T-F", values: { $0 == "T" })[0])
 		XCTAssertEqual(error.events, [])
 		XCTAssertFalse(onErrorCalled)
 	}
@@ -63,7 +63,7 @@ final class APITests: XCTestCase {
 		let error = scheduler.createObserver(TestError.self)
 		let errorValues = ["E": TestError(id: "E")] as [Character: TestError]
 		let fakeSource = scheduler.createObservable(timeline: "--E", values: ["A": Data()], errors: errorValues)
-		let expected = parseEventsAndTimes(timeline: "----E", values: errorValues)
+		let expected = parseTimeline("----E", values: errorValues)
 
 		let sut = API()
 		sut.setSource { _ in fakeSource }
@@ -78,7 +78,7 @@ final class APITests: XCTestCase {
 		}
 		scheduler.start()
 
-		XCTAssertEqual(isActive.events, parseEventsAndTimes(timeline: "F-T-F", values: { $0 == "T" })[0])
+		XCTAssertEqual(isActive.events, parseTimeline("F-T-F", values: { $0 == "T" })[0])
 		XCTAssertEqual(error.events, expected[0])
 		XCTAssertFalse(onErrorCalled)
 	}
@@ -89,7 +89,7 @@ final class APITests: XCTestCase {
 		let error = scheduler.createObserver(TestError.self)
 		let errorValues = ["E": TestError(id: "E")] as [Character: TestError]
 		let fakeSource = scheduler.createObservable(timeline: "--E", values: ["A": Data()], errors: errorValues)
-		let expected = parseEventsAndTimes(timeline: "----E", values: errorValues)
+		let expected = parseTimeline("----E", values: errorValues)
 
 		let sut = API()
 		sut.setSource { _ in fakeSource }
@@ -104,7 +104,7 @@ final class APITests: XCTestCase {
 		}
 		scheduler.start()
 
-		XCTAssertEqual(isActive.events, parseEventsAndTimes(timeline: "F-T-F", values: { $0 == "T" })[0])
+		XCTAssertEqual(isActive.events, parseTimeline("F-T-F", values: { $0 == "T" })[0])
 		XCTAssertEqual(error.events, expected[0])
 		XCTAssertFalse(onErrorCalled)
 	}
@@ -115,7 +115,7 @@ final class APITests: XCTestCase {
 		let error = scheduler.createObserver(TestError.self)
 		let errorValues = ["E": TestError(id: "E")] as [Character: TestError]
 		let fakeSource = scheduler.createObservable(timeline: "--E", values: ["A": Data()], errors: errorValues)
-		let expected = parseEventsAndTimes(timeline: "----E", values: errorValues)
+		let expected = parseTimeline("----E", values: errorValues)
 
 		let sut = API()
 		sut.setSource { _ in fakeSource }
@@ -130,7 +130,7 @@ final class APITests: XCTestCase {
 		}
 		scheduler.start()
 
-		XCTAssertEqual(isActive.events, parseEventsAndTimes(timeline: "F-T-F", values: { $0 == "T" })[0])
+		XCTAssertEqual(isActive.events, parseTimeline("F-T-F", values: { $0 == "T" })[0])
 		XCTAssertEqual(error.events, expected[0])
 		XCTAssertFalse(onErrorCalled)
 	}

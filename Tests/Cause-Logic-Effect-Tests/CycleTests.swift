@@ -15,7 +15,7 @@ final class CycleTests: XCTestCase {
 	func test() {
 		let scheduler = TestScheduler(initialClock: 0)
 		let input = scheduler.createObservable(timeline: "-|")
-		let expected = parseEventsAndTimes(timeline: "X|", values: { String($0) })
+		let expected = parseTimeline("X|", values: { String($0) })
 			.offsetTime(by: 200)
 		let sut = cycle(
 			inputs: [input],
@@ -39,11 +39,11 @@ final class CycleTests: XCTestCase {
 		let scheduler = TestScheduler(initialClock: 0)
 		let input = scheduler.createObservable(timeline: "--A|")
 		let args = scheduler.createObserver((String, String).self)
-		let expectedState = parseEventsAndTimes(timeline: "--X", values: { String($0) })
+		let expectedState = parseTimeline("--X", values: { String($0) })
 			.offsetTime(by: 200)
-		let expectedInput = parseEventsAndTimes(timeline: "--A", values: { String($0) })
+		let expectedInput = parseTimeline("--A", values: { String($0) })
 			.offsetTime(by: 200)
-		let expectedOutput = parseEventsAndTimes(timeline: "X-Y|", values: { String($0) })
+		let expectedOutput = parseTimeline("X-Y|", values: { String($0) })
 			.offsetTime(by: 200)
 		let sut = cycle(
 			inputs: [input],
@@ -67,13 +67,13 @@ final class CycleTests: XCTestCase {
 		let scheduler = TestScheduler(initialClock: 0)
 		let input = scheduler.createObservable(timeline: "--A")
 		let args = scheduler.createObserver((String, String).self)
-		let expectedState = parseEventsAndTimes(timeline: "--X-Y", values: { String($0) })
+		let expectedState = parseTimeline("--X-Y", values: { String($0) })
 			.offsetTime(by: 200)
-		let expectedInput = parseEventsAndTimes(timeline: "--A-B", values: { String($0) })
+		let expectedInput = parseTimeline("--A-B", values: { String($0) })
 			.offsetTime(by: 200)
-		let expectedOutput = parseEventsAndTimes(timeline: "X-Y-Z", values: { String($0) })
+		let expectedOutput = parseTimeline("X-Y-Z", values: { String($0) })
 			.offsetTime(by: 200)
-		let mock = scheduler.mock(args: args, timelineSelector: { ["A": "--B|", "B": "-|"][$0.0]! })
+		let mock = scheduler.mock(args: args, timelineSelector: { ["A": "--B|", "B": "-|"][$0.1]! })
 		let sut = cycle(
 			inputs: [input],
 			initialState: "X",
@@ -87,7 +87,7 @@ final class CycleTests: XCTestCase {
 					state = "Z"
 				}
 			},
-			reactions: [{ $0.flatMap(scheduler.mock(args: args, timelineSelector: { ["A": "--B|", "B": "-|"][$0.1]! }))}]
+			reactions: [{ $0.flatMap(mock) }]
 		)
 
 		let result = scheduler.start { sut }
@@ -101,13 +101,13 @@ final class CycleTests: XCTestCase {
 		let scheduler = TestScheduler(initialClock: 0)
 		let input = scheduler.createObservable(timeline: "--A|")
 		let args = scheduler.createObserver((String, String).self)
-		let expectedState = parseEventsAndTimes(timeline: "--X", values: { String($0) })
+		let expectedState = parseTimeline("--X", values: { String($0) })
 			.offsetTime(by: 200)
-		let expectedInput = parseEventsAndTimes(timeline: "--A", values: { String($0) })
+		let expectedInput = parseTimeline("--A", values: { String($0) })
 			.offsetTime(by: 200)
-		let expectedOutput = parseEventsAndTimes(timeline: "X-Y|", values: { String($0) })
+		let expectedOutput = parseTimeline("X-Y|", values: { String($0) })
 			.offsetTime(by: 200)
-		let mock = scheduler.mock(args: args, timelineSelector: { ["A": "--B|", "B": "-|"][$0.0]! })
+		let mock = scheduler.mock(args: args, timelineSelector: { ["A": "--B|", "B": "-|"][$0.1]! })
 		let sut = cycle(
 			inputs: [input],
 			initialState: "X",
@@ -121,7 +121,7 @@ final class CycleTests: XCTestCase {
 					state = "Z"
 				}
 			},
-			reactions: [{ $0.flatMap(scheduler.mock(args: args, timelineSelector: { ["A": "--B", "B": "-|"][$0.1]! }))}]
+			reactions: [{ $0.flatMap(mock) }]
 		)
 
 		let result = scheduler.start { sut }

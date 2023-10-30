@@ -14,7 +14,7 @@ final class BuffersTests: XCTestCase {
 	func test() {
 		let scheduler = TestScheduler(initialClock: 0)
 		let source = scheduler.createObservable(timeline: "-A-B-C-D-E-F--|")
-		let expected = parseEventsAndTimes(timeline:      "---1---2---3-4|", values: [
+		let expected = parseTimeline("---1---2---3-4|", values: [
 			"1": ["A", "B"],
 			"2": ["C", "D"],
 			"3": ["E", "F"],
@@ -30,7 +30,7 @@ final class BuffersTests: XCTestCase {
 	func test1() {
 		let scheduler = TestScheduler(initialClock: 0)
 		let source = scheduler.createObservable(timeline: "-A-B-C-D-E-F--|")
-		let expected = parseEventsAndTimes(timeline:      "---1-----2---3|", values: [
+		let expected = parseTimeline("---1-----2---3|", values: [
 			"1": ["A", "B"],
 			"2": ["D", "E"],
 			"3": []
@@ -45,7 +45,7 @@ final class BuffersTests: XCTestCase {
 	func test2() {
 		let scheduler = TestScheduler(initialClock: 0)
 		let source = scheduler.createObservable(timeline: "-A-B-C-D-E-F--|")
-		let expected = parseEventsAndTimes(timeline:      "-----1---2---3|", values: [
+		let expected = parseTimeline("-----1---2---3|", values: [
 			"1": ["A", "B", "C"],
 			"2": ["C", "D", "E"],
 			"3": ["E", "F"]
@@ -60,7 +60,7 @@ final class BuffersTests: XCTestCase {
 	func test3() {
 		let scheduler = TestScheduler(initialClock: 0)
 		let source = scheduler.createObservable(timeline: "-A-B-C-D-E-F--|")
-		let expected = parseEventsAndTimes(timeline:      "----1---2---34|", values: [
+		let expected = parseTimeline("----1---2---34|", values: [
 			"1": ["A", "B"],
 			"2": ["C", "D"],
 			"3": ["E", "F"],
@@ -76,7 +76,7 @@ final class BuffersTests: XCTestCase {
 	func test4() {
 		let scheduler = TestScheduler(initialClock: 0)
 		let source = scheduler.createObservable(timeline: "-A-B-C-D-E-F--|")
-		let expected = parseEventsAndTimes(timeline:      "----1-----2--3|", values: [
+		let expected = parseTimeline("----1-----2--3|", values: [
 			"1": ["A", "B"],
 			"2": ["D", "E"],
 			"3": []
@@ -91,7 +91,7 @@ final class BuffersTests: XCTestCase {
 	func test5() {
 		let scheduler = TestScheduler(initialClock: 0)
 		let source = scheduler.createObservable(timeline: "-A-B-C-D-E-F--|")
-		let expected = parseEventsAndTimes(timeline:      "------1---2--3|", values: [
+		let expected = parseTimeline("------1---2--3|", values: [
 			"1": ["A", "B", "C"],
 			"2": ["C", "D", "E"],
 			"3": ["E", "F"]

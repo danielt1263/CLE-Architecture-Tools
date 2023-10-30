@@ -97,3 +97,28 @@ public func cycle<State, Input>(
 		}
 	)
 }
+
+/**
+ - parameter input: External inputs that drive the system.
+ - parameter logic: A function that converts inputs into outputs.
+ - parameter effect: A function that feeds inputs back into itself based on outputs.
+ - returns: An Observable that emits the outputs.
+ */
+public func cycle<Output, Input>(input: Observable<Input>,
+								 logic: @escaping (Observable<Input>) -> Observable<Output>,
+								 effect: @escaping (Observable<Output>) -> Observable<Input>) -> Observable<Output> {
+	Observable.using(
+		Resource.build(PublishSubject<Input>()),
+		observableFactory: Resource.createObservable { disposeBag, subject in
+			let sharedInput = input
+				.share(replay: 1)
+			let state = logic(Observable.merge(sharedInput, subject))
+				.share(replay: 1)
+			effect(state)
+				.take(until: sharedInput.takeLast(1))
+				.subscribe(subject)
+				.disposed(by: disposeBag)
+			return state
+		}
+	)
+}
