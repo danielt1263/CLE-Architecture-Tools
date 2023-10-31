@@ -17,11 +17,11 @@ import RxSwift
 
 public typealias Reaction<State, Input> = (Observable<(State, Input)>) -> Observable<Input>
 
-public struct Payload<State, Input, Action, Result> {
+public struct Payload<State, Input, Action, Action1, Result> {
 	public let action: (State, Input) -> Action?
-	public let result: (Result) -> Input
+	public let result: (Action1, Result) -> Input
 
-	public init(action: @escaping (State, Input) -> Action?, result: @escaping (Result) -> Input) {
+	public init(action: @escaping (State, Input) -> Action?, result: @escaping (Action1, Result) -> Input) {
 		self.action = action
 		self.result = result
 	}
@@ -43,10 +43,12 @@ extension Activity: Hashable where A: Hashable { }
  - parameter effect: Defines the effect that may be triggered.
  - returns: A reaction assembled from the payload and effect.
  */
-public func mergable<S, I, A, R>(_ payload: Payload<S, I, A, R>,
+public func mergable<S, I, A, R>(_ payload: Payload<S, I, A, A, R>,
 								 effect: @escaping (A) -> Observable<R>) -> Reaction<S, I> {
 	{ $0.compactMap(payload.action)
-			.flatMap(effect)
+			.flatMap {
+				Observable.combineLatest(Observable.just($0), effect($0))
+			}
 			.map(payload.result)
 	}
 }
@@ -59,15 +61,15 @@ public func mergable<S, I, A, R>(_ payload: Payload<S, I, A, R>,
  - parameter effect: Defines the effect that may be triggered.
  - returns: A reaction assembled from the payload and effect.
  */
-public func stoppable<S, I, A, R>(_ payload: Payload<S, I, Activity<A>, R>,
+public func stoppable<S, I, A, R>(_ payload: Payload<S, I, Activity<A>, A, R>,
 								  effect: @escaping (A) -> Observable<R>) -> Reaction<S, I> {
 	{ $0.compactMap(payload.action)
 			.flatMapLatest { activity in
 				switch activity {
 				case .stop:
-					return Observable<R>.empty()
+					return Observable<(A, R)>.empty()
 				case .restart(let action):
-					return effect(action)
+					return Observable.combineLatest(Observable.just(action), effect(action))
 				}
 			}
 			.map(payload.result)
@@ -82,10 +84,12 @@ public func stoppable<S, I, A, R>(_ payload: Payload<S, I, Activity<A>, R>,
  - parameter effect: Defines the effect that may be triggered.
  - returns: A reaction assembled from the payload and effect.
  */
-public func ignorable<S, I, A, R>(_ payload: Payload<S, I, A, R>,
+public func ignorable<S, I, A, R>(_ payload: Payload<S, I, A, A, R>,
 								  effect: @escaping (A) -> Observable<R>) -> Reaction<S, I> {
 	{ $0.compactMap(payload.action)
-			.flatMapFirst(effect)
+			.flatMapFirst {
+				Observable.combineLatest(Observable.just($0), effect($0))
+			}
 			.map(payload.result)
 	}
 }
@@ -98,10 +102,12 @@ public func ignorable<S, I, A, R>(_ payload: Payload<S, I, A, R>,
  - parameter effect: Defines the effect that may be triggered.
  - returns: A reaction assembled from the payload and effect.
  */
-public func stackable<S, I, A, R>(_ payload: Payload<S, I, A, R>,
+public func stackable<S, I, A, R>(_ payload: Payload<S, I, A, A, R>,
 								  effect: @escaping (A) -> Observable<R>) -> Reaction<S, I> {
 	{ $0.compactMap(payload.action)
-			.concatMap(effect)
+			.concatMap {
+				Observable.combineLatest(Observable.just($0), effect($0))
+			}
 			.map(payload.result)
 	}
 }

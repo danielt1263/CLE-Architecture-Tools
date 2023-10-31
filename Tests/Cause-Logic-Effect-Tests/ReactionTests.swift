@@ -87,7 +87,7 @@ final class ReactionTests: XCTestCase {
 
 struct State { }
 
-let activityPayload = Payload<State, Character, Activity<String>, String>(
+let activityPayload = Payload<State, Character, Activity<String>, String, String>(
 	action: { state, input in
 		switch input {
 		case "X":
@@ -98,12 +98,12 @@ let activityPayload = Payload<State, Character, Activity<String>, String>(
 			return .restart(String(input))
 		}
 	},
-	result: { $0.first! }
+	result: { $1.first! }
 )
 
-let payload = Payload<State, Character, String, String>(
+let payload = Payload<State, Character, String, String, String>(
 	action: { state, input in
 		input == "X" ? nil : String(input)
 	},
-	result: { $0.first! }
+	result: { $1.first! }
 )
