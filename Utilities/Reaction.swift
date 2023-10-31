@@ -27,10 +27,13 @@ public struct Payload<State, Input, Action, Result> {
 	}
 }
 
-public enum Interrupt<A> {
+public enum Activity<A> {
 	case stop
-	case act(A)
+	case restart(A)
 }
+
+extension Activity: Equatable where A: Equatable { }
+extension Activity: Hashable where A: Hashable { }
 
 /**
  A reaction that allows multiple effects to occur at the same time.
@@ -51,19 +54,19 @@ public func mergable<S, I, A, R>(_ payload: Payload<S, I, A, R>,
 /**
  A reaction that will stop/interrupt an effect when a new effect is requested.
 
- - parameter payload: Defines a payload such that when the `action` returns a non-nil `Interrupt` value, any effect
- currently in process will be stopped. If the action is `act` then a new effect wil be fired.
+ - parameter payload: Defines a payload such that when the `action` returns a non-nil `Activity` value, any effect
+ currently in process will be stopped. If the value is `restart` then a new effect wil be fired.
  - parameter effect: Defines the effect that may be triggered.
  - returns: A reaction assembled from the payload and effect.
  */
-public func stoppable<S, I, A, R>(_ payload: Payload<S, I, Interrupt<A>, R>,
+public func stoppable<S, I, A, R>(_ payload: Payload<S, I, Activity<A>, R>,
 								  effect: @escaping (A) -> Observable<R>) -> Reaction<S, I> {
 	{ $0.compactMap(payload.action)
-			.flatMapLatest { ignorable in
-				switch ignorable {
+			.flatMapLatest { activity in
+				switch activity {
 				case .stop:
 					return Observable<R>.empty()
-				case .act(let action):
+				case .restart(let action):
 					return effect(action)
 				}
 			}

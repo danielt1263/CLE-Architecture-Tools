@@ -115,7 +115,7 @@ public func cycle<Output, Input>(input: Observable<Input>,
 			let state = logic(Observable.merge(sharedInput, subject))
 				.share(replay: 1)
 			effect(state)
-				.take(until: sharedInput.takeLast(1))
+				.take(until: sharedInput.materialize().takeLast(1))
 				.subscribe(subject)
 				.disposed(by: disposeBag)
 			return state
