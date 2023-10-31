@@ -22,7 +22,7 @@ final class ReactionTests: XCTestCase {
 		])
 		let args = scheduler.createObserver(String.self)
 		let mock = scheduler.mock(args: args, timelineSelector: { ["A": "---1|", "B": "---2|", "C": "--3|"][$0]! })
-		let sut = stoppable(activityPayload, effect: mock)
+		let sut = stoppable(Payload(action: activityAction(state:input:), result: { $1.first! }), effect: mock)
 		let result = scheduler.start {
 			sut(source)
 		}
@@ -40,7 +40,7 @@ final class ReactionTests: XCTestCase {
 		])
 		let args = scheduler.createObserver(String.self)
 		let mock = scheduler.mock(args: args, timelineSelector: { ["A": "---1|", "B": "---2|", "C": "--3|"][$0]! })
-		let sut = mergable(payload, effect: mock)
+		let sut = mergable(Payload(action: action(state:input:), result: { $1.first! }), effect: mock)
 		let result = scheduler.start {
 			sut(source)
 		}
@@ -58,7 +58,7 @@ final class ReactionTests: XCTestCase {
 		])
 		let args = scheduler.createObserver(String.self)
 		let mock = scheduler.mock(args: args, timelineSelector: { ["A": "---1|", "B": "---2|", "C": "--3|"][$0]! })
-		let sut = ignorable(payload, effect: mock)
+		let sut = ignorable(Payload(action: action(state:input:), result: { $1.first! }), effect: mock)
 		let result = scheduler.start {
 			sut(source)
 		}
@@ -76,7 +76,7 @@ final class ReactionTests: XCTestCase {
 		])
 		let args = scheduler.createObserver(String.self)
 		let mock = scheduler.mock(args: args, timelineSelector: { ["A": "---1|", "B": "---2|", "C": "--3|"][$0]! })
-		let sut = stackable(payload, effect: mock)
+		let sut = stackable(Payload(action: action(state:input:), result: { $1.first! }), effect: mock)
 		let result = scheduler.start {
 			sut(source)
 		}
@@ -87,23 +87,17 @@ final class ReactionTests: XCTestCase {
 
 struct State { }
 
-let activityPayload = Payload<State, Character, Activity<String>, String, String>(
-	action: { state, input in
-		switch input {
-		case "X":
-			return .stop
-		case "Y":
-			return nil
-		default:
-			return .restart(String(input))
-		}
-	},
-	result: { $1.first! }
-)
+func activityAction(state: State, input: Character) -> Activity<String>? {
+	switch input {
+	case "X":
+		return .stop
+	case "Y":
+		return nil
+	default:
+		return .restart(String(input))
+	}
+}
 
-let payload = Payload<State, Character, String, String, String>(
-	action: { state, input in
-		input == "X" ? nil : String(input)
-	},
-	result: { $1.first! }
-)
+func action(state: State, input: Character) -> String? {
+	input == "X" ? nil : String(input)
+}
