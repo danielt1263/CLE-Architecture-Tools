@@ -14,15 +14,15 @@ import XCTest
 final class ReactionTests: XCTestCase {
 	func testStoppable() {
 		let scheduler = TestScheduler(initialClock: 0)
-		let source = scheduler.createObservable(timeline: "-A-B-X-C", values: [
+		let source = scheduler.createObservable(timeline: "-A-B-Y-C", values: [
 			"A": (State(), Character("A")),
 			"B": (State(), Character("B")),
 			"C": (State(), Character("C")),
-			"X": (State(), Character("X")),
+			"Y": (State(), Character("Y")),
 		])
 		let args = scheduler.createObserver(String.self)
 		let mock = scheduler.mock(args: args, timelineSelector: { ["A": "---1|", "B": "---2|", "C": "--3|"][$0]! })
-		let sut = stoppable(Payload(action: activityAction(state:input:), result: { $1.first! }), effect: mock)
+		let sut = stoppable(Payload(action: action(state:input:), result: { $1.first! }), stopsOn: "Y", effect: mock)
 		let result = scheduler.start {
 			sut(source)
 		}
@@ -86,17 +86,6 @@ final class ReactionTests: XCTestCase {
 }
 
 struct State { }
-
-func activityAction(state: State, input: Character) -> Activity<String>? {
-	switch input {
-	case "X":
-		return .stop
-	case "Y":
-		return nil
-	default:
-		return .restart(String(input))
-	}
-}
 
 func action(state: State, input: Character) -> String? {
 	input == "X" ? nil : String(input)

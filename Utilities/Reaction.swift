@@ -17,23 +17,15 @@ import RxSwift
 
 public typealias Reaction<State, Input> = (Observable<(State, Input)>) -> Observable<Input>
 
-public struct Payload<State, Input, Action, Action1, Result> {
+public struct Payload<State, Input, Action, Result> {
 	public let action: (State, Input) -> Action?
-	public let result: (Action1, Result) -> Input
+	public let result: (Action, Result) -> Input
 
-	public init(action: @escaping (State, Input) -> Action?, result: @escaping (Action1, Result) -> Input) {
+	public init(action: @escaping (State, Input) -> Action?, result: @escaping (Action, Result) -> Input) {
 		self.action = action
 		self.result = result
 	}
 }
-
-public enum Activity<A> {
-	case stop
-	case restart(A)
-}
-
-extension Activity: Equatable where A: Equatable { }
-extension Activity: Hashable where A: Hashable { }
 
 /**
  A reaction that allows multiple effects to occur at the same time.
@@ -43,7 +35,7 @@ extension Activity: Hashable where A: Hashable { }
  - parameter effect: Defines the effect that may be triggered.
  - returns: A reaction assembled from the payload and effect.
  */
-public func mergable<S, I, A, R>(_ payload: Payload<S, I, A, A, R>,
+public func mergable<S, I, A, R>(_ payload: Payload<S, I, A, R>,
 								 effect: @escaping (A) -> Observable<R>) -> Reaction<S, I> {
 	{ $0.compactMap(payload.action)
 			.flatMap {
@@ -61,16 +53,21 @@ public func mergable<S, I, A, R>(_ payload: Payload<S, I, A, A, R>,
  - parameter effect: Defines the effect that may be triggered.
  - returns: A reaction assembled from the payload and effect.
  */
-public func stoppable<S, I, A, R>(_ payload: Payload<S, I, Activity<A>, A, R>,
+public func stoppable<S, I, A, R>(_ payload: Payload<S, I, A, R>,
+								  stopsOn: A? = nil,
+								  effect: @escaping (A) -> Observable<R>) -> Reaction<S, I>
+where A: Equatable {
+	stoppable(payload, stopsOn: { $0 == stopsOn }, effect: effect)
+}
+
+public func stoppable<S, I, A, R>(_ payload: Payload<S, I, A, R>,
+								  stopsOn: @escaping (A) -> Bool,
 								  effect: @escaping (A) -> Observable<R>) -> Reaction<S, I> {
 	{ $0.compactMap(payload.action)
-			.flatMapLatest { activity in
-				switch activity {
-				case .stop:
-					return Observable<(A, R)>.empty()
-				case .restart(let action):
-					return Observable.combineLatest(Observable.just(action), effect(action))
-				}
+			.flatMapLatest { action in
+				stopsOn(action)
+				? Observable<(A, R)>.empty()
+				: Observable.combineLatest(Observable.just(action), effect(action))
 			}
 			.map(payload.result)
 	}
@@ -84,7 +81,7 @@ public func stoppable<S, I, A, R>(_ payload: Payload<S, I, Activity<A>, A, R>,
  - parameter effect: Defines the effect that may be triggered.
  - returns: A reaction assembled from the payload and effect.
  */
-public func ignorable<S, I, A, R>(_ payload: Payload<S, I, A, A, R>,
+public func ignorable<S, I, A, R>(_ payload: Payload<S, I, A, R>,
 								  effect: @escaping (A) -> Observable<R>) -> Reaction<S, I> {
 	{ $0.compactMap(payload.action)
 			.flatMapFirst {
@@ -102,7 +99,7 @@ public func ignorable<S, I, A, R>(_ payload: Payload<S, I, A, A, R>,
  - parameter effect: Defines the effect that may be triggered.
  - returns: A reaction assembled from the payload and effect.
  */
-public func stackable<S, I, A, R>(_ payload: Payload<S, I, A, A, R>,
+public func stackable<S, I, A, R>(_ payload: Payload<S, I, A, R>,
 								  effect: @escaping (A) -> Observable<R>) -> Reaction<S, I> {
 	{ $0.compactMap(payload.action)
 			.concatMap {

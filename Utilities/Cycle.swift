@@ -9,13 +9,14 @@ import Foundation
 import RxSwift
 
 /**
- The various `cycle` functions below are designed to help the developer set up a state machine. The `reaction`s attached
- to the machine will recieve the most recent input along with the state _before_ applying the input. The return
- observable however will emit the state _after_ applying the input. For those who are curious, this state machine acts
- like a Mealy machine for `reaction`s, but a Moore machine for external output.
- */
+ Helps set up a state machine.
 
-/**
+ The `reaction`s attached to the machine will recieve the most recent input along with the state _before_ applying the
+ input. The return observable however will emit the state _after_ applying the input.
+
+ For those who are curious, this state machine acts like a Mealy machine for `reaction`s, but a Moore machine for
+ external output.
+
  - parameter inputs: An array of external inputs that drive the machine.
  - parameter initialState: The starting state of the machine.
  - parameter reduce: The function that defines how state transitions.
@@ -32,6 +33,13 @@ public func cycle<State, Input>(
 }
 
 /**
+ Helps set up a state machine. 
+
+ The `reaction`s attached to the machine will recieve the most recent input along with
+ the state _before_ applying the input. The return observable however will emit the state _after_ applying the input.
+ For those who are curious, this state machine acts like a Mealy machine for `reaction`s, but a Moore machine for
+ external output.
+
  - parameter inputs: An external input that drives the machine.
  - parameter initialState: The starting state of the machine.
  - parameter reduce: The function that defines how state transitions.
@@ -48,6 +56,11 @@ public func cycle<State, Input>(
 }
 
 /**
+ Helps set up a state machine. The `reaction`s attached to the machine will recieve the most recent input along with
+ the state _before_ applying the input. The return observable however will emit the state _after_ applying the input.
+ For those who are curious, this state machine acts like a Mealy machine for `reaction`s, but a Moore machine for
+ external output.
+
  - parameter input: An external input that drives the machine.
  - parameter initialState: The starting state of the machine.
  - parameter reduce: The function that defines how state transitions.
@@ -64,6 +77,11 @@ public func cycle<State, Input>(
 }
 
 /**
+ Helps set up a state machine. The `reaction`s attached to the machine will recieve the most recent input along with
+ the state _before_ applying the input. The return observable however will emit the state _after_ applying the input.
+ For those who are curious, this state machine acts like a Mealy machine for `reaction`s, but a Moore machine for
+ external output.
+
  - parameter inputs: An array of external inputs that drive the machine.
  - parameter initialState: The starting state of the machine.
  - parameter reduce: The function that defines how state transitions.
@@ -99,6 +117,8 @@ public func cycle<State, Input>(
 }
 
 /**
+ Helps set up a feedback loop.
+
  - parameter input: External inputs that drive the system.
  - parameter logic: A function that converts inputs into outputs.
  - parameter effect: A function that feeds inputs back into itself based on outputs.
