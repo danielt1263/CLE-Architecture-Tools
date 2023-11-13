@@ -38,9 +38,7 @@ public struct Payload<State, Input, Action, Result> {
 public func mergable<S, I, A, R>(_ payload: Payload<S, I, A, R>,
 								 effect: @escaping (A) -> Observable<R>) -> Reaction<S, I> {
 	{ $0.compactMap(payload.action)
-			.flatMap {
-				Observable.combineLatest(Observable.just($0), effect($0))
-			}
+			.flatMap { Observable.combineLatest(Observable.just($0), effect($0)) }
 			.map(payload.result)
 	}
 }
