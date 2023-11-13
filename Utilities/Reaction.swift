@@ -50,6 +50,7 @@ public func mergable<S, I, A, R>(_ payload: Payload<S, I, A, R>,
 
  - parameter payload: Defines a payload such that when the `action` returns a non-nil `Activity` value, any effect
  currently in process will be stopped. If the value is `restart` then a new effect wil be fired.
+ - parameter stopsOn: A value that will cause any ongoing effect to cancel without starting a new effect. If `nil` then no such value exists.
  - parameter effect: Defines the effect that may be triggered.
  - returns: A reaction assembled from the payload and effect.
  */
@@ -60,6 +61,15 @@ where A: Equatable {
 	stoppable(payload, stopsOn: { $0 == stopsOn }, effect: effect)
 }
 
+/**
+ A reaction that will stop/interrupt an effect when a new effect is requested.
+
+ - parameter payload: Defines a payload such that when the `action` returns a non-nil `Activity` value, any effect
+ currently in process will be stopped. If the value is `restart` then a new effect wil be fired.
+ - parameter stopsOn: A predicate that defines what value will cause an ongoing effect to cancel without starting a new effect.
+ - parameter effect: Defines the effect that may be triggered.
+ - returns: A reaction assembled from the payload and effect.
+ */
 public func stoppable<S, I, A, R>(_ payload: Payload<S, I, A, R>,
 								  stopsOn: @escaping (A) -> Bool,
 								  effect: @escaping (A) -> Observable<R>) -> Reaction<S, I> {
