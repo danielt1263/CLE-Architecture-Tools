@@ -15,7 +15,11 @@ final class APITests: XCTestCase {
 		let scheduler = TestScheduler(initialClock: 0)
 		let isActive = scheduler.createObserver(Bool.self)
 		let error = scheduler.createObserver(TestError.self)
-		let fakeSource = scheduler.createObservable(timeline: "--E", values: ["_": Data()], errors: ["E": TestError(id: "")])
+		let fakeSource = scheduler.createObservable(
+			timeline: "--E",
+			values: ["_": Data()],
+			errors: ["E": TestError(id: "")]
+		)
 		let sut = API()
 		sut.setSource { _ in fakeSource }
 
@@ -38,7 +42,11 @@ final class APITests: XCTestCase {
 		let scheduler = TestScheduler(initialClock: 0)
 		let isActive = scheduler.createObserver(Bool.self)
 		let error = scheduler.createObserver(TestError.self)
-		let fakeSource = scheduler.createObservable(timeline: "--E", values: ["_": Data()], errors: ["E": TestError(id: "")])
+		let fakeSource = scheduler.createObservable(
+			timeline: "--E",
+			values: ["_": Data()],
+			errors: ["E": TestError(id: "")]
+		)
 		let sut = API()
 		sut.setSource { _ in fakeSource }
 
@@ -88,7 +96,7 @@ final class APITests: XCTestCase {
 		let isActive = scheduler.createObserver(Bool.self)
 		let error = scheduler.createObserver(TestError.self)
 		let errorValues = ["E": TestError(id: "E")] as [Character: TestError]
-		let fakeSource = scheduler.createObservable(timeline: "--E", values: ["A": Data()], errors: errorValues)
+		let fakeSource = scheduler.createObservable(timeline: "--E", values: ["_": Data()], errors: errorValues)
 		let expected = parseTimeline("----E", values: errorValues)
 
 		let sut = API()
@@ -98,7 +106,7 @@ final class APITests: XCTestCase {
 		_ = sut.isActive.bind(to: isActive)
 		_ = sut.error.map { $0 as! TestError }.bind(to: error)
 		scheduler.scheduleAt(2) {
-			_ = sut.successResponse(fakeVoidEndpoint).subscribe(onError: { _ in
+			_ = sut.successResponse(fakeEndpoint).subscribe(onError: { _ in
 				onErrorCalled = true
 			})
 		}
@@ -140,5 +148,4 @@ struct TestError: Error, Equatable {
 	let id: String
 }
 
-let fakeVoidEndpoint = Endpoint(request: URLRequest(url: URL(string: "http://foo.bar")!))
-let fakeEndpoint = Endpoint(request: URLRequest(url: URL(string: "http://foo.bar")!), response: { _ in "A" })
+let fakeEndpoint = Endpoint(request: URLRequest(url: URL(string: "http://foo.bar")!))
