@@ -19,8 +19,6 @@ public extension TestScheduler {
 	 - parameter timeline: A string representing the marble diagrams that this observable will emit.
 	 - parameter errors: A dictionary defining any substrings in the timeline that represent custom error
 	 objects. Defaults to empty which means only the `#` can be used to emit an error.
-	 - parameter resolution: A closure telling the function what resolution to use when timing
-	 events. Defaults to one second per character.
 	 - returns: An Observable that behaves as defined above.
 	 */
 	func createObservable(
@@ -42,8 +40,6 @@ public extension TestScheduler {
 	 element.
 	 - parameter errors: A dictionary defining any substrings in the timeline that represent custom error
 	 objects. Defaults to empty which means only the `#` can be used to emit a generic error.
-	 - parameter resolution: A closure telling the function what resolution to use when timing
-	 events. Defaults to one second per character.
 	 - returns: An Observable that behaves as defined above.
 	 */
 	func createObservable<T>(
@@ -61,8 +57,6 @@ public extension TestScheduler {
 	 array if it just handled the last array.
 
 	 - parameter events: A jagged array of recorded events to play.
-	 - parameter resolution: A closure telling the function what resolution to use when timing events. Defaults to one
-	 second times the `Recorded` event's test time.
 	 - returns: An Observable that behaves as defined above.
 	 */
 	func createObservable<T>(
