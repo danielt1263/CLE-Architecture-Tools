@@ -22,7 +22,7 @@ extension UIViewController {
 	 - returns: A function that can be passed to `flatMap`, `flatMapFirst`, `flatMapLatest`, `concatMap` or can be
 	 `subscribe`d to.
 	 */
-	public func presentScene<Element, Action>(animated: Bool, 
+	public func presentScene<Element, Action>(animated: Bool,
 											  over sourceView: UIView? = nil,
 											  scene: @escaping (Element) -> Scene<Action>) -> (Element) -> Observable<Action> {
 		{ [weak self] element in
@@ -32,7 +32,7 @@ extension UIViewController {
 						base: self,
 						animated: animated,
 						scene: scene(element),
-						assignToPopover: assignToPopover(sourceView)
+						assignToPopover: sourceView.map { assignToPopover($0) }
 					)
 				},
 				observableFactory: { $0.action }
@@ -53,7 +53,7 @@ extension UIViewController {
 	 - returns: A function that can be passed to `flatMap`, `flatMapFirst`, `flatMapLatest`, `concatMap` or can be
 	 `subscribe`d to.
 	 */
-	public func presentScene<Element, Action>(animated: Bool, 
+	public func presentScene<Element, Action>(animated: Bool,
 											  over barButtonItem: UIBarButtonItem,
 											  scene: @escaping (Element) -> Scene<Action>) -> (Element) -> Observable<Action> {
 		{ [weak self] element in
@@ -83,7 +83,7 @@ extension UIViewController {
 	 - parameter scene: A factory function for creating the Scene.
 	 - returns: A function that can be passed to the `onNext:` closure of `bind`, `subscribe` or `do`.
 	 */
-	public func presentScene<Element, Action>(animated: Bool, 
+	public func presentScene<Element, Action>(animated: Bool,
 											  over sourceView: UIView? = nil,
 											  scene: @escaping (Element) -> Scene<Action>) -> (Element) -> Void {
 		{ [weak self] element in
@@ -104,7 +104,7 @@ extension UIViewController {
 	 - parameter scene: A factory function for creating the Scene.
 	 - returns: A function that can be passed to the `onNext:` closure of `bind`, `subscribe` or `do`.
 	 */
-	public func presentScene<Element, Action>(animated: Bool, 
+	public func presentScene<Element, Action>(animated: Bool,
 											  over barButtonItem: UIBarButtonItem,
 											  scene: @escaping (Element) -> Scene<Action>) -> (Element) -> Void {
 		{ [weak self] element in
@@ -123,11 +123,11 @@ extension UIViewController {
 	 - returns: A function that can be passed to `flatMap`, `flatMapFirst`, `flatMapLatest`, `concatMap` or can be
 	 `subscribe`d to.
 	 */
-	public func showScene<Element, Action>(sender: Any? = nil, 
+	public func showScene<Element, Action>(sender: Any? = nil,
 										   scene: @escaping (Element) -> Scene<Action>) -> (Element) -> Observable<Action> {
 		{ [weak self] element in
 			Observable.using(
-				{ ShowCoordinator(base: self, asDetail: false, sender: sender, scene: scene(element)) }, 
+				{ ShowCoordinator(base: self, asDetail: false, sender: sender, scene: scene(element)) },
 				observableFactory: { $0.action }
 			)
 		}
@@ -142,7 +142,7 @@ extension UIViewController {
 	 - parameter scene:  A factory function for creating the Scene.
 	 - returns: A function that can be passed to the `onNext:` closure of `bind`, `subscribe` or `do`.
 	 */
-	public func showScene<Element, Action>(sender: Any? = nil, 
+	public func showScene<Element, Action>(sender: Any? = nil,
 										   scene: @escaping (Element) -> Scene<Action>) -> (Element) -> Void {
 		{ [weak self] element in
 			_ = Observable.using(
@@ -260,7 +260,7 @@ private final class PresentationCoordinator<Action>: Disposable {
 	init(base: UIViewController?,
 		 animated: Bool,
 		 scene: Scene<Action>,
-		 assignToPopover: @escaping (UIPopoverPresentationController) -> Void = { _ in }) {
+		 assignToPopover: ((UIPopoverPresentationController) -> Void)?) {
 		self.action = scene.action
 			.do(
 				onError: { [weak controller = scene.controller] _ in
@@ -275,8 +275,11 @@ private final class PresentationCoordinator<Action>: Disposable {
 		queue.async { [weak base] in
 			let semaphore = DispatchSemaphore(value: 0)
 			DispatchQueue.main.async {
-				if let popoverPresentationController = scene.controller.popoverPresentationController {
-					assignToPopover(popoverPresentationController)
+				if let assignToPopover {
+					scene.controller.modalPresentationStyle = .popover
+					if let popoverPresentationController = scene.controller.popoverPresentationController {
+						assignToPopover(popoverPresentationController)
+					}
 				}
 				base?.topMost().present(scene.controller, animated: animated, completion: {
 					semaphore.signal()
@@ -349,12 +352,10 @@ private func assignToPopover(_ barButtonItem: UIBarButtonItem) -> (UIPopoverPres
 	}
 }
 
-private func assignToPopover(_ sourceView: UIView?) -> (UIPopoverPresentationController) -> Void {
+private func assignToPopover(_ sourceView: UIView) -> (UIPopoverPresentationController) -> Void {
 	{ popoverPresentationController in
-		if let sourceView = sourceView {
-			popoverPresentationController.sourceView = sourceView
-			popoverPresentationController.sourceRect = sourceView.bounds
-		}
+		popoverPresentationController.sourceView = sourceView
+		popoverPresentationController.sourceRect = sourceView.bounds
 	}
 }
 
