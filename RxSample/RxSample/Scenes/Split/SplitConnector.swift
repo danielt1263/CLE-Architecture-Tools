@@ -17,9 +17,8 @@ extension UISplitViewController {
 
 		let tab = UITabBarController().configure { $0.connect() }
 		let placeholder = UIViewController()
-			.setup {
-				$0.restorationIdentifier = "placeholder"
-				let imageView = UIImageView().setup {
+			.configure {
+				let imageView = apply(UIImageView()) {
 					$0.image = UIImage(named: "EmptyViewBackground")
 					$0.autoresizingMask = [.flexibleLeftMargin, .flexibleTopMargin, .flexibleRightMargin, .flexibleBottomMargin]
 					$0.sizeToFit()

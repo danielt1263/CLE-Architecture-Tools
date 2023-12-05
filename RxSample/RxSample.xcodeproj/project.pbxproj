@@ -3,10 +3,11 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 51;
+	objectVersion = 54;
 	objects = {
 
 /* Begin PBXBuildFile section */
+		71825A3F2B1EC88E00DBB628 /* ScopingOperators.swift in Sources */ = {isa = PBXBuildFile; fileRef = 71825A3E2B1EC88E00DBB628 /* ScopingOperators.swift */; };
 		721D6D8925E1C94900D0B506 /* PostNavigationConnector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 721D6D8825E1C94900D0B506 /* PostNavigationConnector.swift */; };
 		721F87EE25607C1C00C11863 /* TabConnect.swift in Sources */ = {isa = PBXBuildFile; fileRef = 721F87ED25607C1C00C11863 /* TabConnect.swift */; };
 		721F87FB2560850600C11863 /* TodosViewController.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 721F87F72560850600C11863 /* TodosViewController.storyboard */; };
@@ -59,6 +60,7 @@
 /* Begin PBXFileReference section */
 		1C1DE57E440890378A9448B5 /* Pods-RxSample.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RxSample.debug.xcconfig"; path = "Target Support Files/Pods-RxSample/Pods-RxSample.debug.xcconfig"; sourceTree = "<group>"; };
 		4B4E8A08F7D7F4FF88A0F5FA /* Pods-RxSample.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RxSample.release.xcconfig"; path = "Target Support Files/Pods-RxSample/Pods-RxSample.release.xcconfig"; sourceTree = "<group>"; };
+		71825A3E2B1EC88E00DBB628 /* ScopingOperators.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = ScopingOperators.swift; path = ../../../Tools/ScopingOperators.swift; sourceTree = "<group>"; };
 		721D6D8825E1C94900D0B506 /* PostNavigationConnector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostNavigationConnector.swift; sourceTree = "<group>"; };
 		721F87ED25607C1C00C11863 /* TabConnect.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabConnect.swift; sourceTree = "<group>"; };
 		721F87F72560850600C11863 /* TodosViewController.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = TodosViewController.storyboard; sourceTree = "<group>"; };
@@ -137,6 +139,14 @@
 				4B4E8A08F7D7F4FF88A0F5FA /* Pods-RxSample.release.xcconfig */,
 			);
 			path = Pods;
+			sourceTree = "<group>";
+		};
+		71825A3D2B1EC87700DBB628 /* Tools */ = {
+			isa = PBXGroup;
+			children = (
+				71825A3E2B1EC88E00DBB628 /* ScopingOperators.swift */,
+			);
+			path = Tools;
 			sourceTree = "<group>";
 		};
 		721D6D8625E1C90D00D0B506 /* Posts Flow */ = {
@@ -336,6 +346,7 @@
 				721F881D25609E9200C11863 /* API */,
 				721F881C2560977500C11863 /* Model */,
 				7243DECC24951065007F3D75 /* Scenes */,
+				71825A3D2B1EC87700DBB628 /* Tools */,
 				72B1041D2493133E00317625 /* Assets.xcassets */,
 				72B1041F2493133E00317625 /* LaunchScreen.storyboard */,
 				72B104222493133E00317625 /* Info.plist */,
@@ -499,6 +510,7 @@
 				721D6D8925E1C94900D0B506 /* PostNavigationConnector.swift in Sources */,
 				7243DF022495142E007F3D75 /* PhotoViewController.swift in Sources */,
 				7243DF0C249515E1007F3D75 /* ProfileViewController.swift in Sources */,
+				71825A3F2B1EC88E00DBB628 /* ScopingOperators.swift in Sources */,
 				721F87FD2560850600C11863 /* TodosConnector.swift in Sources */,
 				7243DF0D249515E1007F3D75 /* ProfileConnect.swift in Sources */,
 				721F87EE25607C1C00C11863 /* TabConnect.swift in Sources */,
@@ -593,7 +605,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
@@ -648,7 +660,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				SDKROOT = iphoneos;

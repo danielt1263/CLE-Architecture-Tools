@@ -39,11 +39,10 @@ extension UITableViewController {
         )
         .take(until: rx.deallocating)
         .bind(to: tableView.rx.items) { tableView, row, item in
-            (tableView.dequeueReusableCell(withIdentifier: "Cell") ?? UITableViewCell(style: .subtitle, reuseIdentifier: "Cell"))
-                .setup {
-                    $0.textLabel!.text = item.title
-                    $0.detailTextLabel!.text = item.body
-                }
+            apply(tableView.dequeueReusableCell(withIdentifier: "Cell") ?? UITableViewCell(style: .subtitle, reuseIdentifier: "Cell")) {
+                $0.textLabel!.text = item.title
+                $0.detailTextLabel!.text = item.body
+            }
         }
 
 		let action = tableView.rx.modelSelected(Post.self)

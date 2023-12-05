@@ -28,12 +28,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 		_ = user
 			.filter { $0 == nil }
 			.map(to: ())
-			.bind(onNext: presentScene(animated: true, scene: loginNavigation))
+            .bind(onNext: controller.presentScene(animated: true, scene: loginNavigation))
 
 		_ = api.error
 			.map { $0.localizedDescription }
 			.bind(
-				onNext: presentScene(animated: true) { message in
+                onNext: controller.presentScene(animated: true) { message in
 					UIAlertController(title: "Error", message: message, preferredStyle: .alert).scene { $0.connectOK() }
 				}
 			)

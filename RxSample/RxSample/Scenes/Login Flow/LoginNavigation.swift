@@ -17,7 +17,7 @@ func loginNavigation() -> Scene<Never> {
 	navigation.modalTransitionStyle = .crossDissolve
 
 	let signUpResult = root.action
-		.flatMapFirst(pushScene(on: navigation, animated: true) {
+        .flatMapFirst(navigation.pushScene(animated: true) {
 			SignupViewController().scene { $0.connect() }
 		})
 

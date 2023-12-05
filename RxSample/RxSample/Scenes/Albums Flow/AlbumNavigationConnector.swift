@@ -17,7 +17,7 @@ extension UINavigationController {
 		viewControllers = [albums.controller]
 
 		let photoURL = albums.action
-			.flatMapFirst(pushScene(on: self, animated: true) { album in
+			.flatMapFirst(pushScene(animated: true) { album in
 				PhotosViewController.scene { $0.connect(with: album) }
 			})
 

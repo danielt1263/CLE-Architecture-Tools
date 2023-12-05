@@ -1,4 +1,4 @@
-platform :ios, '12.0'
+platform :ios, '15.6'
 
 target 'RxSample' do
   use_frameworks!
