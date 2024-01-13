@@ -44,22 +44,25 @@ final class APITests: XCTestCase {
 		let sut = API()
 		sut.setSource { _ in self.fakeSource }
 
+		var result: Result<Int, TestError>?
 		_ = sut.isActive.bind(to: isActive)
 		_ = sut.error.map { $0 as! TestError }.bind(to: error)
 		scheduler.scheduleAt(2) {
-			_ = sut.resultResponse(fakeEndpoint).subscribe(onError: { _ in
-				self.onErrorCalled = true
-			})
+			_ = sut.resultResponse(fakeEndpoint).subscribe(
+				onNext: { result = $0.mapError { $0 as! TestError } },
+				onError: { _ in
+					self.onErrorCalled = true
+				})
 		}
 		scheduler.start()
 
 		XCTAssertEqual(isActive.events, parseTimeline("F-T-F", values: { $0 == "T" })[0])
+		XCTAssertEqual(result, .failure(TestError(id: "E")))
 		XCTAssertEqual(error.events, [])
 		XCTAssertFalse(onErrorCalled)
 	}
 
 	func testSuccessResponse() {
-		let fakeEndpoint = Endpoint(request: URLRequest(url: URL(string: "http://foo.bar")!), response: { _ in 5 })
 		let fakeSource = scheduler.createObservable(timeline: "--E", values: ["A": Data()], errors: ["E": TestError(id: "E")])
 		let sut = API()
 		sut.setSource { _ in self.fakeSource }
@@ -81,6 +84,8 @@ final class APITests: XCTestCase {
 	func testBoolSuccessResponse() {
 		let sut = API()
 		sut.setSource { _ in self.fakeSource }
+
+		let fakeEndpoint = Endpoint(request: URLRequest(url: URL(string: "http://foo.bar")!))
 
 		_ = sut.isActive.bind(to: isActive)
 		_ = sut.error.map { $0 as! TestError }.bind(to: error)
@@ -119,4 +124,4 @@ struct TestError: Error, Equatable {
 	let id: String
 }
 
-let fakeEndpoint = Endpoint(request: URLRequest(url: URL(string: "http://foo.bar")!))
+let fakeEndpoint = Endpoint(request: URLRequest(url: URL(string: "http://foo.bar")!), response: { _ in 5 })
