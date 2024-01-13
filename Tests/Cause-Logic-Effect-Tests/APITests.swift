@@ -59,6 +59,8 @@ final class APITests: XCTestCase {
 	}
 
 	func testSuccessResponse() {
+		let fakeEndpoint = Endpoint(request: URLRequest(url: URL(string: "http://foo.bar")!), response: { _ in 5 })
+		let fakeSource = scheduler.createObservable(timeline: "--E", values: ["A": Data()], errors: ["E": TestError(id: "E")])
 		let sut = API()
 		sut.setSource { _ in self.fakeSource }
 
