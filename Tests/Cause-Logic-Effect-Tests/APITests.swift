@@ -11,24 +11,26 @@ import Test_Tools
 import XCTest
 
 final class APITests: XCTestCase {
-	func testRawResponse() {
-		let scheduler = TestScheduler(initialClock: 0)
-		let isActive = scheduler.createObserver(Bool.self)
-		let error = scheduler.createObserver(TestError.self)
-		let fakeSource = scheduler.createObservable(
-			timeline: "--E",
-			values: ["_": Data()],
-			errors: ["E": TestError(id: "")]
-		)
-		let sut = API()
-		sut.setSource { _ in fakeSource }
+	let scheduler = TestScheduler(initialClock: 0)
+	lazy var isActive: TestableObserver<Bool> = scheduler.createObserver(Bool.self)
+	lazy var error = scheduler.createObserver(TestError.self)
+	lazy var fakeSource = scheduler.createObservable(
+		timeline: "--E",
+		values: ["_": Data()],
+		errors: ["E": TestError(id: "E")]
+	)
+	let expected = parseTimeline("----E", values: ["E": TestError(id: "E")])
+	var onErrorCalled = false
 
-		var onErrorCalled = false
+	func testRawResponse() {
+		let sut = API()
+		sut.setSource { _ in self.fakeSource }
+
 		_ = sut.isActive.bind(to: isActive)
 		_ = sut.error.map { $0 as! TestError }.bind(to: error)
 		scheduler.scheduleAt(2) {
 			_ = sut.rawResponse(fakeEndpoint).subscribe(onError: { _ in
-				onErrorCalled = true
+				self.onErrorCalled = true
 			})
 		}
 		scheduler.start()
@@ -39,23 +41,14 @@ final class APITests: XCTestCase {
 	}
 
 	func testResultResponse() {
-		let scheduler = TestScheduler(initialClock: 0)
-		let isActive = scheduler.createObserver(Bool.self)
-		let error = scheduler.createObserver(TestError.self)
-		let fakeSource = scheduler.createObservable(
-			timeline: "--E",
-			values: ["_": Data()],
-			errors: ["E": TestError(id: "")]
-		)
 		let sut = API()
-		sut.setSource { _ in fakeSource }
+		sut.setSource { _ in self.fakeSource }
 
-		var onErrorCalled = false
 		_ = sut.isActive.bind(to: isActive)
 		_ = sut.error.map { $0 as! TestError }.bind(to: error)
 		scheduler.scheduleAt(2) {
 			_ = sut.resultResponse(fakeEndpoint).subscribe(onError: { _ in
-				onErrorCalled = true
+				self.onErrorCalled = true
 			})
 		}
 		scheduler.start()
@@ -66,22 +59,14 @@ final class APITests: XCTestCase {
 	}
 
 	func testSuccessResponse() {
-		let scheduler = TestScheduler(initialClock: 0)
-		let isActive = scheduler.createObserver(Bool.self)
-		let error = scheduler.createObserver(TestError.self)
-		let errorValues = ["E": TestError(id: "E")] as [Character: TestError]
-		let fakeSource = scheduler.createObservable(timeline: "--E", values: ["A": Data()], errors: errorValues)
-		let expected = parseTimeline("----E", values: errorValues)
-
 		let sut = API()
-		sut.setSource { _ in fakeSource }
+		sut.setSource { _ in self.fakeSource }
 
-		var onErrorCalled = false
 		_ = sut.isActive.bind(to: isActive)
 		_ = sut.error.map { $0 as! TestError }.bind(to: error)
 		scheduler.scheduleAt(2) {
 			_ = sut.successResponse(fakeEndpoint).subscribe(onError: { _ in
-				onErrorCalled = true
+				self.onErrorCalled = true
 			})
 		}
 		scheduler.start()
@@ -92,22 +77,14 @@ final class APITests: XCTestCase {
 	}
 
 	func testBoolSuccessResponse() {
-		let scheduler = TestScheduler(initialClock: 0)
-		let isActive = scheduler.createObserver(Bool.self)
-		let error = scheduler.createObserver(TestError.self)
-		let errorValues = ["E": TestError(id: "E")] as [Character: TestError]
-		let fakeSource = scheduler.createObservable(timeline: "--E", values: ["_": Data()], errors: errorValues)
-		let expected = parseTimeline("----E", values: errorValues)
-
 		let sut = API()
-		sut.setSource { _ in fakeSource }
+		sut.setSource { _ in self.fakeSource }
 
-		var onErrorCalled = false
 		_ = sut.isActive.bind(to: isActive)
 		_ = sut.error.map { $0 as! TestError }.bind(to: error)
 		scheduler.scheduleAt(2) {
 			_ = sut.successResponse(fakeEndpoint).subscribe(onError: { _ in
-				onErrorCalled = true
+				self.onErrorCalled = true
 			})
 		}
 		scheduler.start()
@@ -118,22 +95,14 @@ final class APITests: XCTestCase {
 	}
 
 	func testResponse() {
-		let scheduler = TestScheduler(initialClock: 0)
-		let isActive = scheduler.createObserver(Bool.self)
-		let error = scheduler.createObserver(TestError.self)
-		let errorValues = ["E": TestError(id: "E")] as [Character: TestError]
-		let fakeSource = scheduler.createObservable(timeline: "--E", values: ["A": Data()], errors: errorValues)
-		let expected = parseTimeline("----E", values: errorValues)
-
 		let sut = API()
-		sut.setSource { _ in fakeSource }
+		sut.setSource { _ in self.fakeSource }
 
-		var onErrorCalled = false
 		_ = sut.isActive.bind(to: isActive)
 		_ = sut.error.map { $0 as! TestError }.bind(to: error)
 		scheduler.scheduleAt(2) {
 			_ = sut.response(fakeEndpoint).subscribe(onError: { _ in
-				onErrorCalled = true
+				self.onErrorCalled = true
 			})
 		}
 		scheduler.start()

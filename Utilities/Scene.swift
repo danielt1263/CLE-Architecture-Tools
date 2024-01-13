@@ -22,51 +22,91 @@ public struct Scene<Action> {
 /// shortcuts for creating scenes and view controllers.
 public extension NSObjectProtocol where Self: UIViewController {
 	/**
-	Create a scene by reconstituting an instance of this view controller from a storyboard with the same name as it.
+	 Create a view controller by reconstituting an instance from a storyboard.
 
-	- parameter connect: A function describing how the view controller should be connected and returning an Observable that emits any data the scene needs to communicate to its parent.
-	- parameter storyboardName: The name of the storyboard. If not supplied then the name of the view controller is assumed.
-	- parameter bundle: The bundle to look for the storyboard in. If not supplied then the system will look in the main bundle.
-	- returns: A Scene containing the view controller and return value of the connect function.
-
-	Example:
-
-	`let exampleScene = ExampleViewController.scene { $0.connect() }`
-	*/
-	static func scene<Action>(storyboardName: String = "", bundle: Bundle? = nil, identifier: String = "", _ connect: @escaping (Self) -> Observable<Action>) -> Scene<Action> {
-		let storyboard = UIStoryboard(name: storyboardName.isEmpty ? String(describing: self) : storyboardName, bundle: bundle)
-		let controller = identifier.isEmpty ? storyboard.instantiateInitialViewController() as! Self : storyboard.instantiateViewController(withIdentifier: identifier) as! Self
-		return controller.scene(connect)
+	 - parameter storyboardName: The name of the storyboard. If not supplied then the name of the view controller is
+	 assumed.
+	 - parameter bundle: The bundle to look in for the storyboard. If not supplied then the system will look in the
+	 main bundle.
+	 - parameter identifier: The identifier of the view controller inside the storyboard. If not supplied then the
+	 system will use the initial view controller.
+	 - returns: A Scene containing the view controller and return value of the connect function.
+	 */
+	static func build(storyboardName: String = "", bundle: Bundle? = nil, identifier: String = "") -> Self {
+		let storyboard = UIStoryboard(
+			name: storyboardName.isEmpty ? String(describing: self) : storyboardName,
+			bundle: bundle
+		)
+		let controller = identifier.isEmpty ?
+		storyboard.instantiateInitialViewController() as! Self :
+		storyboard.instantiateViewController(withIdentifier: identifier) as! Self
+		return controller
 	}
 
 	/**
-	Extract an instance of this view controller out of a storyboard with the same name as it and cofigure it using the supplied connect function.
+	 Create a scene by reconstituting an instance of this view controller from a storyboard.
 
-	- parameter connect: A function describing how the view controller should be connected.
-	- parameter storyboardName: The name of the storyboard. If not supplied then the name of the view controller is assumed.
-	- parameter bundle: The bundle to look for the storyboard in. If not supplied then the system will look in the main bundle.
-	- returns: A configured view controller.
+	 - parameter storyboardName: The name of the storyboard. If not supplied then the name of the view controller is
+	 assumed.
+	 - parameter bundle: The bundle to look in for the storyboard. If not supplied then the system will look in the
+	 main bundle.
+	 - parameter identifier: The identifier of the view controller inside the storyboard. If not supplied then the
+	 system will use the initial view controller.
+	 - parameter connect: A function describing how the view controller should be connected and returning an Observable
+	 that emits any data the scene needs to communicate to its parent. The code in this function will be called *after*
+	 `viewDidLoad()`.
+	 - returns: A Scene containing the view controller and return value of the connect function.
 
-	Example:
+	 Example:
 
-	`let exampleViewController = ExampleViewController.create { $0.connect() }`
-	*/
-	static func create(storyboardName: String = "", bundle: Bundle? = nil, identifier: String = "", _ connect: @escaping (Self) -> Void) -> UIViewController {
-		let storyboard = UIStoryboard(name: storyboardName.isEmpty ? String(describing: self) : storyboardName, bundle: bundle)
-		let controller = identifier.isEmpty ? storyboard.instantiateInitialViewController() as! Self : storyboard.instantiateViewController(withIdentifier: identifier) as! Self
-		return controller.configure(connect)
+	 `let exampleScene = ExampleViewController.scene { $0.connect() }`
+	 */
+	static func scene<Action>(storyboardName: String = "",
+							  bundle: Bundle? = nil,
+							  identifier: String = "",
+							  connect: @escaping (Self) -> Observable<Action>) -> Scene<Action> {
+		build(storyboardName: storyboardName, bundle: bundle, identifier: identifier)
+			.scene(connect)
 	}
 
 	/**
-	Create a scene from an already existing view controller.
+	 Extract an instance of this view controller out of a storyboard with the same name as it and cofigure it using the
+	 supplied connect function.
 
-	- parameter connect: A function describing how the view controller should be connected and returning an Observable that emits any data the scene needs to communicate to its parent.
-	- returns: A Scene containing the view controller and return value of the connect function.
+	 - parameter storyboardName: The name of the storyboard. If not supplied then the name of the view controller is
+	 assumed.
+	 - parameter bundle: The bundle to look in for the storyboard. If not supplied then the system will look in the
+	 main bundle.
+	 - parameter identifier: The identifier of the view controller inside the storyboard. If not supplied then the
+	 system will use the initial view controller.
+	 - parameter connect: A function describing how the view controller should be connected and returning an Observable
+	 that emits any data the scene needs to communicate to its parent. The code in this function will be called *after*
+	 `viewDidLoad()`.
+	 - returns: A configured view controller.
 
-	Example:
+	 Example:
 
-	`let exampleScene = ExampleViewController().scene { $0.connect() }`
-	*/
+	 `let exampleViewController = ExampleViewController.create { $0.connect() }`
+	 */
+	static func create(storyboardName: String = "",
+					   bundle: Bundle? = nil,
+					   identifier: String = "",
+					   connect: @escaping (Self) -> Void) -> UIViewController {
+		build(storyboardName: storyboardName, bundle: bundle, identifier: identifier)
+			.configure(connect)
+	}
+
+	/**
+	 Create a scene from an already existing view controller.
+
+	 - parameter connect: A function describing how the view controller should be connected and returning an Observable
+	 that emits any data the scene needs to communicate to its parent.
+	 - returns: A Scene containing the view controller and return value of the connect function.
+
+	 Example:
+
+	 `let exampleScene = ExampleViewController().scene { $0.connect() }`
+	 */
 	func scene<Action>(_ connect: @escaping (Self) -> Observable<Action>) -> Scene<Action> {
 		let action = Observable.merge(rx.viewDidLoad, isViewLoaded ? .just(()) : .empty())
 			.take(1)
@@ -81,15 +121,15 @@ public extension NSObjectProtocol where Self: UIViewController {
 	}
 
 	/**
-	Configure an existing view controller using the supplied connect function.
+	 Configure an existing view controller using the supplied connect function.
 
-	- parameter connect: A function describing how the view controller should be connected.
-	- returns: A configured view controller.
+	 - parameter connect: A function describing how the view controller should be connected.
+	 - returns: A configured view controller.
 
-	Example:
+	 Example:
 
-	`let exampleViewController = ExampleViewController().create { $0.connect() }`
-	*/
+	 `let exampleViewController = ExampleViewController().create { $0.connect() }`
+	 */
 	func configure(_ connect: @escaping (Self) -> Void) -> UIViewController {
 		_ = Observable.merge(rx.viewDidLoad, isViewLoaded ? .just(()) : .empty())
 			.take(1)
