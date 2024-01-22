@@ -14,7 +14,7 @@ final class APITests: XCTestCase {
 	let scheduler = TestScheduler(initialClock: 0)
 	lazy var isActive: TestableObserver<Bool> = scheduler.createObserver(Bool.self)
 	lazy var error = scheduler.createObserver(TestError.self)
-	lazy var fakeSource = scheduler.createObservable(
+	lazy var errorEmittingSource = scheduler.createObservable(
 		timeline: "--E",
 		values: ["_": Data()],
 		errors: ["E": TestError(id: "E")]
@@ -24,7 +24,7 @@ final class APITests: XCTestCase {
 
 	func testRawResponse() {
 		let sut = API()
-		sut.setSource { _ in self.fakeSource }
+		sut.setSource { _ in self.errorEmittingSource }
 
 		_ = sut.isActive.bind(to: isActive)
 		_ = sut.error.map { $0 as! TestError }.bind(to: error)
@@ -42,7 +42,7 @@ final class APITests: XCTestCase {
 
 	func testResultResponse() {
 		let sut = API()
-		sut.setSource { _ in self.fakeSource }
+		sut.setSource { _ in self.errorEmittingSource }
 
 		var result: Result<Int, TestError>?
 		_ = sut.isActive.bind(to: isActive)
@@ -65,7 +65,7 @@ final class APITests: XCTestCase {
 	func testSuccessResponse() {
 		let fakeSource = scheduler.createObservable(timeline: "--E", values: ["A": Data()], errors: ["E": TestError(id: "E")])
 		let sut = API()
-		sut.setSource { _ in self.fakeSource }
+		sut.setSource { _ in self.errorEmittingSource }
 
 		_ = sut.isActive.bind(to: isActive)
 		_ = sut.error.map { $0 as! TestError }.bind(to: error)
@@ -83,7 +83,7 @@ final class APITests: XCTestCase {
 
 	func testBoolSuccessResponse() {
 		let sut = API()
-		sut.setSource { _ in self.fakeSource }
+		sut.setSource { _ in self.errorEmittingSource }
 
 		let fakeEndpoint = Endpoint(request: URLRequest(url: URL(string: "http://foo.bar")!))
 
@@ -103,7 +103,7 @@ final class APITests: XCTestCase {
 
 	func testResponse() {
 		let sut = API()
-		sut.setSource { _ in self.fakeSource }
+		sut.setSource { _ in self.errorEmittingSource }
 
 		_ = sut.isActive.bind(to: isActive)
 		_ = sut.error.map { $0 as! TestError }.bind(to: error)
@@ -117,6 +117,23 @@ final class APITests: XCTestCase {
 		XCTAssertEqual(isActive.events, parseTimeline("F-T-F", values: { $0 == "T" })[0])
 		XCTAssertEqual(error.events, expected[0])
 		XCTAssertFalse(onErrorCalled)
+	}
+
+	func testSend() {
+		let sut = API()
+		sut.setSource { _ in self.errorEmittingSource }
+
+		let fakeEndpoint = Endpoint(request: URLRequest(url: URL(string: "http://foo.bar")!))
+
+		_ = sut.isActive.bind(to: isActive)
+		_ = sut.error.map { $0 as! TestError }.bind(to: error)
+		scheduler.scheduleAt(2) {
+			sut.send(fakeEndpoint)
+		}
+		scheduler.start()
+
+		XCTAssertEqual(isActive.events, parseTimeline("F-T-F", values: { $0 == "T" })[0])
+		XCTAssertEqual(error.events, expected[0])
 	}
 }
 
