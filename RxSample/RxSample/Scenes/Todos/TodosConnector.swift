@@ -37,5 +37,4 @@ extension UITableViewController {
 				return cell
 			}
 	}
-
 }

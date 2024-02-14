@@ -10,13 +10,12 @@ import RxSwift
 import UIKit
 
 final class SignupViewController: UIViewController {
-
-	@IBOutlet weak var firstNameTextField: UITextField!
-	@IBOutlet weak var lastNameTextField: UITextField!
-	@IBOutlet weak var emailTextField: UITextField!
-	@IBOutlet weak var passwordTextField: UITextField!
-	@IBOutlet weak var signupButton: UIButton!
-	@IBOutlet weak var activityIndicatorView: UIActivityIndicatorView!
+	@IBOutlet var firstNameTextField: UITextField!
+	@IBOutlet var lastNameTextField: UITextField!
+	@IBOutlet var emailTextField: UITextField!
+	@IBOutlet var passwordTextField: UITextField!
+	@IBOutlet var signupButton: UIButton!
+	@IBOutlet var activityIndicatorView: UIActivityIndicatorView!
 
 	let disposeBag = DisposeBag()
 }

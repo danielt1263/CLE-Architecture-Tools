@@ -5,10 +5,10 @@
 //  Copyright © 2023 Daniel Tartaglia. MIT License.
 //
 
-import UIKit
 import RxSwift
+import UIKit
 
-extension UIViewController {
+public extension UIViewController {
 	/**
 	 Presents a scene onto the top view controller of the presentation stack. The scene will be dismissed when either
 	 the action observable completes/errors or is disposed.
@@ -22,9 +22,10 @@ extension UIViewController {
 	 - returns: A function that can be passed to `flatMap`, `flatMapFirst`, `flatMapLatest`, `concatMap` or can be
 	 `subscribe`d to.
 	 */
-	public func presentScene<Element, Action>(animated: Bool,
-											  over sourceView: UIView? = nil,
-											  scene: @escaping (Element) -> Scene<Action>) -> (Element) -> Observable<Action> {
+	func presentScene<Element, Action>(animated: Bool,
+	                                   over sourceView: UIView? = nil,
+	                                   scene: @escaping (Element) -> Scene<Action>) -> (Element) -> Observable<Action>
+	{
 		{ [weak self] element in
 			Observable.using(
 				{
@@ -53,9 +54,11 @@ extension UIViewController {
 	 - returns: A function that can be passed to `flatMap`, `flatMapFirst`, `flatMapLatest`, `concatMap` or can be
 	 `subscribe`d to.
 	 */
-	public func presentScene<Element, Action>(animated: Bool,
-											  over barButtonItem: UIBarButtonItem,
-											  scene: @escaping (Element) -> Scene<Action>) -> (Element) -> Observable<Action> {
+	func presentScene<Element, Action>(animated: Bool,
+	                                   over barButtonItem: UIBarButtonItem,
+	                                   scene: @escaping (Element) -> Scene<Action>)
+		-> (Element) -> Observable<Action>
+	{
 		{ [weak self] element in
 			Observable.using(
 				{
@@ -83,9 +86,10 @@ extension UIViewController {
 	 - parameter scene: A factory function for creating the Scene.
 	 - returns: A function that can be passed to the `onNext:` closure of `bind`, `subscribe` or `do`.
 	 */
-	public func presentScene<Element, Action>(animated: Bool,
-											  over sourceView: UIView? = nil,
-											  scene: @escaping (Element) -> Scene<Action>) -> (Element) -> Void {
+	func presentScene<Element, Action>(animated: Bool,
+	                                   over sourceView: UIView? = nil,
+	                                   scene: @escaping (Element) -> Scene<Action>) -> (Element) -> Void
+	{
 		{ [weak self] element in
 			_ = self?.presentScene(animated: animated, over: sourceView, scene: scene)(element)
 				.subscribe()
@@ -104,9 +108,10 @@ extension UIViewController {
 	 - parameter scene: A factory function for creating the Scene.
 	 - returns: A function that can be passed to the `onNext:` closure of `bind`, `subscribe` or `do`.
 	 */
-	public func presentScene<Element, Action>(animated: Bool,
-											  over barButtonItem: UIBarButtonItem,
-											  scene: @escaping (Element) -> Scene<Action>) -> (Element) -> Void {
+	func presentScene<Element, Action>(animated: Bool,
+	                                   over barButtonItem: UIBarButtonItem,
+	                                   scene: @escaping (Element) -> Scene<Action>) -> (Element) -> Void
+	{
 		{ [weak self] element in
 			_ = self?.presentScene(animated: animated, over: barButtonItem, scene: scene)(element)
 				.subscribe()
@@ -123,8 +128,10 @@ extension UIViewController {
 	 - returns: A function that can be passed to `flatMap`, `flatMapFirst`, `flatMapLatest`, `concatMap` or can be
 	 `subscribe`d to.
 	 */
-	public func showScene<Element, Action>(sender: Any? = nil,
-										   scene: @escaping (Element) -> Scene<Action>) -> (Element) -> Observable<Action> {
+	func showScene<Element, Action>(sender: Any? = nil,
+	                                scene: @escaping (Element) -> Scene<Action>)
+		-> (Element) -> Observable<Action>
+	{
 		{ [weak self] element in
 			Observable.using(
 				{ ShowCoordinator(base: self, asDetail: false, sender: sender, scene: scene(element)) },
@@ -142,14 +149,15 @@ extension UIViewController {
 	 - parameter scene:  A factory function for creating the Scene.
 	 - returns: A function that can be passed to the `onNext:` closure of `bind`, `subscribe` or `do`.
 	 */
-	public func showScene<Element, Action>(sender: Any? = nil,
-										   scene: @escaping (Element) -> Scene<Action>) -> (Element) -> Void {
+	func showScene<Element, Action>(sender: Any? = nil,
+	                                scene: @escaping (Element) -> Scene<Action>) -> (Element) -> Void
+	{
 		{ [weak self] element in
 			_ = Observable.using(
 				{ ShowCoordinator(base: self, asDetail: false, sender: sender, scene: scene(element)) },
 				observableFactory: { $0.action }
 			)
-				.subscribe()
+			.subscribe()
 		}
 	}
 
@@ -164,9 +172,10 @@ extension UIViewController {
 	 - returns: A function that can be passed to `flatMap`, `flatMapFirst`, `flatMapLatest`, `concatMap` or can be
 	 `subscribe`d to.
 	 */
-	public func showDetailScene<Element, Action>(sender: Any? = nil,
-												 scene: @escaping (Element) -> Scene<Action>)
-	-> (Element) -> Observable<Action> {
+	func showDetailScene<Element, Action>(sender: Any? = nil,
+	                                      scene: @escaping (Element) -> Scene<Action>)
+		-> (Element) -> Observable<Action>
+	{
 		{ [weak self] element in
 			Observable.using(
 				{ ShowCoordinator(base: self, asDetail: true, sender: sender, scene: scene(element)) },
@@ -184,8 +193,9 @@ extension UIViewController {
 	 - parameter scene:  A factory function for creating the Scene.
 	 - returns: A function that can be passed to the `onNext:` closure of `bind`, `subscribe` or `do`.
 	 */
-	public func showDetailScene<Element, Action>(sender: Any? = nil,
-												 scene: @escaping (Element) -> Scene<Action>) -> (Element) -> Void {
+	func showDetailScene<Element, Action>(sender: Any? = nil,
+	                                      scene: @escaping (Element) -> Scene<Action>) -> (Element) -> Void
+	{
 		{ [weak self] element in
 			_ = Observable.using(
 				{ ShowCoordinator(base: self, asDetail: true, sender: sender, scene: scene(element)) },
@@ -196,7 +206,7 @@ extension UIViewController {
 	}
 }
 
-extension UINavigationController {
+public extension UINavigationController {
 	/**
 	 Push a scene onto a navigation constroller's stack. The scene will be popped when either the action observable
 	 completes/errors or is disposed.
@@ -207,8 +217,10 @@ extension UINavigationController {
 	 - returns: A function that can be passed to `flatMap`, `flatMapFirst`, `flatMapLatest`, `concatMap` or can be
 	 `subscribe`d to.
 	 */
-	public func pushScene<Element, Action>(animated: Bool,
-										   scene: @escaping (Element) -> Scene<Action>) -> (Element) -> Observable<Action> {
+	func pushScene<Element, Action>(animated: Bool,
+	                                scene: @escaping (Element) -> Scene<Action>)
+		-> (Element) -> Observable<Action>
+	{
 		{ [weak self] element in
 			Observable.using(
 				{ NavigationCoordinator(navigation: self, animated: animated, scene: scene(element)) },
@@ -226,8 +238,9 @@ extension UINavigationController {
 	 - parameter scene: A factory function for creating the Scene.
 	 - returns: A function that can be passed to the `onNext:` closure of `bind`, `subscribe` or `do`.
 	 */
-	public func pushScene<Element, Action>(animated: Bool,
-										   scene: @escaping (Element) -> Scene<Action>) -> (Element) -> Void {
+	func pushScene<Element, Action>(animated: Bool,
+	                                scene: @escaping (Element) -> Scene<Action>) -> (Element) -> Void
+	{
 		{ [weak self] element in
 			_ = Observable.using(
 				{ NavigationCoordinator(navigation: self, animated: animated, scene: scene(element)) },
@@ -240,15 +253,17 @@ extension UINavigationController {
 
 @available(*, deprecated, message: "Use UINavigationController.pushScene(animated:scene:) instead")
 public func pushScene<Element, Action>(on navigation: UINavigationController,
-									   animated: Bool,
-									   scene: @escaping (Element) -> Scene<Action>) -> (Element) -> Observable<Action> {
+                                       animated: Bool,
+                                       scene: @escaping (Element) -> Scene<Action>) -> (Element) -> Observable<Action>
+{
 	navigation.pushScene(animated: animated, scene: scene)
 }
 
 @available(*, deprecated, message: "Use UINavigationController.pushScene(animated:scene:) instead")
 public func pushScene<Element, Action>(on navigation: UINavigationController,
-									   animated: Bool,
-									   scene: @escaping (Element) -> Scene<Action>) -> (Element) -> Void {
+                                       animated: Bool,
+                                       scene: @escaping (Element) -> Scene<Action>) -> (Element) -> Void
+{
 	navigation.pushScene(animated: animated, scene: scene)
 }
 
@@ -258,9 +273,10 @@ private final class PresentationCoordinator<Action>: Disposable {
 	private let animated: Bool
 
 	init(base: UIViewController?,
-		 animated: Bool,
-		 scene: Scene<Action>,
-		 assignToPopover: ((UIPopoverPresentationController) -> Void)?) {
+	     animated: Bool,
+	     scene: Scene<Action>,
+	     assignToPopover: ((UIPopoverPresentationController) -> Void)?)
+	{
 		self.action = scene.action
 			.do(
 				onError: { [weak controller = scene.controller] _ in
@@ -324,8 +340,8 @@ private final class ShowCoordinator<Action>: Disposable {
 	weak var controller: UIViewController?
 
 	init(base: UIViewController?, asDetail: Bool, sender: Any? = nil, scene: Scene<Action>) {
-		action = scene.action
-		controller = scene.controller
+		self.action = scene.action
+		self.controller = scene.controller
 		queue.async { [weak base] in
 			DispatchQueue.main.async {
 				let top = base?.topMost()
@@ -382,7 +398,8 @@ func pop(controller: UIViewController?, animated: Bool) {
 			if let controller = controller,
 			   let navigation = controller.navigationController,
 			   let index = navigation.viewControllers.firstIndex(of: controller),
-			   index > 0 {
+			   index > 0
+			{
 				navigation.popToViewController(navigation.viewControllers[index - 1], animated: true)
 			}
 		}

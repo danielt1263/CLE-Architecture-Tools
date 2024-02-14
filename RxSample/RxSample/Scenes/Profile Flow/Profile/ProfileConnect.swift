@@ -6,13 +6,12 @@
 //  Copyright © 2023 Daniel Tartaglia. MIT License.
 //
 
-import UIKit
-import RxSwift
 import RxCocoa
+import RxSwift
+import UIKit
 
 extension ProfileViewController {
 	func connect() -> Observable<Void> {
-
 		ProfileLogic.infoFor(user: user, keyPath: \.initials)
 			.bind(to: avatarLabel.rx.text)
 			.disposed(by: disposeBag)

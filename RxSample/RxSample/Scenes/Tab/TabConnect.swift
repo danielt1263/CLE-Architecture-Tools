@@ -6,12 +6,11 @@
 //  Copyright © 2023 Daniel Tartaglia. MIT License.
 //
 
-import UIKit
-import RxSwift
 import RxCocoa
+import RxSwift
+import UIKit
 
 extension UITabBarController {
-
 	func connect() {
 		let posts = UINavigationController().configure { $0.connectPosts() }
 		posts.tabBarItem = UITabBarItem(title: "Posts", image: #imageLiteral(resourceName: "PostsTabIcon"), tag: 0)
@@ -37,7 +36,7 @@ extension UITabBarController {
 			posts,
 			albums,
 			UINavigationController(rootViewController: todos),
-			profile
+			profile,
 		]
 	}
 }

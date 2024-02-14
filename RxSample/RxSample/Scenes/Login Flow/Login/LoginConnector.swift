@@ -13,8 +13,9 @@ import UIKit
 
 extension LoginViewController {
 	func connect() -> Observable<Void> {
-
-		let credentials = Observable.combineLatest(emailTextField.rx.text.orEmpty, passwordTextField.rx.text.orEmpty) { (email: $0, password: $1) }
+		let credentials = Observable.combineLatest(emailTextField.rx.text.orEmpty, passwordTextField.rx.text.orEmpty) {
+			(email: $0, password: $1)
+		}
 		let response = loginButton.rx.tap
 			.withLatestFrom(credentials)
 			.flatMapLatest { _ in

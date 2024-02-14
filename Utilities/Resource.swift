@@ -8,11 +8,10 @@
 import RxSwift
 
 public final class Resource<Asset>: Disposable {
-	public static func build(
-		_ asset: @autoclosure @escaping () throws -> Asset,
-		dispose: @escaping (Asset) -> Void
-	) -> () throws -> Resource<Asset> {
-		{ Resource(asset: try asset(), dispose: dispose) }
+	public static func build(_ asset: @autoclosure @escaping () throws -> Asset,
+	                         dispose: @escaping (Asset) -> Void) -> () throws -> Resource<Asset>
+	{
+		{ try Resource(asset: asset(), dispose: dispose) }
 	}
 
 	public static func createObservable<Action>(
@@ -30,7 +29,7 @@ public final class Resource<Asset>: Disposable {
 
 	init(asset: Asset?, dispose: @escaping (Asset) -> Void) {
 		self.asset = asset
-		self._dispose = dispose
+		_dispose = dispose
 	}
 
 	public func dispose() {
@@ -39,10 +38,8 @@ public final class Resource<Asset>: Disposable {
 	}
 }
 
-extension Resource where Asset: Disposable {
-	public static func build(
-		_ asset: @autoclosure @escaping () throws -> Asset
-	) -> () throws -> Resource<Asset> {
-		{ Resource(asset: try asset(), dispose: { $0.dispose() }) }
+public extension Resource where Asset: Disposable {
+	static func build(_ asset: @autoclosure @escaping () throws -> Asset) -> () throws -> Resource<Asset> {
+		{ try Resource(asset: asset(), dispose: { $0.dispose() }) }
 	}
 }

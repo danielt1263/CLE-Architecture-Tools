@@ -7,9 +7,9 @@
 //
 
 import Cause_Logic_Effect
-import UIKit
-import RxSwift
 import RxCocoa
+import RxSwift
+import UIKit
 
 extension UITableViewController {
 	func connectAlbums() -> Observable<Album> {
@@ -30,8 +30,9 @@ extension UITableViewController {
 
 		_ = albumsResult
 			.take(until: rx.deallocating)
-			.bind(to: tableView.rx.items) { tableView, row, element in
-				let cell = tableView.dequeueReusableCell(withIdentifier: "Cell") ?? UITableViewCell(style: .default, reuseIdentifier: "Cell")
+			.bind(to: tableView.rx.items) { tableView, _, element in
+				let cell = tableView.dequeueReusableCell(withIdentifier: "Cell") ??
+					UITableViewCell(style: .default, reuseIdentifier: "Cell")
 				cell.textLabel!.text = element.title
 				return cell
 			}

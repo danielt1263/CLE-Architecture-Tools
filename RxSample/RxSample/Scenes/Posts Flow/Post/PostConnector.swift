@@ -6,9 +6,9 @@
 //  Copyright © 2023 Daniel Tartaglia. MIT License.
 //
 
-import UIKit
-import RxSwift
 import RxCocoa
+import RxSwift
+import UIKit
 
 extension PostViewController {
 	func connect(post: Post) -> Observable<Never> {

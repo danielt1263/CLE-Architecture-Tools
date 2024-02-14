@@ -9,7 +9,6 @@ import Foundation
 import RxSwift
 
 public extension ObservableType {
-
 	func map<T>(to: T) -> Observable<T> {
 		return map { _ in to }
 	}
@@ -20,8 +19,7 @@ public extension ObservableType {
 }
 
 public extension ObserverType {
-
-	func onSuccess(_ element: Element) -> Void {
+	func onSuccess(_ element: Element) {
 		onNext(element)
 		onCompleted()
 	}

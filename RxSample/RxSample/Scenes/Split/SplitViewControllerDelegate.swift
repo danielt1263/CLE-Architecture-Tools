@@ -13,20 +13,26 @@ enum SenderPosition {
 }
 
 class SplitViewControllerDelegate: NSObject, UISplitViewControllerDelegate {
-
 	static let instance = SplitViewControllerDelegate()
 
-	func splitViewController(_ splitViewController: UISplitViewController, collapseSecondary secondaryViewController: UIViewController, onto primaryViewController: UIViewController) -> Bool {
+	func splitViewController(_: UISplitViewController,
+	                         collapseSecondary secondaryViewController: UIViewController,
+	                         onto primaryViewController: UIViewController) -> Bool
+	{
 		let tabBar = primaryViewController as! UITabBarController
 		let secondary = secondaryViewController as! UINavigationController
-		if let active = tabBar.selectedViewController as? UINavigationController, secondary.children.last?.restorationIdentifier != "placeholder" {
+		if let active = tabBar.selectedViewController as? UINavigationController,
+		   secondary.children.last?.restorationIdentifier != "placeholder"
+		{
 			active.viewControllers += secondary.viewControllers
 			active.topViewController!.navigationItem.leftBarButtonItem = nil
 		}
 		return true
 	}
 
-	func splitViewController(_ splitViewController: UISplitViewController, separateSecondaryFrom primaryViewController: UIViewController) -> UIViewController? {
+	func splitViewController(_ splitViewController: UISplitViewController,
+	                         separateSecondaryFrom primaryViewController: UIViewController) -> UIViewController?
+	{
 		let tabBarController = primaryViewController as! UITabBarController
 		let selectedNavigation = tabBarController.selectedViewController as! UINavigationController
 		guard selectedNavigation.viewControllers.count > 1 else { return nil }
@@ -43,7 +49,10 @@ class SplitViewControllerDelegate: NSObject, UISplitViewControllerDelegate {
 		return navigation
 	}
 
-	func splitViewController(_ splitViewController: UISplitViewController, showDetail vc: UIViewController, sender: Any?) -> Bool {
+	func splitViewController(_ splitViewController: UISplitViewController,
+	                         showDetail vc: UIViewController,
+	                         sender _: Any?) -> Bool
+	{
 		if splitViewController.children.count == 1 || vc is UINavigationController || vc is UICollectionViewController {
 			let tabBarController = splitViewController.children[0] as! UITabBarController
 			let selectedNavigation = tabBarController.selectedViewController as! UINavigationController
@@ -58,4 +67,3 @@ class SplitViewControllerDelegate: NSObject, UISplitViewControllerDelegate {
 		return true
 	}
 }
-

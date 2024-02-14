@@ -5,9 +5,9 @@
 //  Copyright © 2023 Daniel Tartaglia. MIT License.
 //
 
-import UIKit
-import RxSwift
 import RxCocoa
+import RxSwift
+import UIKit
 
 public struct Scene<Action> {
 	public let controller: UIViewController
@@ -38,8 +38,8 @@ public extension NSObjectProtocol where Self: UIViewController {
 			bundle: bundle
 		)
 		let controller = identifier.isEmpty ?
-		storyboard.instantiateInitialViewController() as! Self :
-		storyboard.instantiateViewController(withIdentifier: identifier) as! Self
+			storyboard.instantiateInitialViewController() as! Self :
+			storyboard.instantiateViewController(withIdentifier: identifier) as! Self
 		return controller
 	}
 
@@ -62,9 +62,10 @@ public extension NSObjectProtocol where Self: UIViewController {
 	 `let exampleScene = ExampleViewController.scene { $0.connect() }`
 	 */
 	static func scene<Action>(storyboardName: String = "",
-							  bundle: Bundle? = nil,
-							  identifier: String = "",
-							  connect: @escaping (Self) -> Observable<Action>) -> Scene<Action> {
+	                          bundle: Bundle? = nil,
+	                          identifier: String = "",
+	                          connect: @escaping (Self) -> Observable<Action>) -> Scene<Action>
+	{
 		build(storyboardName: storyboardName, bundle: bundle, identifier: identifier)
 			.scene(connect)
 	}
@@ -89,9 +90,10 @@ public extension NSObjectProtocol where Self: UIViewController {
 	 `let exampleViewController = ExampleViewController.create { $0.connect() }`
 	 */
 	static func create(storyboardName: String = "",
-					   bundle: Bundle? = nil,
-					   identifier: String = "",
-					   connect: @escaping (Self) -> Void) -> UIViewController {
+	                   bundle: Bundle? = nil,
+	                   identifier: String = "",
+	                   connect: @escaping (Self) -> Void) -> UIViewController
+	{
 		build(storyboardName: storyboardName, bundle: bundle, identifier: identifier)
 			.configure(connect)
 	}
@@ -141,10 +143,10 @@ public extension NSObjectProtocol where Self: UIViewController {
 
 public extension NSObjectProtocol {
 	/**
-	Can be used to setup a view controller before `viewDidLoad` is called. Can also be used to setup other UIKit objects.
-	- parameter fn: Closure that accepts the object.
-	- returns: The object.
-	*/
+	 Can be used to setup a view controller before `viewDidLoad` is called. Can also be used to setup other UIKit objects.
+	 - parameter fn: Closure that accepts the object.
+	 - returns: The object.
+	 */
 	@discardableResult
 	func setup(_ fn: (Self) -> Void) -> Self {
 		fn(self)

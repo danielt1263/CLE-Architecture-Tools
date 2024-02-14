@@ -8,14 +8,14 @@
 import Foundation
 import RxSwift
 
-extension ObservableConvertibleType {
+public extension ObservableConvertibleType {
 	/**
 	 Attaches this Observable to the provided activity indicator object.
 
 	 - parameter activityTracker: The ActivityTracker that this observable should be attached to.
 	 - returns: An Observable that forwards events from the source.
 	 */
-	public func trackActivity(_ activityTracker: ActivityTracker) -> Observable<Element> {
+	func trackActivity(_ activityTracker: ActivityTracker) -> Observable<Element> {
 		activityTracker.trackActivity(of: self)
 	}
 }

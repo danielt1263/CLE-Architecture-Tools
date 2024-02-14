@@ -5,10 +5,10 @@
 //  Copyright © 2023 Daniel Tartaglia. MIT License.
 //
 
+@testable import CLE_Tools
 import RxTest
 import Test_Tools
 import XCTest
-@testable import CLE_Tools
 
 final class BuffersTests: XCTestCase {
 	func test() {
@@ -18,7 +18,7 @@ final class BuffersTests: XCTestCase {
 			"1": ["A", "B"],
 			"2": ["C", "D"],
 			"3": ["E", "F"],
-			"4": []
+			"4": [],
 		])
 			.offsetTime(by: 200)
 		let actual = scheduler.start {
@@ -33,7 +33,7 @@ final class BuffersTests: XCTestCase {
 		let expected = parseTimeline("---1-----2---3|", values: [
 			"1": ["A", "B"],
 			"2": ["D", "E"],
-			"3": []
+			"3": [],
 		])
 			.offsetTime(by: 200)
 		let actual = scheduler.start {
@@ -48,7 +48,7 @@ final class BuffersTests: XCTestCase {
 		let expected = parseTimeline("-----1---2---3|", values: [
 			"1": ["A", "B", "C"],
 			"2": ["C", "D", "E"],
-			"3": ["E", "F"]
+			"3": ["E", "F"],
 		])
 			.offsetTime(by: 200)
 		let actual = scheduler.start {
@@ -64,7 +64,7 @@ final class BuffersTests: XCTestCase {
 			"1": ["A", "B"],
 			"2": ["C", "D"],
 			"3": ["E", "F"],
-			"4": []
+			"4": [],
 		])
 			.offsetTime(by: 200)
 		let actual = scheduler.start {
@@ -79,7 +79,7 @@ final class BuffersTests: XCTestCase {
 		let expected = parseTimeline("----1-----2--3|", values: [
 			"1": ["A", "B"],
 			"2": ["D", "E"],
-			"3": []
+			"3": [],
 		])
 			.offsetTime(by: 200)
 		let actual = scheduler.start {
@@ -94,7 +94,7 @@ final class BuffersTests: XCTestCase {
 		let expected = parseTimeline("------1---2--3|", values: [
 			"1": ["A", "B", "C"],
 			"2": ["C", "D", "E"],
-			"3": ["E", "F"]
+			"3": ["E", "F"],
 		])
 			.offsetTime(by: 200)
 		let actual = scheduler.start {

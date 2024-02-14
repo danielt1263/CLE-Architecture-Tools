@@ -6,22 +6,21 @@
 //  Copyright © 2023 Daniel Tartaglia. MIT License.
 //
 
-import UIKit
 import RxSwift
+import UIKit
 
 final class PhotosViewController: UIViewController {
+	@IBOutlet var collectionView: UICollectionView!
 
-	@IBOutlet weak var collectionView: UICollectionView!
-	
 	let disposeBag = DisposeBag()
 }
 
 final class PhotosViewCell: UICollectionViewCell {
-	@IBOutlet weak var imageView: UIImageView!
-	@IBOutlet weak var titleLabel: UILabel!
-	@IBOutlet weak var activityIndicatorView: UIActivityIndicatorView!
+	@IBOutlet var imageView: UIImageView!
+	@IBOutlet var titleLabel: UILabel!
+	@IBOutlet var activityIndicatorView: UIActivityIndicatorView!
 
-	private (set) var disposeBag = DisposeBag()
+	private(set) var disposeBag = DisposeBag()
 
 	override func prepareForReuse() {
 		super.prepareForReuse()

@@ -11,7 +11,6 @@ import Foundation
 import RxSwift
 
 enum SignupLogic {
-
 	static func signUp(
 		trigger: Observable<Void>,
 		firstName: Observable<String?>,
@@ -30,5 +29,4 @@ enum SignupLogic {
 			.withLatestFrom(signupParams)
 			.map { _ in .getUser(id: 1) }
 	}
-	
 }

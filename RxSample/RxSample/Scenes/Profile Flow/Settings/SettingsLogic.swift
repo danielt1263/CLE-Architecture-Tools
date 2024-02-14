@@ -10,11 +10,9 @@ import Foundation
 import RxSwift
 
 enum SettingsLogic {
-
 	static func dismiss(selected: Observable<IndexPath>) -> Observable<Void> {
 		selected
 			.filter { $0 == IndexPath(row: 0, section: 0) }
 			.map(to: ())
 	}
-
 }

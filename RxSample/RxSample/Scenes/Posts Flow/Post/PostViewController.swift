@@ -6,13 +6,12 @@
 //  Copyright © 2023 Daniel Tartaglia. MIT License.
 //
 
-import UIKit
 import RxSwift
+import UIKit
 
 final class PostViewController: UIViewController {
-
-	@IBOutlet weak var titleLabel: UILabel!
-	@IBOutlet weak var bodyLabel: UILabel!
+	@IBOutlet var titleLabel: UILabel!
+	@IBOutlet var bodyLabel: UILabel!
 
 	let disposeBag = DisposeBag()
 }

@@ -10,11 +10,9 @@ import Foundation
 import RxSwift
 
 enum ProfileLogic {
-
 	static func infoFor(user: Observable<User?>, keyPath: KeyPath<User, String>) -> Observable<String> {
 		user.map { $0.map { $0[keyPath: keyPath] } ?? "" }
 	}
-
 }
 
 extension User {

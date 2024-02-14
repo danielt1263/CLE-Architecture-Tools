@@ -10,10 +10,8 @@ import Foundation
 import RxSwift
 
 enum PostsLogic {
-
 	static func getPosts(trigger: Observable<Void>, user: Observable<User?>) -> Observable<User.ID> {
 		Observable.combineLatest(trigger.startWith(()), user)
 			.compactMap { $0.1?.id }
 	}
-
 }

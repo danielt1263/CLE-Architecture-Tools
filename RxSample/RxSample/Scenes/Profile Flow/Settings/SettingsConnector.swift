@@ -7,13 +7,12 @@
 //
 
 import Cause_Logic_Effect
-import UIKit
-import RxSwift
 import RxCocoa
+import RxSwift
+import UIKit
 
 extension SettingsViewController {
 	func connect() -> Observable<Void> {
-
 		user
 			.map { $0.map { "Logout \($0.username)" } ?? "Logout ..." }
 			.bind(to: accountCell.textLabel!.rx.text)

@@ -1,6 +1,6 @@
 //
 //  ReactionTests.swift
-//  
+//
 //  Created by Daniel Tartaglia on 30 Oct 2023.
 //  Copyright © 2023 Daniel Tartaglia. MIT License.
 //
@@ -87,6 +87,6 @@ final class ReactionTests: XCTestCase {
 
 struct State { }
 
-func action(state: State, input: Character) -> String? {
+func action(state _: State, input: Character) -> String? {
 	input == "X" ? nil : String(input)
 }

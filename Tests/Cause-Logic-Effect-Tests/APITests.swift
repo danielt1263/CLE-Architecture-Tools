@@ -52,7 +52,8 @@ final class APITests: XCTestCase {
 				onNext: { result = $0.mapError { $0 as! TestError } },
 				onError: { _ in
 					self.onErrorCalled = true
-				})
+				}
+			)
 		}
 		scheduler.start()
 
@@ -63,7 +64,6 @@ final class APITests: XCTestCase {
 	}
 
 	func testSuccessResponse() {
-		let fakeSource = scheduler.createObservable(timeline: "--E", values: ["A": Data()], errors: ["E": TestError(id: "E")])
 		let sut = API()
 		sut.setSource { _ in self.errorEmittingSource }
 

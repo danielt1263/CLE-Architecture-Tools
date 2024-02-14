@@ -8,17 +8,27 @@
 import Foundation
 import RxSwift
 
-public func cycle<State, Input, Environment>(inputs: [Observable<Input>], initialState: State, environment: Environment, reduce: @escaping (inout State, Input, Environment) -> Observable<Input>) -> Observable<State> {
-	Observable.using({ _Store(inputs: inputs, initial: initialState, environment: environment, reducer: reduce) }, observableFactory: { $0.state })
+public func cycle<State, Input, Environment>(inputs: [Observable<Input>],
+                                             initialState: State,
+                                             environment: Environment,
+                                             reduce: @escaping (inout State, Input, Environment) -> Observable<Input>)
+	-> Observable<State>
+{
+	Observable.using(
+		{ _Store(inputs: inputs, initial: initialState, environment: environment, reducer: reduce) },
+		observableFactory: { $0.state }
+	)
 }
 
 @available(*, deprecated, message: "Use cycle(inputs:initialState:environment:reduce:) instead")
 public final class Store<Action, State, Environment>: ObserverType {
-
 	public let state: Observable<State>
 
-	public init(initial: State, environment: Environment, reducer: @escaping (inout State, Action, Environment) -> Observable<Action>) {
-		state = action
+	public init(initial: State,
+	            environment: Environment,
+	            reducer: @escaping (inout State, Action, Environment) -> Observable<Action>)
+	{
+		self.state = action
 			.scan(into: initial) { [lock, action, disposeBag] in
 				reducer(&$0, $1, environment)
 					.subscribe(onNext: {
@@ -52,14 +62,17 @@ public final class Store<Action, State, Environment>: ObserverType {
 }
 
 private final class _Store<State, Input, Environment>: Disposable {
-
 	let state: Observable<State>
 	private let action = PublishSubject<Input>()
 	private let lock = NSRecursiveLock()
 	private var disposeBag = DisposeBag()
 
-	public init(inputs: [Observable<Input>], initial: State, environment: Environment, reducer: @escaping (inout State, Input, Environment) -> Observable<Input>) {
-		state = action
+	public init(inputs: [Observable<Input>],
+	            initial: State,
+	            environment: Environment,
+	            reducer: @escaping (inout State, Input, Environment) -> Observable<Input>)
+	{
+		self.state = action
 			.scan(into: initial) { [lock, action, disposeBag] in
 				reducer(&$0, $1, environment)
 					.subscribe(onNext: {

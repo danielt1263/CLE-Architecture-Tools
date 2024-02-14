@@ -12,7 +12,6 @@ import RxSwift
 import UIKit
 
 extension PhotoViewController {
-
 	func connect(url: URL) -> Observable<Never> {
 		let errorRouter = ErrorRouter()
 

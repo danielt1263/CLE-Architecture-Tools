@@ -33,7 +33,7 @@ public func cycle<State, Input>(
 }
 
 /**
- Helps set up a state machine. 
+ Helps set up a state machine.
 
  The `reaction`s attached to the machine will recieve the most recent input along with
  the state _before_ applying the input. The return observable however will emit the state _after_ applying the input.
@@ -125,8 +125,9 @@ public func cycle<State, Input>(
  - returns: An Observable that emits the outputs.
  */
 public func cycle<Output, Input>(input: Observable<Input>,
-								 logic: @escaping (Observable<Input>) -> Observable<Output>,
-								 effect: @escaping (Observable<Output>) -> Observable<Input>) -> Observable<Output> {
+                                 logic: @escaping (Observable<Input>) -> Observable<Output>,
+                                 effect: @escaping (Observable<Output>) -> Observable<Input>) -> Observable<Output>
+{
 	Observable.using(
 		Resource.build(PublishSubject<Input>()),
 		observableFactory: Resource.createObservable { disposeBag, subject in

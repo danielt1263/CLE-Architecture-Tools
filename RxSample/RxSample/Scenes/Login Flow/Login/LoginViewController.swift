@@ -10,12 +10,11 @@ import RxSwift
 import UIKit
 
 final class LoginViewController: UIViewController {
+	@IBOutlet var emailTextField: UITextField!
+	@IBOutlet var passwordTextField: UITextField!
+	@IBOutlet var loginButton: UIButton!
+	@IBOutlet var signupButton: UIButton!
+	@IBOutlet var activityIndicatorView: UIActivityIndicatorView!
 
-	@IBOutlet weak var emailTextField: UITextField!
-	@IBOutlet weak var passwordTextField: UITextField!
-	@IBOutlet weak var loginButton: UIButton!
-	@IBOutlet weak var signupButton: UIButton!
-	@IBOutlet weak var activityIndicatorView: UIActivityIndicatorView!
-	
 	let disposeBag = DisposeBag()
 }

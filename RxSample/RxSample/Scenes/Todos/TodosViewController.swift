@@ -10,7 +10,6 @@ import RxSwift
 import UIKit
 
 final class TodosViewController: UIViewController {
-
 	// IBOutlets go here
 
 	let disposeBag = DisposeBag()

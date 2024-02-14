@@ -5,8 +5,8 @@
 //  Copyright © 2023 Daniel Tartaglia. MIT License.
 //
 
-import RxSwift
 import Foundation
+import RxSwift
 
 /**
  An abstraction defining a server endpoint.
@@ -30,7 +30,10 @@ public final class API {
 	private let errorRouter: ErrorRouter
 	private var data: (URLRequest) -> Observable<Data>
 
-	public init(session: URLSession = .shared, activityTracker: ActivityTracker = ActivityTracker(), errorRouter: ErrorRouter = ErrorRouter()) {
+	public init(session: URLSession = .shared,
+	            activityTracker: ActivityTracker = ActivityTracker(),
+	            errorRouter: ErrorRouter = ErrorRouter())
+	{
 		self.activityTracker = activityTracker
 		self.errorRouter = errorRouter
 		self.data = session.rx.data(request:)
@@ -94,8 +97,8 @@ public final class API {
 	public func successResponse(_ endpoint: Endpoint<Void>) -> Observable<Bool> {
 		rawResponse(endpoint)
 			.do(onError: { [errorRouter] in errorRouter.routeError($0) })
-				.map(to: true)
-				.catch { _ in Observable.just(false) }
+			.map(to: true)
+			.catch { _ in Observable.just(false) }
 	}
 
 	/**
@@ -111,8 +114,8 @@ public final class API {
 	public func successResponse<T>(_ endpoint: Endpoint<T>) -> Observable<T?> {
 		rawResponse(endpoint)
 			.do(onError: { [errorRouter] in errorRouter.routeError($0) })
-				.map { Optional.some($0) }
-				.catch { _ in Observable.just(nil) }
+			.map { Optional.some($0) }
+			.catch { _ in Observable.just(nil) }
 	}
 
 	/**
@@ -159,15 +162,15 @@ public final class API {
 	}
 }
 
-extension Endpoint where Response: Decodable {
-	public init(request: URLRequest, decoder: DataDecoder) {
+public extension Endpoint where Response: Decodable {
+	init(request: URLRequest, decoder: DataDecoder) {
 		self.request = request
 		self.response = { try decoder.decode(Response.self, from: $0) }
 	}
 }
 
-extension Endpoint where Response == Void {
-	public init(request: URLRequest) {
+public extension Endpoint where Response == Void {
+	init(request: URLRequest) {
 		self.request = request
 		self.response = { _ in }
 	}

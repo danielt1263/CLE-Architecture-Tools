@@ -6,13 +6,12 @@
 //  Copyright © 2023 Daniel Tartaglia. MIT License.
 //
 
-import UIKit
 import RxSwift
+import UIKit
 
 final class SettingsViewController: UITableViewController {
-
-	@IBOutlet weak var doneButtonItem: UIBarButtonItem!
-	@IBOutlet weak var accountCell: UITableViewCell!
+	@IBOutlet var doneButtonItem: UIBarButtonItem!
+	@IBOutlet var accountCell: UITableViewCell!
 
 	let disposeBag = DisposeBag()
 }

@@ -17,7 +17,7 @@ let package = Package(
 		.package(
 			url: "https://github.com/ReactiveX/RxSwift.git",
 			.upToNextMajor(from: "6.0.0")
-		)
+		),
 	],
 	targets: [
 		.target(
@@ -41,7 +41,7 @@ let package = Package(
 			name: "Test-Tools",
 			dependencies: [
 				"RxSwift",
-				.productItem(name: "RxTest", package: "RxSwift")
+				.productItem(name: "RxTest", package: "RxSwift"),
 			],
 			path: "Tests/Test-Tools"
 		),
@@ -50,7 +50,7 @@ let package = Package(
 			dependencies: [
 				"Cause-Logic-Effect",
 				"Test-Tools",
-				.productItem(name: "RxTest", package: "RxSwift")
+				.productItem(name: "RxTest", package: "RxSwift"),
 			]
 		),
 		.testTarget(
@@ -59,7 +59,7 @@ let package = Package(
 				"Cause-Logic-Effect",
 				"CLE-Tools",
 				"Test-Tools",
-				.productItem(name: "RxTest", package: "RxSwift")
+				.productItem(name: "RxTest", package: "RxSwift"),
 			]
 		),
 	]

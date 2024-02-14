@@ -8,7 +8,7 @@
 import Foundation
 import RxSwift
 
-/**
+/* 
  The various reaction functions are used to create feedback reactions for the `cycle` functions. All of them take a
  closure defining a `Payload` and a closure defining an `effect` that will happen in response to a request. The general
  rule with all of them is that if the `request` closure returns an approprate value, the effect closure will receive
@@ -36,10 +36,11 @@ public struct Payload<State, Input, Action, Result> {
  - returns: A reaction assembled from the payload and effect.
  */
 public func mergable<S, I, A, R>(_ payload: Payload<S, I, A, R>,
-								 effect: @escaping (A) -> Observable<R>) -> Reaction<S, I> {
+                                 effect: @escaping (A) -> Observable<R>) -> Reaction<S, I>
+{
 	{ $0.compactMap(payload.action)
-			.flatMap { Observable.combineLatest(Observable.just($0), effect($0)) }
-			.map(payload.result)
+		.flatMap { Observable.combineLatest(Observable.just($0), effect($0)) }
+		.map(payload.result)
 	}
 }
 
@@ -53,9 +54,10 @@ public func mergable<S, I, A, R>(_ payload: Payload<S, I, A, R>,
  - returns: A reaction assembled from the payload and effect.
  */
 public func stoppable<S, I, A, R>(_ payload: Payload<S, I, A, R>,
-								  stopsOn: A? = nil,
-								  effect: @escaping (A) -> Observable<R>) -> Reaction<S, I>
-where A: Equatable {
+                                  stopsOn: A? = nil,
+                                  effect: @escaping (A) -> Observable<R>) -> Reaction<S, I>
+	where A: Equatable
+{
 	stoppable(payload, stopsOn: { $0 == stopsOn }, effect: effect)
 }
 
@@ -69,15 +71,16 @@ where A: Equatable {
  - returns: A reaction assembled from the payload and effect.
  */
 public func stoppable<S, I, A, R>(_ payload: Payload<S, I, A, R>,
-								  stopsOn: @escaping (A) -> Bool,
-								  effect: @escaping (A) -> Observable<R>) -> Reaction<S, I> {
+                                  stopsOn: @escaping (A) -> Bool,
+                                  effect: @escaping (A) -> Observable<R>) -> Reaction<S, I>
+{
 	{ $0.compactMap(payload.action)
-			.flatMapLatest { action in
-				stopsOn(action)
+		.flatMapLatest { action in
+			stopsOn(action)
 				? Observable<(A, R)>.empty()
 				: Observable.combineLatest(Observable.just(action), effect(action))
-			}
-			.map(payload.result)
+		}
+		.map(payload.result)
 	}
 }
 
@@ -90,12 +93,13 @@ public func stoppable<S, I, A, R>(_ payload: Payload<S, I, A, R>,
  - returns: A reaction assembled from the payload and effect.
  */
 public func ignorable<S, I, A, R>(_ payload: Payload<S, I, A, R>,
-								  effect: @escaping (A) -> Observable<R>) -> Reaction<S, I> {
+                                  effect: @escaping (A) -> Observable<R>) -> Reaction<S, I>
+{
 	{ $0.compactMap(payload.action)
-			.flatMapFirst {
-				Observable.combineLatest(Observable.just($0), effect($0))
-			}
-			.map(payload.result)
+		.flatMapFirst {
+			Observable.combineLatest(Observable.just($0), effect($0))
+		}
+		.map(payload.result)
 	}
 }
 
@@ -108,12 +112,13 @@ public func ignorable<S, I, A, R>(_ payload: Payload<S, I, A, R>,
  - returns: A reaction assembled from the payload and effect.
  */
 public func stackable<S, I, A, R>(_ payload: Payload<S, I, A, R>,
-								  effect: @escaping (A) -> Observable<R>) -> Reaction<S, I> {
+                                  effect: @escaping (A) -> Observable<R>) -> Reaction<S, I>
+{
 	{ $0.compactMap(payload.action)
-			.concatMap {
-				Observable.combineLatest(Observable.just($0), effect($0))
-			}
-			.map(payload.result)
+		.concatMap {
+			Observable.combineLatest(Observable.just($0), effect($0))
+		}
+		.map(payload.result)
 	}
 }
 
@@ -171,7 +176,7 @@ public func reaction<State, Request, Input>(
  */
 public func reaction<State, Input>(
 	request: @escaping (State, Input) -> Bool,
-	effect: @escaping (Observable<()>) -> Observable<Input>
+	effect: @escaping (Observable<Void>) -> Observable<Input>
 ) -> Reaction<State, Input> {
 	{ effect($0.map(request).filter { $0 }.map { _ in }) }
 }

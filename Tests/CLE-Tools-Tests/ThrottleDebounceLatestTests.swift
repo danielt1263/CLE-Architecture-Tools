@@ -5,10 +5,10 @@
 //  Copyright © 2023 Daniel Tartaglia. MIT License.
 //
 
+@testable import CLE_Tools
 import RxTest
 import Test_Tools
 import XCTest
-@testable import CLE_Tools
 
 class ThrottleDebounceLatestTests: XCTestCase {
 	func test() {

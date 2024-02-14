@@ -6,8 +6,8 @@
 //
 
 import Cause_Logic_Effect
-import Test_Tools
 import RxTest
+import Test_Tools
 import XCTest
 
 final class ActivityTrackerTests: XCTestCase {
@@ -33,7 +33,7 @@ final class ActivityTrackerTests: XCTestCase {
 
 	func test1() {
 		let scheduler = TestScheduler(initialClock: 0)
-		let source = scheduler.createObservable(timeline:  "--A|")
+		let source = scheduler.createObservable(timeline: "--A|")
 		let expected = parseTimeline("FT---F", values: { $0 == "T" })
 		let result = scheduler.createObserver(Bool.self)
 		let activityTracker = ActivityTracker()
@@ -59,7 +59,7 @@ final class ActivityTrackerTests: XCTestCase {
 
 	func test2() {
 		let scheduler = TestScheduler(initialClock: 0)
-		let source = scheduler.createObservable(timeline:  "--A|")
+		let source = scheduler.createObservable(timeline: "--A|")
 		let expected = parseTimeline("FT-FT-F", values: { $0 == "T" })
 		let result = scheduler.createObserver(Bool.self)
 		let activityTracker = ActivityTracker()

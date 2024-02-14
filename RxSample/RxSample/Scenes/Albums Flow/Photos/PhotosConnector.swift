@@ -6,13 +6,12 @@
 //  Copyright © 2023 Daniel Tartaglia. MIT License.
 //
 
-import UIKit
-import RxSwift
 import RxCocoa
+import RxSwift
+import UIKit
 
 extension PhotosViewController {
 	func connect(with album: Album) -> Observable<URL> {
-
 		let photos = Observable.just(album.id)
 			.flatMapLatest {
 				api.response(.getPhotos(id: $0))

@@ -6,12 +6,11 @@
 //  Copyright © 2023 Daniel Tartaglia. MIT License.
 //
 
-import UIKit
-import RxSwift
 import RxCocoa
+import RxSwift
+import UIKit
 
 extension UISplitViewController {
-
 	func connect() {
 		delegate = SplitViewControllerDelegate.instance
 
@@ -20,7 +19,12 @@ extension UISplitViewController {
 			.configure {
 				let imageView = apply(UIImageView()) {
 					$0.image = UIImage(named: "EmptyViewBackground")
-					$0.autoresizingMask = [.flexibleLeftMargin, .flexibleTopMargin, .flexibleRightMargin, .flexibleBottomMargin]
+					$0.autoresizingMask = [
+						.flexibleLeftMargin,
+						.flexibleTopMargin,
+						.flexibleRightMargin,
+						.flexibleBottomMargin,
+					]
 					$0.sizeToFit()
 				}
 

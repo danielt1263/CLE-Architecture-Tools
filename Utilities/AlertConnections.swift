@@ -35,10 +35,11 @@ public extension UIAlertController {
 	 Cancel) and complete when the user taps the button.
 	 */
 	func connectChoice<T>(choices: [T],
-						  description: (T) -> String = { String(describing: $0) },
-						  cancelTitle: String = "",
-						  customizeActions: @escaping (UIAlertAction) -> Void = { _ in },
-						  customizeCancel: @escaping (UIAlertAction) -> Void = { _ in }) -> Observable<T?> {
+	                      description: (T) -> String = { String(describing: $0) },
+	                      cancelTitle: String = "",
+	                      customizeActions: @escaping (UIAlertAction) -> Void = { _ in },
+	                      customizeCancel: @escaping (UIAlertAction) -> Void = { _ in }) -> Observable<T?>
+	{
 		let buttons = choices.map { choice in
 			ButtonType<T?>(
 				title: description(choice),
@@ -47,14 +48,14 @@ public extension UIAlertController {
 			)
 		}
 		let cancel = cancelTitle.isEmpty ? [] : [
-			ButtonType<T?>(title: cancelTitle, style: .cancel, action: { _ in nil }, customize: customizeCancel)
+			ButtonType<T?>(title: cancelTitle, style: .cancel, action: { _ in nil }, customize: customizeCancel),
 		]
 		return connect(buttons: buttons + cancel)
 	}
 }
 
-extension UIAlertController {
-	public struct ButtonType<Action> {
+public extension UIAlertController {
+	struct ButtonType<Action> {
 		public let title: String
 		public let style: UIAlertAction.Style
 		public let action: ([String]) -> Action
@@ -71,9 +72,10 @@ extension UIAlertController {
 		 necessary.
 		 */
 		public init(title: String,
-					style: UIAlertAction.Style = .default,
-					action: @escaping ([String]) -> Action,
-					customize: @escaping (UIAlertAction) -> Void = { _ in }) {
+		            style: UIAlertAction.Style = .default,
+		            action: @escaping ([String]) -> Action,
+		            customize: @escaping (UIAlertAction) -> Void = { _ in })
+		{
 			self.title = title
 			self.style = style
 			self.action = action
@@ -92,8 +94,9 @@ extension UIAlertController {
 	 - returns: An Observable that will emit a next event with the result of calling the `action` closure associated
 	 with the button tapped and then complete.
 	 */
-	public func connect<Action>(buttons: [ButtonType<Action>] = [],
-								fields: [(UITextField) -> Void] = []) -> Observable<Action> {
+	func connect<Action>(buttons: [ButtonType<Action>] = [],
+	                     fields: [(UITextField) -> Void] = []) -> Observable<Action>
+	{
 		Observable.create { observer in
 			let alertActions = buttons.map { button in
 				let action = UIAlertAction(title: button.title, style: button.style) { _ in

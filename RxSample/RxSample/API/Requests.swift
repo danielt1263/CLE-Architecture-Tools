@@ -55,12 +55,12 @@ extension Endpoint where Response == User {
 				let loginResult = arc4random() % 5 == 0 ? false : true
 				guard loginResult == true else { throw AuthenticationError.invalidCredentials }
 				return try jsonDecoder.decode(User.self, from: $0)
-			})
+			}
+		)
 	}
 }
 
 extension URLRequest {
-
 	static func getPhotos(forAlbumId id: Int) -> URLRequest {
 		var components = URLComponents(string: baseURLString)!
 		components.path = "/photos"

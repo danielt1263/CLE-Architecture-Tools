@@ -6,13 +6,12 @@
 //  Copyright © 2023 Daniel Tartaglia. MIT License.
 //
 
-import UIKit
 import RxSwift
+import UIKit
 
 final class PhotoViewController: UIViewController {
+	@IBOutlet var imageView: UIImageView!
+	@IBOutlet var activityIndicatorView: UIActivityIndicatorView!
 
-	@IBOutlet weak var imageView: UIImageView!
-	@IBOutlet weak var activityIndicatorView: UIActivityIndicatorView!
-	
 	let disposeBag = DisposeBag()
 }

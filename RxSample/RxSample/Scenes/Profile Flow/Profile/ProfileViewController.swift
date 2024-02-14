@@ -6,20 +6,20 @@
 //  Copyright © 2023 Daniel Tartaglia. MIT License.
 //
 
-import UIKit
 import RxSwift
+import UIKit
 
 final class ProfileViewController: UIViewController {
-
-	@IBOutlet weak var settingsButtonItem: UIBarButtonItem!
-	@IBOutlet weak var avatarView: UIView! {
+	@IBOutlet var settingsButtonItem: UIBarButtonItem!
+	@IBOutlet var avatarView: UIView! {
 		didSet {
 			avatarView.layer.cornerRadius = 35
 		}
 	}
-	@IBOutlet weak var avatarLabel: UILabel!
-	@IBOutlet weak var nameLabel: UILabel!
-	@IBOutlet weak var usernameLabel: UILabel!
+
+	@IBOutlet var avatarLabel: UILabel!
+	@IBOutlet var nameLabel: UILabel!
+	@IBOutlet var usernameLabel: UILabel!
 
 	let disposeBag = DisposeBag()
 }
