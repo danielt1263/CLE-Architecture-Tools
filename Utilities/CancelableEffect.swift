@@ -1,5 +1,5 @@
 //
-//  CancellableEffect.swift
+//  CancelableEffect.swift
 //
 //
 //  Created by Daniel Tartaglia on 13 Nov 2021.
@@ -11,7 +11,7 @@ import Foundation
 import RxSwift
 
 /**
- The operators here can be used to make a cancellable effect for a Reaction. You must provide an `id` of some
+ The operators here can be used to make a cancelable effect for a Reaction. You must provide an `id` of some
  `Hashable` type.
  */
 public extension ObservableType {
@@ -32,14 +32,14 @@ public extension ObservableType {
 	}
 
 	/**
-	 Adding the `cancellable` operator to an effect will give it an `id` which can be used with
+	 Adding the `cancelable` operator to an effect will give it an `id` which can be used with
 	 `cancel(id:)`.
 
 	 - parameter id: The identifier of the effect for later possible cancelation.
 	 - parameter cancelInFlight: If true, all effect that are currently in flight with this `id` will be
 	 canceled before this effect starts.
 	 */
-	func cancellable(id: AnyHashable, cancelInFlight: Bool = false) -> Observable<Element> {
+	func cancelable(id: AnyHashable, cancelInFlight: Bool = false) -> Observable<Element> {
 		Observable.deferred {
 			if cancelInFlight {
 				disposeBagsLock.sync {
