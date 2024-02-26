@@ -97,20 +97,20 @@ public extension UIAlertController {
 	func connect<Action>(buttons: [ButtonType<Action>] = [],
 	                     fields: [(UITextField) -> Void] = []) -> Observable<Action>
 	{
-		Observable.create { observer in
+		Observable.create { [weak self] observer in
 			let alertActions = buttons.map { button in
 				let action = UIAlertAction(title: button.title, style: button.style) { _ in
-					let texts = (self.textFields ?? []).map { $0.text ?? "" }
+					let texts = (self?.textFields ?? []).map { $0.text ?? "" }
 					observer.onSuccess(button.action(texts))
 				}
 				button.customize(action)
 				return action
 			}
 			for field in fields {
-				self.addTextField(configurationHandler: field)
+				self?.addTextField(configurationHandler: field)
 			}
 			for alertAction in alertActions {
-				self.addAction(alertAction)
+				self?.addAction(alertAction)
 			}
 			return Disposables.create()
 		}
