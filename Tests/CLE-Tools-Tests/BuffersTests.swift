@@ -102,4 +102,23 @@ final class BuffersTests: XCTestCase {
 		}
 		XCTAssertEqual(actual.events, expected[0])
 	}
+
+	func test6() {
+		let scheduler = TestScheduler(initialClock: 0)
+		let source = scheduler.createObservable(timeline: "-A-B-C-D-A-B-|", values: [
+			"A": "Apple",
+			"B": "Ball",
+			"C": "Cat",
+			"D": "Dog",
+		])
+		let result = scheduler.start {
+			source.buffer(shouldInclude: { $0.map(\.count).reduce(0, +) + $1.count <= 10 })
+		}
+		let expected = parseTimeline("-----A---B--C|", values: [
+			"A": ["Apple", "Ball"],
+			"B": ["Cat", "Dog"],
+			"C": ["Apple", "Ball"],
+		]).offsetTime(by: 200)
+		XCTAssertEqual(result.events, expected[0])
+	}
 }

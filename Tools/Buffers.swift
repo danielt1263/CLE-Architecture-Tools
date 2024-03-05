@@ -9,6 +9,29 @@ import Foundation
 import RxSwift
 
 extension ObservableType {
+	func buffer(shouldInclude: @escaping ([Element], Element) -> Bool) -> Observable<[Element]> {
+		materialize()
+			.scan(into: (buf: [Element](), emit: [Element]())) { state, event in
+				switch event {
+				case let .next(element):
+					if shouldInclude(state.buf, element) {
+						state.buf.append(element)
+						state.emit = []
+					}
+					else {
+						state.emit = state.buf
+						state.buf = [element]
+					}
+				case let .error(error):
+					throw error
+				case .completed:
+					state.emit = state.buf
+					state.buf = []
+				}
+			}
+			.filter { !$1.isEmpty }
+			.map { $1 }
+	}
 
 	/**
 	 Projects elements from an observable sequence into a buffer that's sent out when its full and then every `skip`
@@ -21,10 +44,12 @@ extension ObservableType {
 	 - returns: An observable sequence of buffers.
 	 */
 	func buffer(count: Int, skip: Int) -> Observable<[Element]> {
-		precondition(skip > 0, "The `skip` parameter cannot be less than or equal to zero. If you want to use a value of zero (i.e. each buffer contains all values), then consider using the `scan` method instead with an Array<T> as the accumulator.")
+		precondition(
+			skip > 0,
+			"The `skip` parameter cannot be less than or equal to zero. If you want to use a value of zero (i.e. each buffer contains all values), then consider using the `scan` method instead with an Array<T> as the accumulator."
+		)
 
-		return self
-			.materialize()
+		return materialize()
 			.scan(into: (buf: [Element](), step: count, trigger: false)) { prev, event in
 				switch event {
 				case let .next(value):
@@ -49,7 +74,6 @@ extension ObservableType {
 }
 
 extension ObservableType {
-
 	/**
 	 Projects elements from an observable sequence into a buffer that's sent out after `timeSpan` and then every
 	 `timeShift` seconds.
@@ -61,8 +85,13 @@ extension ObservableType {
 	 - parameter scheduler: Scheduler to run timers on.
 	 - returns: An observable sequence of buffers.
 	 */
-	func buffer(timeSpan: RxTimeInterval, timeShift: RxTimeInterval, scheduler: SchedulerType) -> Observable<[Element]> {
-		precondition(timeShift.asTimeInterval > 0, "The `timeShift` parameter cannot be less than or equal to zero. If you want to use a value of zero (i.e. each buffer contains all values), then consider using the `scan` method instead with an Array<T> as the accumulator.")
+	func buffer(timeSpan: RxTimeInterval, timeShift: RxTimeInterval,
+	            scheduler: SchedulerType) -> Observable<[Element]>
+	{
+		precondition(
+			timeShift.asTimeInterval > 0,
+			"The `timeShift` parameter cannot be less than or equal to zero. If you want to use a value of zero (i.e. each buffer contains all values), then consider using the `scan` method instead with an Array<T> as the accumulator."
+		)
 		return Observable.create { observer in
 			var buf: [Date: Element] = [:]
 			var lastEmit: Date?
@@ -74,7 +103,9 @@ extension ObservableType {
 				case let .next(element):
 					buf[now] = element
 				case .completed:
-					let span = now.timeIntervalSince(lastEmit ?? .distantPast) + timeSpan.asTimeInterval - timeShift.asTimeInterval
+					let span = now.timeIntervalSince(lastEmit ?? .distantPast)
+						+ timeSpan.asTimeInterval
+						- timeShift.asTimeInterval
 					let buffer = buf
 						.filter { $0.key > now.addingTimeInterval(-span) }
 						.sorted(by: { $0.key <= $1.key })
@@ -85,19 +116,24 @@ extension ObservableType {
 					observer.onError(error)
 				}
 			}
-			let schedulerDisposable = scheduler.schedulePeriodic((), startAfter: timeSpan, period: timeShift, action: { state in
-				lock.lock(); defer { lock.unlock() }
-				let now = scheduler.now
-				buf = buf.filter { $0.key > now.addingTimeInterval(-timeSpan.asTimeInterval) }
-				observer.onNext(buf.sorted(by: { $0.key <= $1.key }).map { $0.value })
-				lastEmit = now
-			})
+			let schedulerDisposable = scheduler.schedulePeriodic(
+				(),
+				startAfter: timeSpan,
+				period: timeShift,
+				action: { _ in
+					lock.lock(); defer { lock.unlock() }
+					let now = scheduler.now
+					buf = buf.filter { $0.key > now.addingTimeInterval(-timeSpan.asTimeInterval) }
+					observer.onNext(buf.sorted(by: { $0.key <= $1.key }).map { $0.value })
+					lastEmit = now
+				}
+			)
 			return Disposables.create([schedulerDisposable, bufferDispoable])
 		}
-	}}
+	}
+}
 
 extension ObservableType {
-
 	/**
 	 Projects elements from an observable sequence into a buffer that's sent out when the boundary sequence fires. Then it emits the elements as an array and begins collecting again.
 
@@ -142,10 +178,10 @@ extension ObservableType {
 private extension RxTimeInterval {
 	var asTimeInterval: TimeInterval {
 		switch self {
-		case .nanoseconds(let val): return Double(val) / 1_000_000_000.0
-		case .microseconds(let val): return Double(val) / 1_000_000.0
-		case .milliseconds(let val): return Double(val) / 1_000.0
-		case .seconds(let val): return Double(val)
+		case let .nanoseconds(val): return Double(val) / 1_000_000_000.0
+		case let .microseconds(val): return Double(val) / 1_000_000.0
+		case let .milliseconds(val): return Double(val) / 1000.0
+		case let .seconds(val): return Double(val)
 		case .never: return Double.infinity
 		default: fatalError()
 		}
