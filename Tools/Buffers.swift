@@ -32,12 +32,14 @@ extension ObservableType {
 			.filter { !$1.isEmpty }
 			.map { $1 }
 	}
+}
 
+extension ObservableType {
 	/**
 	 Projects elements from an observable sequence into a buffer that's sent out when its full and then every `skip`
 	 elements.
 
-	 - seealso: [overlapping buffers in Introduction to Rx](http://introtorx.com/Content/v1.0.10621.0/13_TimeShiftedSequences.html#OverlappingBuffersByCount)
+	 - seealso: [overlapping buffers in Introduction to Rx](https://introtorx.com/chapters/partitioning#OverlappingBuffers)
 
 	 - parameter count: Size of the array of elements that will be produced in each event.
 	 - parameter skip: Number of elements that must emit from the source before the buffer emits.
@@ -78,7 +80,7 @@ extension ObservableType {
 	 Projects elements from an observable sequence into a buffer that's sent out after `timeSpan` and then every
 	 `timeShift` seconds.
 
-	 - seealso: [overlapping buffers in Introduction to Rx](http://introtorx.com/Content/v1.0.10621.0/13_TimeShiftedSequences.html#OverlappingBuffersByTime)
+	 - seealso: [overlapping buffers in Introduction to Rx](https://introtorx.com/chapters/partitioning#OverlappingBuffers)
 
 	 - parameter timeSpan: The amount of time the operator will spend gathering events.
 	 - parameter timeShift: The amount of time that must pass before the buffer emits.
@@ -170,6 +172,57 @@ extension ObservableType {
 						break
 					}
 				}
+			return CompositeDisposable(source, trigger)
+		}
+	}
+}
+
+extension Observable {
+	/**
+	 Projects elements from an observable sequence into a buffer that's sent out when the isCollecting sequence's latest value was `true`.
+
+	 - parameter isCollecting: Sequence that switches the buffering behavior.
+	 - returns: Array of elements observable sequence.
+	 */
+	func buffer<O>(isCollecting boundary: O) -> Observable<[Element]> where O: ObservableConvertibleType, O.Element == Bool {
+		Observable<[Element]>.create { observer in
+			var buffer = [Element]()
+			var isCollecting = false
+			let lock = NSRecursiveLock()
+			let source = self.subscribe { event in
+				lock.lock(); defer { lock.unlock() }
+				switch event {
+				case let .next(element):
+					if isCollecting {
+						buffer.append(element)
+					} else {
+						observer.onNext([element])
+					}
+				case let .error(error):
+					observer.onError(error)
+				case .completed:
+					observer.onNext(buffer)
+					observer.onCompleted()
+				}
+			}
+
+			let trigger = boundary.asObservable().subscribe { event in
+				lock.lock(); defer { lock.unlock() }
+				switch event {
+				case let .next(element):
+					if isCollecting && !element {
+						observer.onNext(buffer)
+					}
+					isCollecting = element
+				case let .error(error):
+					observer.onError(error)
+				case .completed:
+					if isCollecting {
+						observer.onNext(buffer)
+					}
+					observer.onCompleted()
+				}
+			}
 			return CompositeDisposable(source, trigger)
 		}
 	}
