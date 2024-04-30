@@ -9,19 +9,6 @@ import Foundation
 import RxSwift
 
 /**
- An abstraction defining a server endpoint.
- */
-public struct Endpoint<Response> {
-	public let request: URLRequest
-	public let response: (Data) throws -> Response
-
-	public init(request: URLRequest, response: @escaping (Data) throws -> Response) {
-		self.request = request
-		self.response = response
-	}
-}
-
-/**
  A high level abstraction around URLSession for making requests, tracking network activity and handling
  errors.
  */
@@ -159,19 +146,5 @@ public final class API {
 	 */
 	public func setSource(_ data: @escaping (URLRequest) -> Observable<Data>) {
 		self.data = data
-	}
-}
-
-public extension Endpoint where Response: Decodable {
-	init(request: URLRequest, decoder: DataDecoder) {
-		self.request = request
-		self.response = { try decoder.decode(Response.self, from: $0) }
-	}
-}
-
-public extension Endpoint where Response == Void {
-	init(request: URLRequest) {
-		self.request = request
-		self.response = { _ in }
 	}
 }
