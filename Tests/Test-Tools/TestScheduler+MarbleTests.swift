@@ -65,6 +65,7 @@ public extension TestScheduler {
 		var attemptCount = 0
 		return Observable.deferred {
 			defer { attemptCount += 1 }
+			guard !events.isEmpty else { return .never() }
 			return self.createColdObservable(events[attemptCount % events.count])
 				.asObservable()
 		}
@@ -228,6 +229,7 @@ public func parseTimelineEvents<T>(
 	errors: (String.Element) -> Error? = { _ in nil },
 	defaultError: Error = NSError(domain: "Test Domain", code: -1, userInfo: nil)
 ) -> [[Recorded<Event<T>>]] {
+	guard !timeline.isEmpty else { return [[]] }
 	return timeline.reduce(into: EventsAndTimeState<T>()) { state, char in
 		if state.tick == 0 {
 			state.output.append([])
