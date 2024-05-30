@@ -17,14 +17,14 @@ public struct GraphQLOperation<Input, Response> {
 	}
 }
 
-public struct GraphQLErrors: Error, Decodable {
-	public struct GraphQLError: Decodable {
+public struct GraphQLErrors: Error, Decodable, Equatable {
+	public struct GraphQLError: Decodable, Equatable {
 		public let message: String
 		public let locations: [GraphQLLocation]
 		public let path: [String]?
 	}
 
-	public struct GraphQLLocation: Decodable {
+	public struct GraphQLLocation: Decodable, Equatable {
 		public let line: Int
 		public let column: Int
 	}
@@ -45,13 +45,10 @@ func createRequest<Body>(url: URL, body: Body, authorization: String) -> URLRequ
 }
 
 func parseGraphQLResponse<Response>(data: Data) throws -> Response where Response: Decodable {
-	if let response = try? JSONDecoder().decode(GraphQLResponse<Response>.self, from: data).data {
-		return response
-	}
 	if let error = try? JSONDecoder().decode(GraphQLErrors.self, from: data) {
 		throw error
 	}
-	fatalError("Error parsing response: \(String(data: data, encoding: .utf8)!)")
+	return try JSONDecoder().decode(GraphQLResponse<Response>.self, from: data).data
 }
 
 struct GraphQLBody<Input>: Encodable where Input: Encodable {
