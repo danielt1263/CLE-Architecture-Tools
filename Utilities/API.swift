@@ -27,7 +27,7 @@ public final class API {
 	}
 
 	/**
-	 All requests thta fail (except for those made with `rawRequest` will have their errors routed to this
+	 All requests that fail (except for those made with `rawRequest` will have their errors routed to this
 	 Observable.
 	 */
 	public var error: Observable<Error> {
